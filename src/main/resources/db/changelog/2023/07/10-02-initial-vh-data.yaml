@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10-01_01
+      author: hao.doanvonhut
+      changes:
+        - sqlFile:
+            endDelimiter: //
+            splitStatements: true
+            path: db/data/20230710/vh_data.sql
+            stripComments: true
+      comment: Initial its schema
