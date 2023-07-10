@@ -1,0 +1,10 @@
+#Config database
+spring:
+  datasource:
+    password: 123456
+    url: jdbc:postgresql://host.docker.internal:5433/vocahype?stringtype=unspecified
+    username: its
+
+  liquibase:
+    contexts: run
+    enabled: true
