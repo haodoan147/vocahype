@@ -1,0 +1,6 @@
+#Config database
+spring:
+  datasource:
+    password: nYSQvdfsj6G0dKRpbLgScDJzqBccfPfe
+    url: jdbc:postgresql://john.db.elephantsql.com:5432/uesimvzx?stringtype=unspecified
+    username: uesimvzx

@@ -23,7 +23,7 @@ SET row_security = off;
 CREATE SCHEMA IF NOT EXISTS vh;
 
 
-ALTER SCHEMA vh OWNER TO vh;
+ALTER SCHEMA vh OWNER TO uesimvzx;
 
 CREATE EXTENSION IF NOT EXISTS citext schema vh;
 
@@ -44,7 +44,6 @@ CREATE SEQUENCE IF NOT EXISTS vh.role_id_seq
 
 CREATE TABLE IF NOT EXISTS vh.role (
     id integer NOT NULL DEFAULT nextval('vh.role_id_seq'::regclass),
-    bitmask integer NOT NULL,
     title text NOT NULL,
     created_on timestamp with time zone DEFAULT now() NOT NULL,
     updated_on timestamp with time zone,
@@ -52,10 +51,10 @@ CREATE TABLE IF NOT EXISTS vh.role (
     );
 
 
-ALTER TABLE vh.role OWNER TO vh;
+ALTER TABLE vh.role OWNER TO uesimvzx;
 
 
-ALTER TABLE vh.role_id_seq OWNER TO vh;
+ALTER TABLE vh.role_id_seq OWNER TO uesimvzx;
 
 --
 -- Name: role_id_seq; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
@@ -69,7 +68,7 @@ ALTER SEQUENCE vh.role_id_seq OWNED BY vh.role.id;
 --
 
 CREATE SEQUENCE IF NOT EXISTS vh.seq_id_users
-    START WITH 600000
+    START WITH 100000
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
@@ -82,7 +81,7 @@ CREATE SEQUENCE IF NOT EXISTS vh.seq_id_users
 CREATE TABLE IF NOT EXISTS vh.users (
     id integer NOT NULL DEFAULT nextval('vh.seq_id_users'::regclass),
     role_id integer DEFAULT 1 NOT NULL,
-    login_name vh.citext NOT NULL,
+    login_name public.citext NOT NULL,
     secret text,
     encryption character varying(16) DEFAULT 'None'::character varying,
     first_name text DEFAULT ''::text NOT NULL,
@@ -100,10 +99,10 @@ CREATE TABLE IF NOT EXISTS vh.users (
     );
 
 
-ALTER TABLE vh.users OWNER TO vh;
+ALTER TABLE vh.users OWNER TO uesimvzx;
 
 
-ALTER TABLE vh.seq_id_users OWNER TO vh;
+ALTER TABLE vh.seq_id_users OWNER TO uesimvzx;
 
 --
 -- Name: seq_id_users; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
@@ -111,3 +110,40 @@ ALTER TABLE vh.seq_id_users OWNER TO vh;
 
 ALTER SEQUENCE vh.seq_id_users OWNED BY vh.users.id;
 
+
+--
+-- Name: seq_id_word; Type: SEQUENCE; Schema: vh; Owner: vh
+--
+
+CREATE SEQUENCE IF NOT EXISTS vh.seq_id_word
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: word; Type: TABLE; Schema: vh; Owner: vh
+--
+
+CREATE TABLE IF NOT EXISTS vh.word (
+                                        id integer NOT NULL DEFAULT nextval('vh.seq_id_word'::regclass),
+                                        word text NOT NULL,
+                                        count bigint NOT NULL,
+                                        point double precision,
+                                        created_on timestamp with time zone DEFAULT now() NOT NULL,
+                                        updated_on timestamp with time zone,
+                                        CONSTRAINT word_pkey PRIMARY KEY (id)
+);
+
+
+ALTER TABLE vh.word OWNER TO uesimvzx;
+
+
+ALTER TABLE vh.seq_id_word OWNER TO uesimvzx;
+
+--
+-- Name: seq_id_word; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
+--
+
+ALTER SEQUENCE vh.seq_id_word OWNED BY vh.word.id;

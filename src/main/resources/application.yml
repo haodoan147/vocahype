@@ -1,10 +1,11 @@
 #Config database
 spring:
   datasource:
-    password: 123456
-    url: jdbc:postgresql://host.docker.internal:5433/vocahype?stringtype=unspecified
-    username: its
+    password: nYSQvdfsj6G0dKRpbLgScDJzqBccfPfe
+    url: jdbc:postgresql://john.db.elephantsql.com:5432/uesimvzx?stringtype=unspecified
+    username: uesimvzx
 
   liquibase:
     contexts: run
     enabled: true
+    default-schema: vh
