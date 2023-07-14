@@ -23,9 +23,9 @@ SET row_security = off;
 CREATE SCHEMA IF NOT EXISTS vh;
 
 
-ALTER SCHEMA vh OWNER TO uesimvzx;
+ALTER SCHEMA vh OWNER TO bycvomrhrsncob;
 
-CREATE EXTENSION IF NOT EXISTS citext schema vh;
+CREATE EXTENSION IF NOT EXISTS citext schema heroku_ext;
 
 --
 -- Name: role_id_seq; Type: SEQUENCE; Schema: vh; Owner: vh
@@ -51,10 +51,10 @@ CREATE TABLE IF NOT EXISTS vh.role (
     );
 
 
-ALTER TABLE vh.role OWNER TO uesimvzx;
+ALTER TABLE vh.role OWNER TO bycvomrhrsncob;
 
 
-ALTER TABLE vh.role_id_seq OWNER TO uesimvzx;
+ALTER TABLE vh.role_id_seq OWNER TO bycvomrhrsncob;
 
 --
 -- Name: role_id_seq; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
@@ -81,7 +81,7 @@ CREATE SEQUENCE IF NOT EXISTS vh.seq_id_users
 CREATE TABLE IF NOT EXISTS vh.users (
     id integer NOT NULL DEFAULT nextval('vh.seq_id_users'::regclass),
     role_id integer DEFAULT 1 NOT NULL,
-    login_name public.citext NOT NULL,
+    login_name heroku_ext.citext NOT NULL,
     secret text,
     encryption character varying(16) DEFAULT 'None'::character varying,
     first_name text DEFAULT ''::text NOT NULL,
@@ -99,10 +99,10 @@ CREATE TABLE IF NOT EXISTS vh.users (
     );
 
 
-ALTER TABLE vh.users OWNER TO uesimvzx;
+ALTER TABLE vh.users OWNER TO bycvomrhrsncob;
 
 
-ALTER TABLE vh.seq_id_users OWNER TO uesimvzx;
+ALTER TABLE vh.seq_id_users OWNER TO bycvomrhrsncob;
 
 --
 -- Name: seq_id_users; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
@@ -137,10 +137,10 @@ CREATE TABLE IF NOT EXISTS vh.word (
 );
 
 
-ALTER TABLE vh.word OWNER TO uesimvzx;
+ALTER TABLE vh.word OWNER TO bycvomrhrsncob;
 
 
-ALTER TABLE vh.seq_id_word OWNER TO uesimvzx;
+ALTER TABLE vh.seq_id_word OWNER TO bycvomrhrsncob;
 
 --
 -- Name: seq_id_word; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
