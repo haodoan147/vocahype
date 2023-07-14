@@ -80,7 +80,7 @@
 				<configuration>
 					<webResources>
 						<resource>
-							<directory>target/additional_resources</directory>
+							<directory>target</directory>
 						</resource>
 					</webResources>
 				</configuration>
