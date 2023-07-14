@@ -1,7 +1,7 @@
 #Config database
 spring:
   datasource:
-    password: nYSQvdfsj6G0dKRpbLgScDJzqBccfPfe
+    password: O6PKvRZSyBbRWrzWEag7teV0g9iWd6pe
     url: jdbc:postgresql://john.db.elephantsql.com:5432/uesimvzx?stringtype=unspecified
     username: uesimvzx
 
@@ -9,3 +9,4 @@ spring:
     contexts: run
     enabled: true
     default-schema: vh
+    liquibase-schema: public
