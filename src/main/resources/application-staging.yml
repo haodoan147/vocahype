@@ -1,6 +1,6 @@
 #Config database
 spring:
   datasource:
-    password: O6PKvRZSyBbRWrzWEag7teV0g9iWd6pe
-    url: jdbc:postgresql://john.db.elephantsql.com:5432/uesimvzx?stringtype=unspecified
-    username: uesimvzx
+    password: 614959e2de7195fc876a3042773c7ab1d1f5fd542e9c04018be8196090bbc42f
+    url: jdbc:postgresql://ec2-3-92-151-217.compute-1.amazonaws.com:5432/d2ns6e3djpic0p?stringtype=unspecified
+    username: bycvomrhrsncob
