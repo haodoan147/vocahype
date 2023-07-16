@@ -9,3 +9,4 @@ spring:
     contexts: run
     enabled: true
     default-schema: vh
+    liquibase-schema: public
