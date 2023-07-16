@@ -5,6 +5,9 @@ spring:
     url: jdbc:postgresql://john.db.elephantsql.com:5432/uesimvzx?stringtype=unspecified
     username: uesimvzx
 
+  profiles:
+    active: staging
+
   liquibase:
     contexts: run
     enabled: true
