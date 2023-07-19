@@ -44,4 +44,8 @@ public class Word {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
+    @Override
+    public String toString() {
+        return id.toString();
+    }
 }
