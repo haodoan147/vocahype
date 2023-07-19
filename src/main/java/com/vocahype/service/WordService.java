@@ -21,7 +21,7 @@ import static com.vocahype.util.Constants.WORD_COUNT;
 @RequiredArgsConstructor
 public class WordService {
 
-    public static final int BIAS = 1000;
+    public static final int BIAS = 10;
     private final WordRepository wordRepository;
 
     public List<Word> getWordList() {

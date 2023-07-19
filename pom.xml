@@ -11,7 +11,7 @@
 	<groupId>com</groupId>
 	<artifactId>vocahype</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>vocahype</name>
 	<description>Voca Hype project</description>
 	<properties>
@@ -75,25 +75,37 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.1</version>
-				<configuration>
-					<webResources>
-						<resource>
-							<directory>target</directory>
-						</resource>
-					</webResources>
-				</configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								target
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.1</version>
+				<groupId>com.heroku.sdk</groupId>
+				<artifactId>heroku-maven-plugin</artifactId>
+				<version>3.0.5</version>
 				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-						</manifest>
-					</archive>
+					<appName>vocahype-cli</appName>
+					<includeTarget>false</includeTarget>
+					<includes>
+						<include>target/vocahype-0.0.1-SNAPSHOT.jar</include>
+					</includes>
+					<jdkVersion>11</jdkVersion>
+					<processTypes>
+						<web>java -Dserver.port=$PORT -jar target/vocahype-0.0.1-SNAPSHOT.jar</web>
+					</processTypes>
 				</configuration>
 			</plugin>
 		</plugins>

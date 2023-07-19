@@ -10,3 +10,9 @@ spring:
     enabled: true
     default-schema: vh
     liquibase-schema: public
+
+  profiles:
+    default: staging
+
+server:
+  port: 8080
