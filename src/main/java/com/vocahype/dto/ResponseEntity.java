@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -13,10 +14,10 @@ public class ResponseEntity {
     private DataResponseEntity data;
 
     public static ResponseEntity of(Object entity) {
-        return new ResponseEntity(new DataResponseEntity(entity, List.of()));
+        return new ResponseEntity(new DataResponseEntity(entity, Map.of()));
     }
 
-    public static ResponseEntity of(Object entity, List<Object> relationships) {
+    public static ResponseEntity of(Object entity, Map<String, Object> relationships) {
         return new ResponseEntity(new DataResponseEntity(entity, relationships));
     }
 }

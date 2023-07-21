@@ -3,18 +3,16 @@ package com.vocahype.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 public class DataResponseEntity {
-    private String type;
     private String id;
     private Object attributes;
-    private List<Object> relationships;
+    private Map<String, Object> relationships;
 
-    public DataResponseEntity(Object entity, List<Object> relationships) {
-        this.type = entity.getClass().getSimpleName();
+    public DataResponseEntity(Object entity, Map<String, Object> relationships) {
         this.id = entity.toString();
         this.attributes = entity;
         this.relationships = relationships;
