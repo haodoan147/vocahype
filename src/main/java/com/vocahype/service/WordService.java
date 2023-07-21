@@ -1,20 +1,19 @@
 package com.vocahype.service;
 
+import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.Word;
+import com.vocahype.entity.WordUserKnowledge;
+import com.vocahype.entity.WordUserKnowledgeID;
 import com.vocahype.repository.WordRepository;
+import com.vocahype.repository.WordUserKnowledgeRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
+import static com.vocahype.util.Constants.CURRENT_USER_ID;
 import static com.vocahype.util.Constants.WORD_COUNT;
 
 @Service
@@ -23,6 +22,7 @@ public class WordService {
 
     public static final int BIAS = 10;
     private final WordRepository wordRepository;
+    private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
 
     public List<Word> getWordList() {
         List<Word> wordList = new ArrayList<>();
@@ -56,6 +56,21 @@ public class WordService {
     private long getRandomNumberInRange(long min, long max) {
         Random random = new Random();
         return min + (long) (random.nextDouble() * (max - min + 1));
+    }
+
+    public void checkUserKnowledge(final List<WordDTO> wordDTO) {
+        Set<WordUserKnowledge> knownWords = new HashSet<>();
+        wordDTO.forEach(word -> {
+            if (word.getStatus()) {
+                knownWords.add(new WordUserKnowledge(
+                        new WordUserKnowledgeID(word.getWordId(), CURRENT_USER_ID), true));
+            }
+        });
+        wordUserKnowledgeRepository.saveAll(knownWords);
+    }
+
+    public void resetUserKnowledge() {
+        wordUserKnowledgeRepository.deleteAllByWordUserKnowledgeID_UserId(CURRENT_USER_ID);
     }
 
     @AllArgsConstructor

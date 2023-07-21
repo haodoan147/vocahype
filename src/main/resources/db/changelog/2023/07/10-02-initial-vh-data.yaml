@@ -7,24 +7,24 @@ databaseChangeLog:
             - onFail: MARK_RAN
             - sqlCheck:
                 expectedResult: 0
-                sql: SELECT COUNT(*) FROM vh.role;
+                sql: SELECT COUNT(*) FROM vh.roles;
         - sqlFile:
             endDelimiter: //
             splitStatements: true
             path: db/data/20230710/vh_data.sql
             stripComments: true
-        - loadData:
-            file: db/data/20230710/word_data.csv
-            tableName: word
-            schemaName: vh
-            columns:
-              - column:
-                  name: word
-                  type: text
-              - column:
-                  name: count
-                  type: bigint
-              - column:
-                  name: point
-                  type: double precision
+#        - loadData:
+#            file: db/data/20230710/word_data.csv
+#            tableName: word
+#            schemaName: vh
+#            columns:
+#              - column:
+#                  name: word
+#                  type: text
+#              - column:
+#                  name: count
+#                  type: bigint
+#              - column:
+#                  name: point
+#                  type: double precision
       comment: Initial its schema

@@ -1,4 +1,4 @@
-insert into vh.role (id, title, created_on, updated_on)
+insert into vh.roles (id, title, created_on, updated_on)
 values  (1, 'user', '2023-07-12 08:05:22.731451 +00:00', null);
 
 insert into vh.users (id, role_id, login_name, secret, encryption, first_name, last_name, birthday, gender, timezone, locale, status, login_count, created_on, updated_on)

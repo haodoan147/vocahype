@@ -22,16 +22,13 @@ SET row_security = off;
 
 CREATE SCHEMA IF NOT EXISTS vh;
 
-
-ALTER SCHEMA vh OWNER TO bycvomrhrsncob;
-
 CREATE EXTENSION IF NOT EXISTS citext schema heroku_ext;
 
 --
 -- Name: role_id_seq; Type: SEQUENCE; Schema: vh; Owner: vh
 --
 
-CREATE SEQUENCE IF NOT EXISTS vh.role_id_seq
+CREATE SEQUENCE IF NOT EXISTS vh.roles_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -39,29 +36,16 @@ CREATE SEQUENCE IF NOT EXISTS vh.role_id_seq
     CACHE 1;
 
 --
--- Name: role; Type: TABLE; Schema: vh; Owner: vh
+-- Name: roles; Type: TABLE; Schema: vh; Owner: vh
 --
 
-CREATE TABLE IF NOT EXISTS vh.role (
-    id integer NOT NULL DEFAULT nextval('vh.role_id_seq'::regclass),
+CREATE TABLE IF NOT EXISTS vh.roles (
+    id integer NOT NULL DEFAULT nextval('vh.roles_id_seq'::regclass),
     title text NOT NULL,
     created_on timestamp with time zone DEFAULT now() NOT NULL,
     updated_on timestamp with time zone,
-                             CONSTRAINT role_pkey PRIMARY KEY (id)
+    CONSTRAINT roles_pkey PRIMARY KEY (id)
     );
-
-
-ALTER TABLE vh.role OWNER TO bycvomrhrsncob;
-
-
-ALTER TABLE vh.role_id_seq OWNER TO bycvomrhrsncob;
-
---
--- Name: role_id_seq; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
---
-
-ALTER SEQUENCE vh.role_id_seq OWNED BY vh.role.id;
-
 
 --
 -- Name: seq_id_users; Type: SEQUENCE; Schema: vh; Owner: vh
@@ -94,28 +78,15 @@ CREATE TABLE IF NOT EXISTS vh.users (
     login_count integer DEFAULT 0 NOT NULL,
     created_on timestamp with time zone DEFAULT now() NOT NULL,
     updated_on timestamp with time zone,
-                             CONSTRAINT users_pkey PRIMARY KEY (id),
-    CONSTRAINT users_role_id_fk FOREIGN KEY (role_id) REFERENCES vh.role(id)
+    CONSTRAINT users_pkey PRIMARY KEY (id),
+    CONSTRAINT users_roles_id_fk FOREIGN KEY (role_id) REFERENCES vh.roles(id)
     );
-
-
-ALTER TABLE vh.users OWNER TO bycvomrhrsncob;
-
-
-ALTER TABLE vh.seq_id_users OWNER TO bycvomrhrsncob;
-
---
--- Name: seq_id_users; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
---
-
-ALTER SEQUENCE vh.seq_id_users OWNED BY vh.users.id;
-
 
 --
 -- Name: seq_id_word; Type: SEQUENCE; Schema: vh; Owner: vh
 --
 
-CREATE SEQUENCE IF NOT EXISTS vh.seq_id_word
+CREATE SEQUENCE IF NOT EXISTS vh.seq_id_words
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -123,27 +94,28 @@ CREATE SEQUENCE IF NOT EXISTS vh.seq_id_word
     CACHE 1;
 
 --
--- Name: word; Type: TABLE; Schema: vh; Owner: vh
+-- Name: words; Type: TABLE; Schema: vh; Owner: vh
 --
 
-CREATE TABLE IF NOT EXISTS vh.word (
-                                        id integer NOT NULL DEFAULT nextval('vh.seq_id_word'::regclass),
+CREATE TABLE IF NOT EXISTS vh.words (
+                                        id integer NOT NULL DEFAULT nextval('vh.seq_id_words'::regclass),
                                         word text NOT NULL,
                                         count bigint NOT NULL,
                                         point double precision,
                                         created_on timestamp with time zone DEFAULT now() NOT NULL,
                                         updated_on timestamp with time zone,
-                                        CONSTRAINT word_pkey PRIMARY KEY (id)
+                                        CONSTRAINT words_pkey PRIMARY KEY (id)
 );
 
-
-ALTER TABLE vh.word OWNER TO bycvomrhrsncob;
-
-
-ALTER TABLE vh.seq_id_word OWNER TO bycvomrhrsncob;
-
 --
--- Name: seq_id_word; Type: SEQUENCE OWNED BY; Schema: vh; Owner: vh
+-- Name: words_user_knowledge; Type: TABLE; Schema: vh; Owner: vh
 --
 
-ALTER SEQUENCE vh.seq_id_word OWNED BY vh.word.id;
+CREATE TABLE IF NOT EXISTS vh.words_user_knowledge (
+    user_id integer NOT NULL,
+    word_id integer NOT NULL,
+    status boolean default false,
+    CONSTRAINT words_user_knowledge_pkey PRIMARY KEY (user_id, word_id),
+    CONSTRAINT words_user_knowledge_user_id_fk FOREIGN KEY (user_id) REFERENCES vh.users(id),
+    CONSTRAINT words_user_knowledge_word_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id)
+);
