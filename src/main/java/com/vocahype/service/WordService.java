@@ -1,6 +1,7 @@
 package com.vocahype.service;
 
 import com.vocahype.dto.WordDTO;
+import com.vocahype.entity.User;
 import com.vocahype.entity.Word;
 import com.vocahype.entity.WordUserKnowledge;
 import com.vocahype.entity.WordUserKnowledgeID;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 import static com.vocahype.util.Constants.CURRENT_USER_ID;
@@ -41,7 +43,7 @@ public class WordService {
         for (LongRange range : ranges) {
             int numRecordsToFetch = range.getNumRecords();
             for (int i = 0; i < numRecordsToFetch; i++) {
-                Long randomId = new Long(getRandomNumberInRange(range.getMinId(), range.getMaxId()));
+                long randomId = getRandomNumberInRange(range.getMinId(), range.getMaxId());
                 Optional<Word> word = wordRepository.findById(randomId);
                 if (word.isPresent()) {
                     wordList.add(word.get());
@@ -63,12 +65,17 @@ public class WordService {
         wordDTO.forEach(word -> {
             if (word.getStatus()) {
                 knownWords.add(new WordUserKnowledge(
-                        new WordUserKnowledgeID(word.getWordId(), CURRENT_USER_ID), true));
+                        new WordUserKnowledgeID(word.getWordId(), CURRENT_USER_ID),
+                        true,
+                        Word.builder().id(word.getWordId()).build(),
+                        User.builder().id(CURRENT_USER_ID).build())
+                );
             }
         });
         wordUserKnowledgeRepository.saveAll(knownWords);
     }
 
+    @Transactional
     public void resetUserKnowledge() {
         wordUserKnowledgeRepository.deleteAllByWordUserKnowledgeID_UserId(CURRENT_USER_ID);
     }

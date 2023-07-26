@@ -14,17 +14,18 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WordUserKnowledge {
-
     @EmbeddedId
     private WordUserKnowledgeID wordUserKnowledgeID;
     @Column(name = "status")
     private Boolean status;
-//    @JoinColumn(name = "word_id", insertable = false, updatable = false)
-//    @ManyToOne
-//    private Word word;
-//    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-//    @ManyToOne
-//    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("wordId")
+    @JoinColumn(name = "word_id")
+    private Word word;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Override
     public String toString() {

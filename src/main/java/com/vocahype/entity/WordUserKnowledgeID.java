@@ -2,16 +2,24 @@ package com.vocahype.entity;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
-@Embeddable
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@Embeddable
 public class WordUserKnowledgeID implements Serializable {
-
+    @Column(name = "word_id")
     private Long wordId;
+    @Column(name = "user_id")
     private Long userId;
 }
