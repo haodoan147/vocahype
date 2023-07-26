@@ -14,9 +14,14 @@ import java.util.List;
 public class WordController {
     private final WordService wordService;
 
-    @GetMapping(value = Routing.KNOWLEDGE_TEST)
+    @GetMapping(value = Routing.KNOWLEDGE_TEST_50)
     public ResponseEntity get50WordForUserKnowledge() {
         return ResponseEntity.of(wordService.getWordList());
+    }
+
+    @GetMapping(value = Routing.KNOWLEDGE_TEST)
+    public ResponseEntity getListWordUserKnowledge() {
+        return ResponseEntity.of(wordService.getListWordUserKnowledge());
     }
 
     @PostMapping(Routing.KNOWLEDGE_TEST)

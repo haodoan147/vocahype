@@ -80,6 +80,10 @@ public class WordService {
         wordUserKnowledgeRepository.deleteAllByWordUserKnowledgeID_UserId(CURRENT_USER_ID);
     }
 
+    public List<WordDTO> getListWordUserKnowledge() {
+        return wordUserKnowledgeRepository.findAllByWordUserKnowledgeID_UserId(CURRENT_USER_ID);
+    }
+
     @AllArgsConstructor
     @Getter
     private static class LongRange {
