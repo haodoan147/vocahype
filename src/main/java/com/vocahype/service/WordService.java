@@ -10,10 +10,13 @@ import com.vocahype.repository.WordUserKnowledgeRepository;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static com.vocahype.util.Constants.CURRENT_USER_ID;
 import static com.vocahype.util.Constants.WORD_COUNT;
@@ -25,39 +28,39 @@ public class WordService {
     public static final int BIAS = 10;
     private final WordRepository wordRepository;
     private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
+    private final ModelMapper modelMapper;
 
-    public List<Word> getWordList() {
-        List<Word> wordList = new ArrayList<>();
+    public List<WordDTO> get50WordForUserKnowledge() {
+        List<Long> randomIds = new ArrayList<>();
         LongRange[] ranges = {
-                new LongRange(0L, WORD_COUNT / BIAS, 10),
-                new LongRange(WORD_COUNT / BIAS, WORD_COUNT / BIAS * 2, 9),
-                new LongRange(WORD_COUNT / BIAS * 2, WORD_COUNT / BIAS * 3, 7),
-                new LongRange(WORD_COUNT / BIAS * 3, WORD_COUNT / BIAS * 4, 6),
-                new LongRange(WORD_COUNT / BIAS * 4, WORD_COUNT / BIAS * 5, 5),
-                new LongRange(WORD_COUNT / BIAS * 5, WORD_COUNT / BIAS * 6, 4),
-                new LongRange(WORD_COUNT / BIAS * 6, WORD_COUNT / BIAS * 7, 3),
-                new LongRange(WORD_COUNT / BIAS * 7, WORD_COUNT / BIAS * 8, 3),
-                new LongRange(WORD_COUNT / BIAS * 8, WORD_COUNT / BIAS * 9, 2),
-                new LongRange(WORD_COUNT / BIAS * 9, WORD_COUNT / BIAS, 1)
+                new LongRange(1L, WORD_COUNT / BIAS, 10),
+                new LongRange(WORD_COUNT / BIAS + 1 , WORD_COUNT / BIAS * 2, 9),
+                new LongRange(WORD_COUNT / BIAS * 2 + 1, WORD_COUNT / BIAS * 3, 7),
+                new LongRange(WORD_COUNT / BIAS * 3 + 1, WORD_COUNT / BIAS * 4, 6),
+                new LongRange(WORD_COUNT / BIAS * 4 + 1, WORD_COUNT / BIAS * 5, 5),
+                new LongRange(WORD_COUNT / BIAS * 5 + 1, WORD_COUNT / BIAS * 6, 4),
+                new LongRange(WORD_COUNT / BIAS * 6 + 1, WORD_COUNT / BIAS * 7, 3),
+                new LongRange(WORD_COUNT / BIAS * 7 + 1, WORD_COUNT / BIAS * 8, 3),
+                new LongRange(WORD_COUNT / BIAS * 8 + 1, WORD_COUNT / BIAS * 9, 2),
+                new LongRange(WORD_COUNT / BIAS * 9 + 1, WORD_COUNT, 1)
         };
         for (LongRange range : ranges) {
-            int numRecordsToFetch = range.getNumRecords();
-            for (int i = 0; i < numRecordsToFetch; i++) {
-                long randomId = getRandomNumberInRange(range.getMinId(), range.getMaxId());
-                Optional<Word> word = wordRepository.findById(randomId);
-                if (word.isPresent()) {
-                    wordList.add(word.get());
-                } else {
-                    i--;
-                }
-            }
+            randomIds.addAll(getRandomNumbersInRange(range.getMinId(), range.getMaxId(), range.getNumRecords()));
         }
-        return wordList;
+        return wordRepository.findAllById(randomIds).stream()
+                .map(word -> modelMapper.map(word, WordDTO.class))
+                .collect(Collectors.toList());
     }
 
-    private long getRandomNumberInRange(long min, long max) {
-        Random random = new Random();
-        return min + (long) (random.nextDouble() * (max - min + 1));
+    private static Set<Long> getRandomNumbersInRange(long min, long max, int count) {
+        if (count > (max - min + 1)) {
+            throw new IllegalArgumentException("Count must not exceed the range between min and max.");
+        }
+        Set<Long> randomNumbers = new HashSet<>();
+        while (randomNumbers.size() < count) {
+            randomNumbers.add(ThreadLocalRandom.current().nextLong(min, max + 1));
+        }
+        return randomNumbers;
     }
 
     public void checkUserKnowledge(final List<WordDTO> wordDTO) {

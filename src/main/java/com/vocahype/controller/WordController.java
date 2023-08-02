@@ -16,7 +16,7 @@ public class WordController {
 
     @GetMapping(value = Routing.KNOWLEDGE_TEST_50)
     public ResponseEntity get50WordForUserKnowledge() {
-        return ResponseEntity.of(wordService.getWordList());
+        return ResponseEntity.of(wordService.get50WordForUserKnowledge());
     }
 
     @GetMapping(value = Routing.KNOWLEDGE_TEST)
@@ -24,7 +24,7 @@ public class WordController {
         return ResponseEntity.of(wordService.getListWordUserKnowledge());
     }
 
-    @PostMapping(Routing.KNOWLEDGE_TEST)
+    @PostMapping(Routing.KNOWLEDGE_TEST_50)
     public void checkUserKnowledge(@RequestBody List<WordDTO> wordDTO) {
         wordService.checkUserKnowledge(wordDTO);
     }

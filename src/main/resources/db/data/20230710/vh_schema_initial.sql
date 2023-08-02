@@ -83,6 +83,16 @@ CREATE TABLE IF NOT EXISTS vh.users (
     );
 
 --
+-- Name: words; Type: TABLE; Schema: vh; Owner: vh
+--
+
+CREATE TABLE IF NOT EXISTS vh.pos (
+                                        pos_tag text NOT NULL ,
+                                        description text NOT NULL ,
+                                        CONSTRAINT pos_pkey PRIMARY KEY (pos_tag)
+);
+
+--
 -- Name: seq_id_word; Type: SEQUENCE; Schema: vh; Owner: vh
 --
 
@@ -101,10 +111,16 @@ CREATE TABLE IF NOT EXISTS vh.words (
                                         id integer NOT NULL DEFAULT nextval('vh.seq_id_words'::regclass),
                                         word text NOT NULL,
                                         count bigint NOT NULL,
+                                        pos_tag text,
                                         point double precision,
+                                        phonetic text,
+                                        syllables integer,
+                                        phonetic_start text,
+                                        phonetic_end text,
                                         created_on timestamp with time zone DEFAULT now() NOT NULL,
                                         updated_on timestamp with time zone,
-                                        CONSTRAINT words_pkey PRIMARY KEY (id)
+                                        CONSTRAINT words_pkey PRIMARY KEY (id),
+                                        CONSTRAINT words_pos_pos_tag_fk FOREIGN KEY (pos_tag) REFERENCES vh.pos(pos_tag)
 );
 
 --
@@ -118,4 +134,50 @@ CREATE TABLE IF NOT EXISTS vh.words_user_knowledge (
     CONSTRAINT words_user_knowledge_pkey PRIMARY KEY (user_id, word_id),
     CONSTRAINT words_user_knowledge_user_id_fk FOREIGN KEY (user_id) REFERENCES vh.users(id),
     CONSTRAINT words_user_knowledge_word_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id)
+);
+
+--
+-- Name: seq_id_meanings; Type: SEQUENCE; Schema: vh; Owner: vh
+--
+
+CREATE SEQUENCE IF NOT EXISTS vh.seq_id_meanings
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: words; Type: TABLE; Schema: vh; Owner: vh
+--
+
+CREATE TABLE IF NOT EXISTS vh.meanings (
+                                        id integer NOT NULL DEFAULT nextval('vh.seq_id_meanings'::regclass),
+                                        word_id integer,
+                                        meaning text NOT NULL,
+                                        CONSTRAINT meanings_pkey PRIMARY KEY (id),
+                                        CONSTRAINT meanings_words_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id)
+);
+
+--
+-- Name: seq_id_meanings; Type: SEQUENCE; Schema: vh; Owner: vh
+--
+
+CREATE SEQUENCE IF NOT EXISTS vh.seq_id_examples
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+--
+-- Name: words; Type: TABLE; Schema: vh; Owner: vh
+--
+
+CREATE TABLE IF NOT EXISTS vh.examples (
+                                           id integer NOT NULL DEFAULT nextval('vh.seq_id_examples'::regclass),
+                                           meaning_id integer,
+                                           example text NOT NULL,
+                                           CONSTRAINT examples_pkey PRIMARY KEY (id),
+                                           CONSTRAINT examples_meanings_id_fk FOREIGN KEY (meaning_id) REFERENCES vh.meanings(id)
 );

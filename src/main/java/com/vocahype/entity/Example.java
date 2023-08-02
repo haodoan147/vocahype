@@ -1,6 +1,5 @@
 package com.vocahype.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,52 +14,27 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.sql.Timestamp;
 
 @Entity
 @Setter
 @Getter
-@Table(name = "words", schema = "vh")
+@Table(name = "examples", schema = "vh")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Word {
+public class Example {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "word")
-    private String word;
-
-    @Column(name = "count")
-    private Long count;
-
     @ManyToOne
-    @JoinColumn(name = "pos_tag")
-    private Pos pos;
+    @JoinColumn(name = "meaning_id")
+    private Meaning meaning;
 
-    @Column(name = "point")
-    private Double point;
-
-    @Column(name = "phonetic")
-    private String phonetic;
-
-    @Column(name = "syllables")
-    private Integer syllable;
-
-    @Column(name = "phonetic_start")
-    private String phoneticStart;
-
-    @Column(name = "phonetic_end")
-    private String phoneticEnd;
-
-    @Column(name = "created_on")
-    private Timestamp createdOn;
-
-    @Column(name = "updated_on")
-    private Timestamp updatedOn;
+    @Column(name = "example")
+    private String example;
 
     @Override
     public String toString() {
