@@ -1,36 +1,25 @@
 package com.vocahype.controller;
 
 import com.vocahype.dto.ResponseEntity;
-import com.vocahype.dto.WordDTO;
+import com.vocahype.entity.Word;
 import com.vocahype.service.WordService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 public class WordController {
     private final WordService wordService;
 
-    @GetMapping(value = Routing.KNOWLEDGE_TEST_50)
-    public ResponseEntity get50WordForUserKnowledge() {
-        return ResponseEntity.of(wordService.get50WordForUserKnowledge());
+    @GetMapping(value = Routing.WORD_ID)
+    public ResponseEntity get50WordForUserKnowledge(@PathVariable Long wordId) {
+        Word word = wordService.getWordById(wordId);
+        return ResponseEntity.of(word, Map.of("pos", ResponseEntity.of(word.getPos())));
     }
 
-    @GetMapping(value = Routing.KNOWLEDGE_TEST)
-    public ResponseEntity getListWordUserKnowledge() {
-        return ResponseEntity.of(wordService.getListWordUserKnowledge());
-    }
-
-    @PostMapping(Routing.KNOWLEDGE_TEST_50)
-    public void checkUserKnowledge(@RequestBody List<WordDTO> wordDTO) {
-        wordService.checkUserKnowledge(wordDTO);
-    }
-
-    @PutMapping(Routing.KNOWLEDGE_TEST)
-    public void resetUserKnowledge() {
-        wordService.resetUserKnowledge();
-    }
 }

@@ -14,5 +14,10 @@ spring:
   profiles:
     default: staging
 
+  security:
+    user:
+      name: admin
+      password: admin
+
 server:
   port: 8080

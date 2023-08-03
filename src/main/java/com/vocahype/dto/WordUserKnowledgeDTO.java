@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
-public class WordDTO {
+public class WordUserKnowledgeDTO {
     private Long id;
     private Long wordId;
     private Boolean status;
@@ -17,7 +17,7 @@ public class WordDTO {
     private Long count;
     private Double point;
 
-    public WordDTO(Long wordId, String word) {
+    public WordUserKnowledgeDTO(Long wordId, String word) {
         this.wordId = wordId;
         this.word = word;
     }
