@@ -13,6 +13,6 @@ public class WordService {
     private final WordRepository wordRepository;
 
     public Word getWordById(Long id) {
-        return wordRepository.findById(id).orElseThrow(() -> new InvalidException("Word not found"));
+        return wordRepository.findById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
     }
 }

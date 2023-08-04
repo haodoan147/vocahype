@@ -36,7 +36,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(final HttpMessageNotReadableException ex, final HttpHeaders headers,
                                                                   final HttpStatus status, final WebRequest request) {
         String error = "Malformed JSON request";
-        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error));
+        return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, error, error));
     }
 
     private ResponseEntity<Object> buildResponseEntity(final ApiError apiError) {
@@ -45,74 +45,74 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserFriendlyException.class)
     protected ResponseEntity<Object> handleUserFriendlyException(final UserFriendlyException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage());
+        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(InvalidException.class)
     protected ResponseEntity<Object> handleInvalidException(final InvalidException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage());
+        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage(), ex.getDetail());
         return buildResponseEntity(apiError);
     }
 
 
     @ExceptionHandler(DBException.class)
     protected ResponseEntity<Object> handleDBException(final DBException ex) {
-        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR, ex.getMessage());
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(FailedLoginException.class)
     protected ResponseEntity<Object> handleFailedLoginException(final FailedLoginException ex) {
-        ApiError apiError = new ApiError(UNAUTHORIZED, ex.getMessage());
+        ApiError apiError = new ApiError(UNAUTHORIZED, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(ForbiddenException.class)
     protected ResponseEntity<Object> handleForbiddenException(final ForbiddenException ex) {
-        ApiError apiError = new ApiError(FORBIDDEN, ex.getMessage());
+        ApiError apiError = new ApiError(FORBIDDEN, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(InvalidPathParameterException.class)
     protected ResponseEntity<Object> handleInvalidPathParameterException(final InvalidPathParameterException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage());
+        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(InvalidRequestParametersException.class)
     protected ResponseEntity<Object> handleInvalidRequestParametersException(final InvalidRequestParametersException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage());
+        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(NoContentException.class)
     protected ResponseEntity<Object> handleNoContentException(final NoContentException ex) {
-        ApiError apiError = new ApiError(NO_CONTENT, ex.getMessage());
+        ApiError apiError = new ApiError(NO_CONTENT, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     protected ResponseEntity<Object> handleUnauthorizedException(final UnauthorizedException ex) {
-        ApiError apiError = new ApiError(UNAUTHORIZED, ex.getMessage());
+        ApiError apiError = new ApiError(UNAUTHORIZED, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(InvalidSessionException.class)
     protected ResponseEntity<Object> handleInvalidSessionException(final InvalidSessionException ex) {
-        ApiError apiError = new ApiError(UNAUTHORIZED, ex.getMessage());
+        ApiError apiError = new ApiError(UNAUTHORIZED, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(WebClientResponseException.class)
     protected ResponseEntity<Object> handleWebClientResponseException(final WebClientResponseException ex) {
-        ApiError apiError = new ApiError(ex.getStatusCode(), ex.getMessage());
+        ApiError apiError = new ApiError(ex.getStatusCode(), ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(DataAccessException.class)
     protected ResponseEntity<Object> handleWebClientResponseException(final DataAccessException ex) {
-        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR, ex.getMessage());
+        ApiError apiError = new ApiError(INTERNAL_SERVER_ERROR, ex.getMessage(), ex.getMessage());
         log.error(ex.getMessage());
         return buildResponseEntity(apiError);
     }
@@ -134,13 +134,13 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     protected ResponseEntity<Object> onUsernameNotFoundException(final UsernameNotFoundException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage());
+        ApiError apiError = new ApiError(BAD_REQUEST, ex.getMessage(), ex.getMessage());
         return buildResponseEntity(apiError);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<Object> onBadCredentialsException(final BadCredentialsException ex) {
-        ApiError apiError = new ApiError(BAD_REQUEST, "Invalid username or password");
+        ApiError apiError = new ApiError(BAD_REQUEST, "Invalid username or password", "Invalid username or password");
         return buildResponseEntity(apiError);
     }
 

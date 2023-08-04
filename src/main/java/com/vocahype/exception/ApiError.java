@@ -1,34 +1,37 @@
 package com.vocahype.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
-
-import java.time.LocalDateTime;
 
 @Getter
 public class ApiError {
 
+    @JsonIgnore
     private HttpStatus status;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    private LocalDateTime timestamp;
-    private String message;
-    private ApiError() {
-        timestamp = LocalDateTime.now();
+    private Error errors;
+
+    public ApiError(HttpStatus status, String title, String message) {
+        this.status = status;
+        this.errors = new Error(title, message);
     }
 
-    public ApiError(final HttpStatus status) {
-        this();
+    public ApiError(HttpStatus status) {
         this.status = status;
     }
 
-    public ApiError(final HttpStatus status, final String message) {
-        this();
-        this.status = status;
-        this.message = message;
+    public void setMessage(String defaultMessage) {
+        this.errors.setTitle(defaultMessage);
     }
 
-    public void setMessage(final String message) {
-        this.message = message;
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    class Error {
+        private String title;
+        private String detail;
     }
 }
