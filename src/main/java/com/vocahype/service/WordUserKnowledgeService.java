@@ -63,7 +63,7 @@ public class WordUserKnowledgeService {
         return randomNumbers;
     }
 
-    public void checkUserKnowledge(final List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
+    public void saveUserKnowledge(final List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
         Set<WordUserKnowledge> knownWords = new HashSet<>();
         wordUserKnowledgeDTO.forEach(word -> {
             if (word.getStatus()) {
@@ -84,7 +84,8 @@ public class WordUserKnowledgeService {
     }
 
     public List<WordUserKnowledgeDTO> getListWordUserKnowledge() {
-        return wordUserKnowledgeRepository.findAllByWordUserKnowledgeID_UserId(CURRENT_USER_ID);
+        long currentUserId = CURRENT_USER_ID;
+        return wordUserKnowledgeRepository.findAllByWordUserKnowledgeID_UserId(currentUserId);
     }
 
     @AllArgsConstructor

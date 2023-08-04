@@ -12,25 +12,25 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class WordUserKnowledgeController {
-    private final WordUserKnowledgeService wordService;
+    private final WordUserKnowledgeService wordUserKnowledgeService;
 
     @GetMapping(value = Routing.KNOWLEDGE_TEST_50)
     public ResponseEntity get50WordForUserKnowledge() {
-        return ResponseEntity.of(wordService.get50WordForUserKnowledge());
-    }
-
-    @GetMapping(value = Routing.KNOWLEDGE_TEST)
-    public ResponseEntity getListWordUserKnowledge() {
-        return ResponseEntity.of(wordService.getListWordUserKnowledge());
+        return ResponseEntity.of(wordUserKnowledgeService.get50WordForUserKnowledge());
     }
 
     @PostMapping(Routing.KNOWLEDGE_TEST_50)
-    public void checkUserKnowledge(@RequestBody List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
-        wordService.checkUserKnowledge(wordUserKnowledgeDTO);
+    public void saveUserKnowledge(@RequestBody List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
+        wordUserKnowledgeService.saveUserKnowledge(wordUserKnowledgeDTO);
     }
 
-    @PutMapping(Routing.KNOWLEDGE_TEST)
+    @GetMapping(value = Routing.WORD_USER_KNOWLEDGE)
+    public ResponseEntity getListWordUserKnowledge() {
+        return ResponseEntity.of(wordUserKnowledgeService.getListWordUserKnowledge());
+    }
+
+    @PutMapping(Routing.WORD_USER_KNOWLEDGE)
     public void resetUserKnowledge() {
-        wordService.resetUserKnowledge();
+        wordUserKnowledgeService.resetUserKnowledge();
     }
 }
