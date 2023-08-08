@@ -18,7 +18,7 @@ public class WordService {
         return wordRepository.findById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
     }
 
-    public List<Word> getWordByWord(String word) {
+    public List<Word> getWordsByWord(String word) {
         return wordRepository.findByWordContainsIgnoreCase(word);
     }
 }

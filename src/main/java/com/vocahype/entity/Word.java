@@ -2,7 +2,6 @@ package com.vocahype.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +16,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -65,6 +66,10 @@ public class Word {
 
     @Column(name = "updated_on")
     private Timestamp updatedOn;
+
+    @OneToMany(mappedBy = "word")
+    @JsonIgnore
+    private Set<Definition> definitions;
 
     @Override
     public String toString() {

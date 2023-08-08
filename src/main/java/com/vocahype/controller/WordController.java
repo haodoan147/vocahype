@@ -18,13 +18,18 @@ public class WordController {
     private final WordService wordService;
 
     @GetMapping(value = Routing.WORD_ID)
-    public ResponseEntity get50WordForUserKnowledge(@PathVariable Long wordId) {
+    public ResponseEntity getWord(@PathVariable Long wordId) {
         Word word = wordService.getWordById(wordId);
-        return ResponseEntity.of(word, Map.of("pos", ResponseEntity.of(word.getPos())));
+        return ResponseEntity.of(word, Map.of(
+                "pos", ResponseEntity.of(word.getPos()),
+                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, Map.of(
+                        "examples", ResponseEntity.of(definition.getExamples())
+                )))
+            ));
     }
 
     @GetMapping(value = Routing.WORD)
-    public ResponseEntity searchWord(@RequestParam(name = "search") String word) {
-        return ResponseEntity.of(wordService.getWordByWord(word));
+    public ResponseEntity searchWords(@RequestParam(name = "search") String word) {
+        return ResponseEntity.of(wordService.getWordsByWord(word));
     }
 }

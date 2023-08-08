@@ -21,6 +21,7 @@ SET row_security = off;
 --
 
 CREATE SCHEMA IF NOT EXISTS vh;
+CREATE SCHEMA IF NOT EXISTS heroku_ext;
 
 CREATE EXTENSION IF NOT EXISTS citext schema heroku_ext;
 
@@ -137,10 +138,10 @@ CREATE TABLE IF NOT EXISTS vh.words_user_knowledge (
 );
 
 --
--- Name: seq_id_meanings; Type: SEQUENCE; Schema: vh; Owner: vh
+-- Name: seq_id_definition; Type: SEQUENCE; Schema: vh; Owner: vh
 --
 
-CREATE SEQUENCE IF NOT EXISTS vh.seq_id_meanings
+CREATE SEQUENCE IF NOT EXISTS vh.seq_id_definition
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -151,16 +152,16 @@ CREATE SEQUENCE IF NOT EXISTS vh.seq_id_meanings
 -- Name: words; Type: TABLE; Schema: vh; Owner: vh
 --
 
-CREATE TABLE IF NOT EXISTS vh.meanings (
-                                        id integer NOT NULL DEFAULT nextval('vh.seq_id_meanings'::regclass),
+CREATE TABLE IF NOT EXISTS vh.definition (
+                                        id integer NOT NULL DEFAULT nextval('vh.seq_id_definition'::regclass),
                                         word_id integer,
-                                        meaning text NOT NULL,
-                                        CONSTRAINT meanings_pkey PRIMARY KEY (id),
-                                        CONSTRAINT meanings_words_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id)
+                                        definition text NOT NULL,
+                                        CONSTRAINT definition_pkey PRIMARY KEY (id),
+                                        CONSTRAINT definition_words_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id)
 );
 
 --
--- Name: seq_id_meanings; Type: SEQUENCE; Schema: vh; Owner: vh
+-- Name: seq_id_definition; Type: SEQUENCE; Schema: vh; Owner: vh
 --
 
 CREATE SEQUENCE IF NOT EXISTS vh.seq_id_examples
@@ -176,8 +177,8 @@ CREATE SEQUENCE IF NOT EXISTS vh.seq_id_examples
 
 CREATE TABLE IF NOT EXISTS vh.examples (
                                            id integer NOT NULL DEFAULT nextval('vh.seq_id_examples'::regclass),
-                                           meaning_id integer,
+                                           definition_id integer,
                                            example text NOT NULL,
                                            CONSTRAINT examples_pkey PRIMARY KEY (id),
-                                           CONSTRAINT examples_meanings_id_fk FOREIGN KEY (meaning_id) REFERENCES vh.meanings(id)
+                                           CONSTRAINT examples_definition_id_fk FOREIGN KEY (definition_id) REFERENCES vh.definition(id)
 );
