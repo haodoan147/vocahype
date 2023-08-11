@@ -71,6 +71,10 @@ public class Word {
     @JsonIgnore
     private Set<Definition> definitions;
 
+    @OneToMany(mappedBy = "word")
+    @JsonIgnore
+    private Set<Synonym> synonyms;
+
     @Override
     public String toString() {
         return id.toString();

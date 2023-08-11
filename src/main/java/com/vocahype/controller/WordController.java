@@ -1,6 +1,7 @@
 package com.vocahype.controller;
 
 import com.vocahype.dto.ResponseEntity;
+import com.vocahype.dto.SynonymDTO;
 import com.vocahype.entity.Word;
 import com.vocahype.service.WordService;
 import com.vocahype.util.Routing;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,12 +21,13 @@ public class WordController {
     @GetMapping(value = Routing.WORD_ID)
     public ResponseEntity getWord(@PathVariable Long wordId) {
         Word word = wordService.getWordById(wordId);
-        return ResponseEntity.of(word, Map.of(
-                "pos", ResponseEntity.of(word.getPos()),
-                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, Map.of(
-                        "examples", ResponseEntity.of(definition.getExamples())
-                )))
-            ));
+        return ResponseEntity.of(word, ResponseEntity.mapOfNullable(
+                "pos", word.getPos(),
+                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, ResponseEntity.mapOfNullable(
+                        "examples", definition.getExamples())
+                )).collect(Collectors.toList()),
+                "synonyms", word.getSynonyms().stream().map(synonym -> ResponseEntity.of(new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym()))).collect(Collectors.toList())
+        ));
     }
 
     @GetMapping(value = Routing.WORD)

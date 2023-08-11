@@ -8,4 +8,5 @@ public class Routing {
     public static final String WORD_ID = WORD + "/{wordId}";
     public static final String WORD_USER_KNOWLEDGE = API_BASE + "/word-user-knowledge";
     public static final String KNOWLEDGE_TEST_50 = WORD + "/knowledge-test";
+    public static final String SYNONYM = API_BASE + "/synonym";
 }

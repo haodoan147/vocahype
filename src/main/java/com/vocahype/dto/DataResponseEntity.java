@@ -13,7 +13,7 @@ public class DataResponseEntity {
     private Map<String, Object> relationships;
 
     public DataResponseEntity(Object entity, Map<String, Object> relationships) {
-        this.id = entity.toString();
+        if (entity != null) this.id = entity.toString();
         this.attributes = entity;
         this.relationships = relationships;
     }
