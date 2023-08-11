@@ -111,7 +111,7 @@ CREATE SEQUENCE IF NOT EXISTS vh.seq_id_words
 CREATE TABLE IF NOT EXISTS vh.words (
                                         id integer NOT NULL DEFAULT nextval('vh.seq_id_words'::regclass),
                                         word text NOT NULL,
-                                        count bigint NOT NULL,
+                                        count bigint,
                                         pos_tag text,
                                         point double precision,
                                         phonetic text,
@@ -181,4 +181,17 @@ CREATE TABLE IF NOT EXISTS vh.examples (
                                            example text NOT NULL,
                                            CONSTRAINT examples_pkey PRIMARY KEY (id),
                                            CONSTRAINT examples_definition_id_fk FOREIGN KEY (definition_id) REFERENCES vh.definition(id)
+);
+
+--
+-- Name: words; Type: TABLE; Schema: vh; Owner: vh
+--
+
+CREATE TABLE IF NOT EXISTS vh.synonyms (
+                                           word_id integer,
+                                           synonym_id integer,
+                                           is_synonym boolean default true,
+                                           CONSTRAINT synonyms_pkey PRIMARY KEY (word_id, synonym_id),
+                                           CONSTRAINT synonyms_words_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id),
+                                           CONSTRAINT synonyms_all_words_id_fk FOREIGN KEY (synonym_id) REFERENCES vh.words(id)
 );
