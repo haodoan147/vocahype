@@ -5,3 +5,8 @@ spring:
     url: jdbc:postgresql://host.docker.internal:5433/vocahype?stringtype=unspecified
     username: its
 
+cronjob:
+  scheduler:
+    partitionLearning:
+      time: 0 0 7 * * ?
+      active: true

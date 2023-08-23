@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/2023/07/10-01-initial-vh-schema.yaml
   - include:
       file: db/changelog/2023/07/10-02-initial-vh-data.yaml
+  - include:
+      file: db/changelog/2023/08/24-01-initial-learning-schema.yaml

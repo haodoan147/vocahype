@@ -1,8 +1,10 @@
 insert into vh.roles (id, title, created_on, updated_on)
-values  (1, 'user', '2023-07-12 08:05:22.731451 +00:00', null);
+values  (1, 'user', '2023-07-12 08:05:22.731451 +00:00', null)
+ON CONFLICT DO NOTHING;
 
 insert into vh.users (id, role_id, login_name, secret, encryption, first_name, last_name, birthday, gender, timezone, locale, status, login_count, created_on, updated_on)
-values  (100000, 1, 'user', '123', 'None', 'New', 'User', null, null, 'GMT', 'en_GB', 1, 0, '2023-07-12 08:07:38.371824 +00:00', null);
+values  (100000, 1, 'user', '123', 'None', 'New', 'User', null, null, 'GMT', 'en_GB', 1, 0, '2023-07-12 08:07:38.371824 +00:00', null)
+ON CONFLICT DO NOTHING;
 
 insert into vh.pos (pos_tag, description)
 values  ('UNKNOWN', 'Unknown word'),
@@ -40,4 +42,20 @@ values  ('UNKNOWN', 'Unknown word'),
         ('UH', 'Interjection'),
         ('RP', 'Particle'),
         ('SYM', 'Symbol'),
-        ('$', 'Currency sign');
+        ('$', 'Currency sign')
+ON CONFLICT DO NOTHING;
+
+insert into vh.word_comprehension_levels (id, reinforce_interval, description)
+values  (1, '0 years 0 mons 0 days 0 hours 0 mins 0.0 secs', 'to learn'),
+        (2, '0 years 0 mons 1 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (3, '0 years 0 mons 3 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (4, '0 years 0 mons 7 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (6, '0 years 0 mons 14 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (7, '0 years 0 mons 30 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (8, '0 years 2 mons 0 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (9, '0 years 3 mons 0 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (10, '0 years 6 mons 0 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (11, '1 years 0 mons 0 days 0 hours 0 mins 0.0 secs', 'learning'),
+        (12, null, 'mastered'),
+        (13, null, 'ignore')
+ON CONFLICT DO NOTHING;

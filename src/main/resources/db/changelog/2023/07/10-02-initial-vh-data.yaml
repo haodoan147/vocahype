@@ -3,11 +3,11 @@ databaseChangeLog:
       id: 10-01_01
       author: hao.doanvonhut
       changes:
-        - preConditions:
-            - onFail: MARK_RAN
-            - sqlCheck:
-                expectedResult: 0
-                sql: SELECT COUNT(*) FROM vh.roles;
+#        - preConditions:
+#            - onFail: MARK_RAN
+#            - sqlCheck:
+#                expectedResult: 0
+#                sql: SELECT COUNT(*) FROM vh.roles;
         - sqlFile:
             endDelimiter: //
             splitStatements: true
