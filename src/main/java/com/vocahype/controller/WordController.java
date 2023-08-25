@@ -1,6 +1,7 @@
 package com.vocahype.controller;
 
 import com.vocahype.dto.ResponseEntity;
+import com.vocahype.dto.ResponseEntityJsonApi;
 import com.vocahype.dto.SynonymDTO;
 import com.vocahype.entity.Word;
 import com.vocahype.service.WordService;
@@ -19,15 +20,16 @@ public class WordController {
     private final WordService wordService;
 
     @GetMapping(value = Routing.WORD_ID)
-    public ResponseEntity getWord(@PathVariable Long wordId) {
+    public Object getWord(@PathVariable Long wordId) {
         Word word = wordService.getWordById(wordId);
-        return ResponseEntity.of(word, ResponseEntity.mapOfNullable(
-                "pos", word.getPos(),
-                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, ResponseEntity.mapOfNullable(
-                        "examples", definition.getExamples())
-                )).collect(Collectors.toList()),
-                "synonyms", word.getSynonyms().stream().map(synonym -> ResponseEntity.of(new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym()))).collect(Collectors.toList())
-        ));
+//        return ResponseEntity.of(word, ResponseEntity.mapOfNullable(
+//                "pos", word.getPos(),
+//                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, ResponseEntity.mapOfNullable(
+//                        "examples", definition.getExamples())
+//                )).collect(Collectors.toList()),
+//                "synonyms", word.getSynonyms().stream().map(synonym -> ResponseEntity.of(new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym()))).collect(Collectors.toList())
+//        ));
+        return new ResponseEntityJsonApi(word);
     }
 
     @GetMapping(value = Routing.WORD)
