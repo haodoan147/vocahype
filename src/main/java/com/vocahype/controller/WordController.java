@@ -3,6 +3,7 @@ package com.vocahype.controller;
 import com.vocahype.dto.ResponseEntity;
 import com.vocahype.dto.ResponseEntityJsonApi;
 import com.vocahype.dto.SynonymDTO;
+import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.Word;
 import com.vocahype.service.WordService;
 import com.vocahype.util.Routing;
@@ -21,7 +22,7 @@ public class WordController {
 
     @GetMapping(value = Routing.WORD_ID)
     public Object getWord(@PathVariable Long wordId) {
-        Word word = wordService.getWordById(wordId);
+        WordDTO word = wordService.getWordById(wordId);
 //        return ResponseEntity.of(word, ResponseEntity.mapOfNullable(
 //                "pos", word.getPos(),
 //                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, ResponseEntity.mapOfNullable(
