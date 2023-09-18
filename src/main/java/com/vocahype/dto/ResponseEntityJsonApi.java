@@ -1,14 +1,23 @@
 package com.vocahype.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.scheduling.annotation.Async;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class ResponseEntityJsonApi {
     public static final List<Class<?>> PRIMITIVE_TYPES = Arrays.asList(
             Integer.class, Long.class, Double.class, Float.class, String.class, Timestamp.class, Boolean.class
@@ -16,7 +25,8 @@ public class ResponseEntityJsonApi {
     private List<DataResponseEntity> data = new ArrayList<>();
     private List<DataResponseEntity> included = new ArrayList<>();
 
-    private void add (Object entity) {
+    @Async
+    protected void add(Object entity) {
         Map<String, Object> relationships = new HashMap<>();
         Arrays.stream(entity.getClass().getDeclaredFields()).forEach(field -> {
             field.setAccessible(true);
@@ -67,8 +77,7 @@ public class ResponseEntityJsonApi {
 //                                    .toArray())));
                                     if (!PRIMITIVE_TYPES.contains(item.getClass())) {
                                         relation.add(new DataResponseEntity(item, Map.of(), true));
-                                        ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi();
-                                        jsonApi.add(item);
+                                        ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi(item);
                                         this.included.addAll(jsonApi.data);
                                         this.included.addAll(jsonApi.included);
                                     }
@@ -92,29 +101,39 @@ public class ResponseEntityJsonApi {
 //        this.included.add(new DataResponseEntity(included, Map.of()));
     }
 
-    private void add (List<?> entities) {
-        entities.forEach(this::add);
-    }
+//    private ResponseEntityJsonApi sort() {
+//        this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+//                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+//        this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+//                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+//        return this;
+//    }
 
-    private ResponseEntityJsonApi sort() {
+    public ResponseEntityJsonApi (Object entity) {
+        if (entity instanceof Collection || entity.getClass().equals(ArrayList.class)) ((Collection<?>) entity).forEach(this::add);
+        else add(entity);
         this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
                 .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
                 .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
-        return this;
     }
 
-    public static ResponseEntityJsonApi response(Object entity) {
-        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();
-        responseEntityJsonApi.add(entity);
-        return responseEntityJsonApi.sort();
+    public ResponseEntityJsonApi (List<?> entity) {
+        entity.forEach(this::add);
+        this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+        this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
     }
-
-    public static ResponseEntityJsonApi response(List<?> entities) {
-        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();
-        responseEntityJsonApi.add(entities);
-        return responseEntityJsonApi.sort();
-    }
+//    public ResponseEntityJsonApi response(List<?> entities) {
+//        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();
+//        responseEntityJsonApi.add(entities);
+//        this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+//                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+//        this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+//                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+//        return this;
+//    }
 //    public static <K, V> Map<K, V> mapOfNullable(Object... keyValuePairs) {
 //        if (keyValuePairs.length % 2 != 0) {
 //            throw new IllegalArgumentException("Key-value pairs must be provided in even number.");

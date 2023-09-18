@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -26,7 +27,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Definition {
+public class Definition implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +42,7 @@ public class Definition {
     @Column(name = "definition")
     private String definition;
 
-    @OneToMany(mappedBy = "definition", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "definition")
     @JsonIgnore
     private Set<Example> examples;
 

@@ -1,7 +1,6 @@
 package com.vocahype.controller;
 
 import com.vocahype.dto.ResponseEntityJsonApi;
-import com.vocahype.dto.WordDTO;
 import com.vocahype.service.WordService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class WordController {
 //        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();
 //        responseEntityJsonApi.add(word);
 //        return responseEntityJsonApi.sort();
-        return ResponseEntityJsonApi.response(wordService.getWordById(wordId));
+        return new ResponseEntityJsonApi(wordService.getWordById(wordId));
     }
 
     @GetMapping(value = Routing.WORD)
@@ -37,6 +36,6 @@ public class WordController {
 //        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();
 //        responseEntityJsonApi.add(wordService.getWordsByWord(word));
 //        return responseEntityJsonApi.sort();
-        return ResponseEntityJsonApi.response(wordService.getWordsByWord(word));
+        return new ResponseEntityJsonApi(wordService.getWordsByWord(word));
     }
 }

@@ -9,12 +9,9 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import java.sql.Timestamp;
+import java.io.Serializable;
 
 @Entity
 @Setter
@@ -23,7 +20,7 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Pos {
+public class Pos implements Serializable {
 
     @Id
     @Column(name = "pos_tag")

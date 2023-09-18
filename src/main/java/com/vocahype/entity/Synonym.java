@@ -1,6 +1,5 @@
 package com.vocahype.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,13 +10,12 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
 @Setter
@@ -26,7 +24,8 @@ import javax.persistence.Table;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Synonym {
+public class Synonym implements Serializable {
+    @Id
     @EmbeddedId
     private SynonymID synonymID;
     @Column(name = "is_synonym")
@@ -42,6 +41,7 @@ public class Synonym {
 
     @Override
     public String toString() {
-        return synonym.getWord();
+        return synonymID.getSynonymId().toString();
     }
+
 }
