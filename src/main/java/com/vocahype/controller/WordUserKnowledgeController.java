@@ -1,6 +1,7 @@
 package com.vocahype.controller;
 
 import com.vocahype.dto.ResponseEntity;
+import com.vocahype.dto.ResponseEntityJsonApi;
 import com.vocahype.dto.WordUserKnowledgeDTO;
 import com.vocahype.service.WordUserKnowledgeService;
 import com.vocahype.util.Routing;
@@ -15,8 +16,9 @@ public class WordUserKnowledgeController {
     private final WordUserKnowledgeService wordUserKnowledgeService;
 
     @GetMapping(value = Routing.KNOWLEDGE_TEST_50)
-    public ResponseEntity get50WordForUserKnowledge() {
-        return ResponseEntity.of(wordUserKnowledgeService.get50WordForUserKnowledge());
+    public ResponseEntityJsonApi get50WordForUserKnowledge() {
+//        return ResponseEntity.of(wordUserKnowledgeService.get50WordForUserKnowledge());
+        return ResponseEntityJsonApi.response(wordUserKnowledgeService.get50WordForUserKnowledge());
     }
 
     @PostMapping(Routing.KNOWLEDGE_TEST_50)
@@ -25,8 +27,9 @@ public class WordUserKnowledgeController {
     }
 
     @GetMapping(value = Routing.WORD_USER_KNOWLEDGE)
-    public ResponseEntity getListWordUserKnowledge() {
-        return ResponseEntity.of(wordUserKnowledgeService.getListWordUserKnowledge());
+    public ResponseEntityJsonApi getListWordUserKnowledge() {
+//        return ResponseEntity.of(wordUserKnowledgeService.getListWordUserKnowledge());
+        return ResponseEntityJsonApi.response(wordUserKnowledgeService.getListWordUserKnowledge());
     }
 
     @PutMapping(Routing.WORD_USER_KNOWLEDGE)

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -30,5 +31,18 @@ public class DataResponseEntity {
             this.attributes = entity;
             this.relationships = relationships;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataResponseEntity that = (DataResponseEntity) o;
+        return Objects.equals(type, that.type) && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, id);
     }
 }

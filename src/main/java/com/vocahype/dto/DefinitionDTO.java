@@ -1,10 +1,8 @@
 package com.vocahype.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vocahype.entity.Definition;
-import com.vocahype.entity.Pos;
-import com.vocahype.entity.Synonym;
+import com.vocahype.entity.Example;
+import com.vocahype.entity.Word;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,31 +19,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.sql.Timestamp;
-import java.util.List;
 import java.util.Set;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-public class WordDTO {
+@AllArgsConstructor
+public class DefinitionDTO {
     private Long id;
-    private String word;
-    private Long count;
+    private String definition;
     @JsonIgnore
-    private Pos pos;
-    private Double point;
-    private String phonetic;
-    private Integer syllable;
-    private String phoneticStart;
-    private String phoneticEnd;
-    private Timestamp createdOn;
-    private Timestamp updatedOn;
-    @JsonIgnore
-    private List<DefinitionDTO> definitions;
-    @JsonIgnore
-    private List<SynonymDTO> synonyms;
+    private Set<ExampleDTO> examples;
 
     @Override
     public String toString() {

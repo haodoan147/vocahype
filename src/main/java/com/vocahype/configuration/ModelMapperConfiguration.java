@@ -26,8 +26,8 @@ public class ModelMapperConfiguration {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.getConfiguration().setSkipNullEnabled(true);
-        modelMapper.typeMap(Word.class, WordDTO.class)
-                .addMapping(Word::getDefinitions, WordDTO::setDefinitions);
+//        modelMapper.typeMap(Word.class, WordDTO.class);
+//                .addMapping(Word::getDefinitions, WordDTO::setDefinitions);
 //                .addMapping(word -> word.getSynonyms() == null ? null : word.getSynonyms().stream().map(synonym -> new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym())).collect(Collectors.toList()), WordDTO::setSynonyms);
         return modelMapper;
     }

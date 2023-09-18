@@ -1,5 +1,7 @@
 package com.vocahype.service;
 
+import com.vocahype.dto.DefinitionDTO;
+import com.vocahype.dto.ExampleDTO;
 import com.vocahype.dto.SynonymDTO;
 import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.Word;
@@ -24,6 +26,8 @@ public class WordService {
         List<SynonymDTO> collect = word.getSynonyms() == null ? null : word.getSynonyms().stream().map(synonym -> new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym())).collect(Collectors.toList());
         WordDTO wordDTO = modelMapper.map(word, WordDTO.class);
         wordDTO.setSynonyms(collect);
+        List<DefinitionDTO> definitionDTOS = word.getDefinitions() == null ? null : word.getDefinitions().stream().map(definition -> new DefinitionDTO(definition.getId(), definition.getDefinition(), definition.getExamples().stream().map(example -> new ExampleDTO(example.getId(), example.getExample())).collect(Collectors.toSet()))).collect(Collectors.toList());
+        wordDTO.setDefinitions(definitionDTOS);
         return wordDTO;
     }
 
