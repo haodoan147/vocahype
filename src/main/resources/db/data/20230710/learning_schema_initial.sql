@@ -14,23 +14,23 @@ CREATE SCHEMA IF NOT EXISTS learning;
 --
 -- Name: meter_x_insert(); Type: FUNCTION; Schema: readings; Owner: its
 --
-
-CREATE OR REPLACE FUNCTION learning.user_word_comprehension_x_insert() RETURNS trigger
-    LANGUAGE plpgsql
-AS $_$
-BEGIN
-    EXECUTE format('INSERT INTO learning.user_word_comprehension_%s VALUES ($1.*) ON CONFLICT
-(user_id, word_id) DO NOTHING',
---                        ||
---                    'DO UPDATE SET date_updated = $1.date_updated',
+--
+-- CREATE OR REPLACE FUNCTION learning.user_word_comprehension_x_insert() RETURNS trigger
+--     LANGUAGE plpgsql
+-- AS $_$
+-- BEGIN
+--     EXECUTE format('INSERT INTO learning.user_word_comprehension_%s VALUES ($1.*) ON CONFLICT
+-- (user_id, word_id) DO NOTHING',
+-- --                        ||
+-- --                    'DO UPDATE SET date_updated = $1.date_updated',
+-- --                    NEW.user_id / 1000) USING NEW;
+-- --     RETURN NULL;
+-- -- END;
+--
 --                    NEW.user_id / 1000) USING NEW;
 --     RETURN NULL;
 -- END;
-
-                   NEW.user_id / 1000) USING NEW;
-    RETURN NULL;
-END;
-$_$;
+-- $_$;
 
 
 SET default_tablespace = '';
@@ -42,13 +42,12 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE IF NOT EXISTS learning.user_word_comprehension (
-                                              user_id integer NOT NULL,
+                                              user_id text NOT NULL,
                                               word_id integer NOT NULL,
                                               word_comprehension_levels_id integer NOT NULL,
-                                              next_learning date DEFAULT date_trunc('day',(now() + '1 day'::interval)) NOT NULL,
+                                              next_learning date DEFAULT date_trunc('day',(now() + '1 day'::interval)),
     CONSTRAINT user_word_comprehension_user_id_word_id_pk PRIMARY KEY (user_id, word_id),
-    CONSTRAINT user_word_comprehension_word_id_word_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id),
-    CONSTRAINT user_word_comprehension_word_comprehension_levels_id_fk FOREIGN KEY (word_comprehension_levels_id) REFERENCES vh.word_comprehension_levels(id)
+    CONSTRAINT user_word_comprehension_word_id_word_id_fk FOREIGN KEY (word_id) REFERENCES vh.words(id)
 );
 
 --
@@ -74,6 +73,6 @@ CREATE INDEX IF NOT EXISTS fki_user_word_comprehension_word_id_user_id_idx ON le
 -- Name: meter readings_meter_on_insert; Type: TRIGGER; Schema: readings; Owner: its
 --
 
-DROP TRIGGER IF EXISTS learning_user_word_comprehension_on_insert ON learning.user_word_comprehension;
-
-CREATE TRIGGER learning_user_word_comprehension_on_insert BEFORE INSERT ON learning.user_word_comprehension FOR EACH ROW EXECUTE FUNCTION learning.user_word_comprehension_x_insert();
+-- DROP TRIGGER IF EXISTS learning_user_word_comprehension_on_insert ON learning.user_word_comprehension;
+--
+-- CREATE TRIGGER learning_user_word_comprehension_on_insert BEFORE INSERT ON learning.user_word_comprehension FOR EACH ROW EXECUTE FUNCTION learning.user_word_comprehension_x_insert();

@@ -115,7 +115,7 @@ public class ResponseEntityJsonApi {
         this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
                 .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> o.getId().length()).reversed().thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
     }
 
     public ResponseEntityJsonApi (List<?> entity) {
@@ -123,7 +123,7 @@ public class ResponseEntityJsonApi {
         this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
                 .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> o.getId().length()).reversed().thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
     }
 //    public ResponseEntityJsonApi response(List<?> entities) {
 //        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();

@@ -19,9 +19,9 @@ public class PartitionLearningsScheduler {
     private boolean isActive;
     private final PartitionService partitionService;
 
-    @Async
-    @Scheduled(cron = "${cronjob.scheduler.partitionLearning.time}")
-    @PostConstruct
+//    @Async
+//    @Scheduled(cron = "${cronjob.scheduler.partitionLearning.time}")
+//    @PostConstruct
     public void createMeterNextPartitions() {
         if (!isActive) return;
         log.info("Learning Partitionings start...");
