@@ -14,4 +14,5 @@ public class Routing {
     public static final String LEARNING_NORMAL = WORD_ID + "/normal";
     public static final String LEARNING_MASTERED = WORD_ID + "/mastered";
     public static final String LEARNING_IGNORE = WORD_ID + "/ignore";
+    public static final String WORDS_LEARN = WORD + "/learn";
 }

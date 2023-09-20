@@ -24,6 +24,7 @@ public class ResponseEntityJsonApi {
     );
     private List<DataResponseEntity> data = new ArrayList<>();
     private List<DataResponseEntity> included = new ArrayList<>();
+    private MetaResponseEntity meta;
 
     @Async
     protected void add(Object entity) {
@@ -115,15 +116,22 @@ public class ResponseEntityJsonApi {
         this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
                 .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparingInt(o -> o.getId().length()).reversed().thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> - o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
     }
 
     public ResponseEntityJsonApi (List<?> entity) {
         entity.forEach(this::add);
-        this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+        this.data = this.data.stream().distinct().collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparingInt(o -> o.getId().length()).reversed().thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> - o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+    }
+
+    public ResponseEntityJsonApi (List<?> entity, MetaResponseEntity meta) {
+        entity.forEach(this::add);
+        this.data = this.data.stream().distinct().collect(Collectors.toList());
+        this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
+                .thenComparingInt(o -> - o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+        this.meta = meta;
     }
 //    public ResponseEntityJsonApi response(List<?> entities) {
 //        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();

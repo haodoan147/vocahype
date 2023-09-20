@@ -1,5 +1,6 @@
 package com.vocahype.service;
 
+import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.dto.enumeration.Level;
 import com.vocahype.entity.UserWordComprehension;
@@ -9,11 +10,14 @@ import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +65,15 @@ public class UserWordComprehensionService {
             throw new InvalidException("Invalid level", "Level after assessment must be greater than 0");
         }
         return currentLevel;
+    }
+
+    public List<WordDTO> getWordTest(int page, int size) {
+        String userId = CURRENT_USER_ID;
+        Pageable pageable = PageRequest.of(page, size);
+        return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearning(userId, pageable);
+    }
+
+    public long countWordTest() {
+        return wordRepository.count();
     }
 }
