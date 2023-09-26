@@ -75,4 +75,20 @@ public class UserWordComprehensionService {
     public long countWord() {
         return wordRepository.count();
     }
+
+    public void delayLearningWord(Long wordId, int day) {
+        String userId = CURRENT_USER_ID;
+        UserWordComprehension wordComprehension = userWordComprehensionRepository
+                .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId)
+                .orElseThrow(() -> new InvalidException("Learning word not found",
+                        "Not found any learning word with id: " + wordId));
+        if (wordComprehension.getNextLearning() == null) {
+            throw new InvalidException("Mastered or ignored word",
+                    "Word with id " + wordId + " is mastered or ignored");
+        }
+        wordComprehension.setNextLearning(Timestamp.valueOf(LocalDateTime.now()
+                .plusDays(day)
+                .truncatedTo(ChronoUnit.DAYS)));
+        userWordComprehensionRepository.save(wordComprehension);
+    }
 }

@@ -44,8 +44,8 @@ public class UserWordComprehensionController {
     }
 
     @GetMapping(value = Routing.WORDS_LEARN)
-    public ResponseEntityJsonApi getWordTest(@RequestParam(name = "page[offset]") int offset,
-                                             @RequestParam(name = "page[limit]") int limit) {
+    public ResponseEntityJsonApi getLearningWord(@RequestParam(name = "page[offset]") int offset,
+                                                 @RequestParam(name = "page[limit]") int limit) {
         if (offset <= 0 || limit <= 0) {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
@@ -53,4 +53,11 @@ public class UserWordComprehensionController {
         long total = userWordComprehensionService.countWord();
         return new ResponseEntityJsonApi(wordTest, new MetaResponseEntity(1, ConversionUtils.roundUp(total, limit), offset, limit, (int) total));
     }
+
+    @PutMapping(value = Routing.WORDS_DELAY)
+    public void delayLearningWord(@PathVariable Long wordId, @RequestParam(name = "day") int day) {
+        if (day <= 0) throw new InvalidException("Invalid param", "Day must be greater than 0!");
+        userWordComprehensionService.delayLearningWord(wordId, day);
+    }
+
 }

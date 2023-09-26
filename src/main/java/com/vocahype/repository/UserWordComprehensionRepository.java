@@ -20,6 +20,7 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
             + "and uwc.nextLearning is not null "
-            + "order by case when uwc.userWordComprehensionID.userId is null then 1 else 0 end, uwc.nextLearning, w.id")
+            + "order by case when uwc.nextLearning <= current_date then 0"
+            + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
 }
