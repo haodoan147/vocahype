@@ -7,6 +7,8 @@ import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,17 +35,24 @@ public class WordService {
         return wordDTO;
     }
 
-    public List<WordDTO> getWordsByWord(String word) {
+    public List<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size) {
 //        List<Word> words = wordRepository.findByWordContainsIgnoreCase(word);
 //        List<SynonymDTO> collect = words.stream().map(word1 -> word1.getSynonyms() == null ? null : word1.getSynonyms().stream().map(synonym -> new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym())).collect(Collectors.toList())).flatMap(List::stream).collect(Collectors.toList());
 //        List<WordDTO> wordDTOS = words.stream().map(word1 -> modelMapper.map(word1, WordDTO.class)).collect(Collectors.toList());
 //        for (int i = 0; i < wordDTOS.size(); i++) {
 //            wordDTOS.get(i).setSynonyms(collect.stream().filter(synonymDTO -> synonymDTO.getWordId().equals(wordDTOS.get(i).getId())).collect(Collectors.toList()));
 //        }
-        return wordRepository.findByWordContainsIgnoreCase(word).stream().map((element) -> {
+        Pageable pageable = PageRequest.of(page, size);
+        if (exact) return wordRepository.findByWordIgnoreCase(word, pageable);
+        return wordRepository.findByWordContainsIgnoreCase(word, pageable).stream().map((element) -> {
             WordDTO wordDTO = modelMapper.map(element, WordDTO.class);
             wordDTO.setSynonyms(element.getSynonyms() == null ? null : element.getSynonyms().stream().map(SynonymDTO::new).collect(Collectors.toSet()));
             return wordDTO;
         }).collect(Collectors.toList());
+    }
+
+    public long countWord(final String word, final boolean exact) {
+        if (exact) return wordRepository.countByWordIgnoreCase(word);
+        return wordRepository.countByWordContainsIgnoreCase(word);
     }
 }

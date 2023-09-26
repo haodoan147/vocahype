@@ -39,11 +39,10 @@ public class UserWordComprehensionService {
                         word));
         Integer level = getLevel(assessment, wordComprehension.getWordComprehensionLevel());
         wordComprehension.setWordComprehensionLevel(level);
-        if (level != 11 && level != 12) { // mastered or ignore (no next learning time)
-            wordComprehension.setNextLearning(Timestamp.valueOf(LocalDateTime.now()
-                    .plusDays(Level.valueOf("LEVEL_" + level).getDay())
-                    .truncatedTo(ChronoUnit.DAYS)));
-        }
+        // mastered or ignore (no next learning time)
+        wordComprehension.setNextLearning((level != 11 && level != 12) ? Timestamp.valueOf(LocalDateTime.now()
+                .plusDays(Level.valueOf("LEVEL_" + level).getDay())
+                .truncatedTo(ChronoUnit.DAYS)) : null);
         userWordComprehensionRepository.save(wordComprehension);
     }
 
@@ -73,7 +72,7 @@ public class UserWordComprehensionService {
         return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearning(userId, pageable);
     }
 
-    public long countWordTest() {
+    public long countWord() {
         return wordRepository.count();
     }
 }

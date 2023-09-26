@@ -14,7 +14,8 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
 
     Optional<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(final String userId, final Long wordId);
 
-    @Query("select new com.vocahype.dto.WordDTO(w) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, "
+            + "case when uwc.userWordComprehensionID.userId is null then 'to learn' else 'learning' end, uwc.nextLearning) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "

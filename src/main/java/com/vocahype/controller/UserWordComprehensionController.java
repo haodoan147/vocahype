@@ -6,6 +6,7 @@ import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.service.UserWordComprehensionService;
+import com.vocahype.util.ConversionUtils;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,7 @@ public class UserWordComprehensionController {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
         List<WordDTO> wordTest = userWordComprehensionService.getWordTest(offset - 1, limit);
-        long total = userWordComprehensionService.countWordTest();
-        return new ResponseEntityJsonApi(wordTest, new MetaResponseEntity(1, (int) Math.ceil(total / (double)limit), offset, limit, (int) total));
+        long total = userWordComprehensionService.countWord();
+        return new ResponseEntityJsonApi(wordTest, new MetaResponseEntity(1, ConversionUtils.roundUp(total, limit), offset, limit, (int) total));
     }
 }
