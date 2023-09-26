@@ -30,14 +30,14 @@ public class WordDTO {
     private String phoneticEnd;
     private Timestamp createdOn;
     private Timestamp updatedOn;
-    private String status;
-    private Date dueDate;
+    @JsonIgnore
+    private ComprehensionDTO comprehension;
     @JsonIgnore
     private Set<DefinitionDTO> definitions;
     @JsonIgnore
     private Set<SynonymDTO> synonyms;
 
-    public WordDTO(Word word, boolean isContainDefinitions, String status, Date dueDate) {
+    public WordDTO(Word word, boolean isContainDefinitions, String status, Date dueDate, Integer comprehensionLevel) {
         this.id = word.getId();
         this.word = word.getWord();
         this.count = word.getCount();
@@ -49,8 +49,7 @@ public class WordDTO {
         this.phoneticEnd = word.getPhoneticEnd();
         this.createdOn = word.getCreatedOn();
         this.updatedOn = word.getUpdatedOn();
-        this.status = status;
-        this.dueDate = dueDate;
+        this.comprehension = new ComprehensionDTO(status, dueDate, comprehensionLevel);
         this.definitions = new HashSet<>();
         this.synonyms = new HashSet<>();
         if (isContainDefinitions) {
@@ -60,8 +59,9 @@ public class WordDTO {
     }
 
     public WordDTO(Word word) {
-        this(word, false, null, null);
+        this(word, false, null, null, null);
     }
+
     @Override
     public String toString() {
         return id.toString();
