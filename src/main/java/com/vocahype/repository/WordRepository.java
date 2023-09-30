@@ -21,6 +21,11 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     long countByWordIgnoreCase(String word);
 //    @EntityGraph("graph.WordSynonymSynonym")
-    @Override
-    Optional<Word> findById(Long aLong);
+
+//    @EntityGraph("graph.SynonymWord")
+    @Query("select new com.vocahype.dto.WordDTO(w) from Word w "
+//            + "left join Synonym s on w.id = s.synonym.id and s.isSynonym = true "
+//            + "left join Synonym a on w.id = a.synonym.id and a.isSynonym = false "
+            + "where w.id = ?1 ")
+    Optional<WordDTO> findWordDTOById(Long aLong);
 }

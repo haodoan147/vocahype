@@ -6,13 +6,7 @@ import lombok.Setter;
 import org.springframework.scheduling.annotation.Async;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -69,7 +63,7 @@ public class ResponseEntityJsonApi {
                         if (value instanceof Collection || value.getClass().equals(ArrayList.class)) {
                             Collection collection = ((Collection) value);
                             if (collection.size() > 0) {
-                                List<DataResponseEntity> relation = new ArrayList<>();
+                                Set<DataResponseEntity> relation = new HashSet<>();
 //                                relationships.put(field.getName(), Map.of("data", collection.stream().map(item -> new DataResponseEntity(item, Map.of(), true)).toArray()));
                                 collection.forEach(item -> {
 //                            relationships.put(field.getName(), Map.of("data", new DataResponseEntity(item, Map.of(), true)));
@@ -83,7 +77,8 @@ public class ResponseEntityJsonApi {
                                         this.included.addAll(jsonApi.included);
                                     }
                                 });
-                                relationships.put(field.getName(), Map.of("data", relation));
+                                relationships.put(field.getName(), Map.of("data", relation.stream().sorted(Comparator.comparing(DataResponseEntity::getType)
+                                        .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId))));
                             }
                     } else if (!PRIMITIVE_TYPES.contains(value.getClass())) {
                         relationships.put(field.getName(), Map.of("data", new DataResponseEntity(value, Map.of(), true)));
@@ -116,21 +111,21 @@ public class ResponseEntityJsonApi {
         this.data = this.data.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
                 .thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparingInt(o -> - o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
     }
 
     public ResponseEntityJsonApi (List<?> entity) {
         entity.forEach(this::add);
         this.data = this.data.stream().distinct().collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparingInt(o -> - o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
     }
 
     public ResponseEntityJsonApi (List<?> entity, MetaResponseEntity meta) {
         entity.forEach(this::add);
         this.data = this.data.stream().distinct().collect(Collectors.toList());
         this.included = this.included.stream().distinct().sorted(Comparator.comparing(DataResponseEntity::getType)
-                .thenComparingInt(o -> - o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
+                .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId)).collect(Collectors.toList());
         this.meta = meta;
     }
 //    public ResponseEntityJsonApi response(List<?> entities) {

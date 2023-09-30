@@ -4,10 +4,12 @@ import com.vocahype.entity.Synonym;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@Accessors(chain = true)
 public class SynonymDTO {
     private Long id;
     private String synonym;
@@ -17,6 +19,16 @@ public class SynonymDTO {
         this.id = synonym.getSynonymID().getSynonymId();
         this.synonym = synonym.getSynonym().getWord();
         this.isSynonym = synonym.getIsSynonym();
+    }
+
+    static public SynonymDTO of(Synonym synonym) {
+        return new SynonymDTO(synonym);
+    }
+
+    public SynonymDTO(Long id, String synonym, Boolean isSynonym) {
+        this.id = id;
+        this.synonym = synonym;
+        this.isSynonym = isSynonym;
     }
 
     @Override

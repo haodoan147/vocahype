@@ -2,8 +2,8 @@ package com.vocahype.service;
 
 import com.vocahype.dto.SynonymDTO;
 import com.vocahype.dto.WordDTO;
-import com.vocahype.entity.Word;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.repository.SynonymRepository;
 import com.vocahype.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -11,7 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +22,7 @@ public class WordService {
 
     private final WordRepository wordRepository;
     private final ModelMapper modelMapper;
+    private final SynonymRepository synonymRepository;
 
     public WordDTO getWordById(Long id) {
 //        Word word = wordRepository.findById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
@@ -29,10 +32,29 @@ public class WordService {
 //        List<DefinitionDTO> definitionDTOS = word.getDefinitions() == null ? null : word.getDefinitions().stream().map(definition -> new DefinitionDTO(definition.getId(), definition.getDefinition(), definition.getExamples().stream().map(example -> new ExampleDTO(example.getId(), example.getExample())).collect(Collectors.toSet()))).collect(Collectors.toList());
 //        wordDTO.setDefinitions(definitionDTOS);
 //        return wordDTO;
-        Word word = wordRepository.findById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
-        WordDTO wordDTO = modelMapper.map(word, WordDTO.class);
-        wordDTO.setSynonyms(word.getSynonyms() == null ? null : word.getSynonyms().stream().map(SynonymDTO::new).collect(Collectors.toSet()));
-        return wordDTO;
+        WordDTO word = wordRepository.findWordDTOById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
+//        WordDTO wordDTO = modelMapper.map(word, WordDTO.class);
+//        wordDTO.setSynonyms(word.getSynonyms() == null ? null : word.getSynonyms().stream().map(SynonymDTO::new).collect(Collectors.toSet()));
+        // ex: one = match ->
+        // wordId = one (already if eager fetch)
+        // synonymId = one
+        // wordId = match
+        // synonymId = match
+        Set<SynonymDTO> synonym = word.getSynonyms();
+        synonym.addAll(synonymRepository.findWordSynonymDTOBySynonymID_SynonymIdAndIsSynonym(id, true));
+        synonym.addAll(synonymRepository.findWordSynonymDTOBySynonymID_SynonymIdAndIsSynonym(id, false));
+//        synonymOfSynonym.forEach(synonym1 -> {
+//            List<SynonymDTO> synonymDTOBySynonymIDWordIdAndIsSynonym = synonymRepository.findSynonymDTOBySynonymID_WordIdAndIsSynonym(synonym1.getId(), true);
+//            synonym.addAll(synonymDTOBySynonymIDWordIdAndIsSynonym);
+////            synonymDTOBySynonymIDWordIdAndIsSynonym.forEach(synonymDTO -> {
+////                synonym.addAll(synonymRepository.findSynonymDTOBySynonymID_WordIdAndIsSynonym(synonymDTO.getId(), true));
+////            });
+//            List<SynonymDTO> synonymDTOBySynonymIDWordIdAndIsSynonym1 = synonymRepository.findWordSynonymDTOBySynonymID_SynonymIdAndIsSynonym(synonym1.getId(), true);
+//            synonym.addAll(synonymDTOBySynonymIDWordIdAndIsSynonym1);
+//        });
+//        synonym.stream().distinct().filter(synonymDTO -> !synonymDTO.getId().equals(id));
+        word.setSynonyms(synonym);
+        return word;
     }
 
     public List<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size) {
