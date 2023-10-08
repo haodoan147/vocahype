@@ -1,6 +1,7 @@
 package com.vocahype.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,8 +32,9 @@ public class User implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    private Long id;
+    private String id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
@@ -75,6 +77,9 @@ public class User implements Serializable {
 
     @Column(name = "updated_on")
     private Timestamp updatedOn;
+
+    @Column(name = "goal_seconds")
+    private Integer goalSeconds;
 
     @Override
     public String toString() {

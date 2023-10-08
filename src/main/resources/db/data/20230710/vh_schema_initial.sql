@@ -48,23 +48,13 @@ CREATE TABLE IF NOT EXISTS vh.roles (
     CONSTRAINT roles_pkey PRIMARY KEY (id)
     );
 
---
--- Name: seq_id_users; Type: SEQUENCE; Schema: vh; Owner: vh
---
-
-CREATE SEQUENCE IF NOT EXISTS vh.seq_id_users
-    START WITH 100000
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
 
 --
 -- Name: users; Type: TABLE; Schema: vh; Owner: vh
 --
 
 CREATE TABLE IF NOT EXISTS vh.users (
-    id integer NOT NULL DEFAULT nextval('vh.seq_id_users'::regclass),
+    id text NOT NULL,
     role_id integer DEFAULT 1 NOT NULL,
     login_name heroku_ext.citext NOT NULL,
     secret text,
@@ -79,6 +69,7 @@ CREATE TABLE IF NOT EXISTS vh.users (
     login_count integer DEFAULT 0 NOT NULL,
     created_on timestamp with time zone DEFAULT now() NOT NULL,
     updated_on timestamp with time zone,
+    goal_seconds integer DEFAULT 300,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT users_roles_id_fk FOREIGN KEY (role_id) REFERENCES vh.roles(id)
     );
@@ -129,7 +120,7 @@ CREATE TABLE IF NOT EXISTS vh.words (
 --
 
 CREATE TABLE IF NOT EXISTS vh.words_user_knowledge (
-    user_id integer NOT NULL,
+    user_id text NOT NULL,
     word_id integer NOT NULL,
     status boolean default false,
     CONSTRAINT words_user_knowledge_pkey PRIMARY KEY (user_id, word_id),
@@ -217,3 +208,26 @@ CREATE TABLE IF NOT EXISTS vh.word_comprehension_levels (
                                            description text,
                                            CONSTRAINT word_comprehension_levels_pkey PRIMARY KEY (id)
 );
+--
+-- --
+-- -- Name: seq_id_word_comprehension_levels; Type: SEQUENCE; Schema: vh; Owner: vh
+-- --
+--
+-- CREATE SEQUENCE IF NOT EXISTS vh.seq_id_user_profile
+--     START WITH 1
+--     INCREMENT BY 1
+--     NO MINVALUE
+--     NO MAXVALUE
+--     CACHE 1;
+--
+-- --
+-- -- Name: word_comprehension_levels; Type: TABLE; Schema: vh; Owner: vh
+-- --
+--
+-- CREATE TABLE IF NOT EXISTS vh.user_profile (
+--                                                             id integer NOT NULL DEFAULT nextval('vh.seq_id_user_profile'::regclass),
+--                                                             user_id text NOT NULL,
+--                                                             goal_seconds integer DEFAULT 300,
+--                                                             CONSTRAINT user_profile_pkey PRIMARY KEY (id),
+--                                                             CONSTRAINT user_profile_user_id_fk FOREIGN KEY (user_id) REFERENCES vh.users(id)
+-- );

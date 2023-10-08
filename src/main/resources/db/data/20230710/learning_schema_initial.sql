@@ -76,3 +76,16 @@ CREATE INDEX IF NOT EXISTS fki_user_word_comprehension_word_id_user_id_idx ON le
 -- DROP TRIGGER IF EXISTS learning_user_word_comprehension_on_insert ON learning.user_word_comprehension;
 --
 -- CREATE TRIGGER learning_user_word_comprehension_on_insert BEFORE INSERT ON learning.user_word_comprehension FOR EACH ROW EXECUTE FUNCTION learning.user_word_comprehension_x_insert();
+
+
+--
+-- Name: word_comprehension_levels; Type: TABLE; Schema: vh; Owner: vh
+--
+
+CREATE TABLE IF NOT EXISTS learning.user_learning_goal_tracking (
+    user_id text NOT NULL,
+    date_learn date NOT NULL DEFAULT now(),
+    user_learnt_time integer,
+    CONSTRAINT user_learning_goal_tracking_pkey PRIMARY KEY (user_id, date_learn),
+    CONSTRAINT user_learning_goal_tracking_user_id_fk FOREIGN KEY (user_id) REFERENCES vh.users(id)
+    );

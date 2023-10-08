@@ -87,7 +87,7 @@ public class WordUserKnowledgeService {
     }
 
     public List<WordUserKnowledgeDTO> getListWordUserKnowledge() {
-        long currentUserId = CURRENT_USER_ID;
+        String currentUserId = CURRENT_USER_ID;
         return wordUserKnowledgeRepository.findAllByWordUserKnowledgeID_UserId(currentUserId);
     }
 

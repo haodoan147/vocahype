@@ -13,11 +13,11 @@ public interface WordUserKnowledgeRepository extends JpaRepository<WordUserKnowl
 
     @Modifying
     @Query("delete from WordUserKnowledge where wordUserKnowledgeID.userId = ?1")
-    void deleteAllByWordUserKnowledgeID_UserId(Long userId);
+    void deleteAllByWordUserKnowledgeID_UserId(String userId);
 
     @Query("select new com.vocahype.dto.WordUserKnowledgeDTO(w.id, w.word) "
             + "from WordUserKnowledge wuk "
             + "join Word w on w.id = wuk.wordUserKnowledgeID.wordId "
             + "where wuk.wordUserKnowledgeID.userId = ?1")
-    List<WordUserKnowledgeDTO> findAllByWordUserKnowledgeID_UserId(long currentUserId);
+    List<WordUserKnowledgeDTO> findAllByWordUserKnowledgeID_UserId(String currentUserId);
 }

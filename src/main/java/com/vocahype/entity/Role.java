@@ -22,7 +22,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "role", schema = "vh")
+@Table(name = "roles", schema = "vh")
 @Accessors(chain = true)
 public class Role implements Serializable {
 
@@ -45,4 +45,8 @@ public class Role implements Serializable {
     @OneToMany(mappedBy = "role")
     private Set<User> users;
 
+    @Override
+    public String toString() {
+        return id.toString();
+    }
 }

@@ -5,7 +5,7 @@ public class Constants {
     public static final long MAX_WORD_COUNT = 23135851162L;
     public static final long MIN_WORD_COUNT = 12711L;
     public static final long WORD_COUNT = 1000;
-    public static final long CURRENT_USER_ID = 100000L;
+    public static final String CURRENT_USER_ID = "100000";
     public static final int LEVEL_DAY_1 = 0;
     public static final int LEVEL_DAY_2 = 1;
     public static final int LEVEL_DAY_3 = 3;

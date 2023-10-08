@@ -1,15 +1,13 @@
 package com.vocahype.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Builder
 @AllArgsConstructor
@@ -17,9 +15,9 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Embeddable
-public class WordUserKnowledgeID implements Serializable {
-    @Column(name = "word_id")
-    private Long wordId;
+public class UserLearningGoalTrackingID implements Serializable {
+    @Column(name = "date_learn")
+    private LocalDate dateLearn;
     @Column(name = "user_id")
     private String userId;
 }
