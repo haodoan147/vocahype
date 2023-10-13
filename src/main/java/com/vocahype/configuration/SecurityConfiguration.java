@@ -1,6 +1,8 @@
 package com.vocahype.configuration;
 
 import com.vocahype.security.BCryptPasswordEncoderCustom;
+import com.vocahype.security.CustomJwtAuthenticationConverter;
+import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,8 +12,11 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -22,17 +27,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
+import static com.vocahype.util.Routing.API_PUB;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-    private final ApplicationProperties applicationProperties;
+    private final CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
-                .authorizeRequests().anyRequest().permitAll()
+                .authorizeRequests()
+                .antMatchers(Routing.LEARNING_TIME).authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -40,7 +49,9 @@ public class SecurityConfiguration {
                 .httpBasic()
                 .and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-                .authenticationEntryPoint(authenticationEntryPoint());
+                .authenticationEntryPoint(authenticationEntryPoint())
+                .and()
+                .oauth2ResourceServer().jwt().jwtAuthenticationConverter(customJwtAuthenticationConverter);
         return http.build();
     }
 
@@ -83,4 +94,8 @@ public class SecurityConfiguration {
         return source;
     }
 
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return JwtDecoders.fromIssuerLocation("https://securetoken.google.com/vocahype");
+    }
 }

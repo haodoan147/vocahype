@@ -18,6 +18,11 @@ spring:
     user:
       name: admin
       password: admin
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://securetoken.google.com/vocahype
+          jwk-set-uri: https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-eqwnw%40vocahype.iam.gserviceaccount.com
 
   jpa:
 #    hibernate:
