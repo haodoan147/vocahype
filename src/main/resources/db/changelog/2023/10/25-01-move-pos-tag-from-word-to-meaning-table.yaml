@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 25-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - columnExists:
+                columnName: pos_tag
+                schemaName: vh
+                tableName: words
+        - createSequence:
+            sequenceName: vh.seq_id_meanings
+            schemaName: vh
+            startValue: 1
+            incrementBy: 1
+            cacheSize: 1
+        - createTable:
+            schemaName: vh
+            tableName: meanings
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: vh.seq_id_meanings
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: pos_tag
+                  type: text
+                  constraints:
+                    foreignKeyName: meanings_pos_tag_fk
+                    referencedTableSchemaName: vh
+                    referencedTableName: pos
+                    referencedColumnNames: pos_tag
+              - column:
+                  name: word_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: meanings_word_id_fk
+                    referencedTableSchemaName: vh
+                    referencedTableName: words
+                    referencedColumnNames: id
+        - update:
+            schemaName: vh
+            tableName: meanings
+            columns:
+              - column:
+                  name: pos_tag
+                  valueComputed: '(SELECT pos_tag FROM vh.word WHERE word.id = meanings.word_id)'
+        - dropForeignKeyConstraint:
+            constraintName: words_pos_pos_tag_fk
+            baseTableSchemaName: vh
+            baseTableName: words
+        - dropColumn:
+            schemaName: vh
+            tableName: words
+            columnName: pos_tag
+      comment: Move pos_tag from word to meanings table

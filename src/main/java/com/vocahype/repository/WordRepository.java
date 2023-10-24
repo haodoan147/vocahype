@@ -28,4 +28,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 //            + "left join Synonym a on w.id = a.synonym.id and a.isSynonym = false "
             + "where w.id = ?1 ")
     Optional<WordDTO> findWordDTOById(Long aLong);
+
+    Optional<Word> findByWordIgnoreCase(String word);
 }

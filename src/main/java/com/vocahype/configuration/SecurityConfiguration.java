@@ -2,6 +2,7 @@ package com.vocahype.configuration;
 
 import com.vocahype.security.BCryptPasswordEncoderCustom;
 import com.vocahype.security.CustomJwtAuthenticationConverter;
+import com.vocahype.security.FailAuthenticationEntryPoint;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -49,10 +51,19 @@ public class SecurityConfiguration {
                 .httpBasic()
                 .and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler())
-                .authenticationEntryPoint(authenticationEntryPoint())
-                .and()
-                .oauth2ResourceServer().jwt().jwtAuthenticationConverter(customJwtAuthenticationConverter);
+                .authenticationEntryPoint(failAuthenticationEntryPoint())
+//                .and()
+//                .oauth2ResourceServer().jwt()
+//                .jwtAuthenticationConverter(customJwtAuthenticationConverter)
+        ;
+
+        http.addFilterBefore(firebaseAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public FirebaseAuthenticationFilter firebaseAuthenticationFilter() {
+        return new FirebaseAuthenticationFilter();
     }
 
     @Bean
@@ -83,6 +94,11 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public FailAuthenticationEntryPoint failAuthenticationEntryPoint() {
+        return new FailAuthenticationEntryPoint();
+    }
+
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("*"));
@@ -94,8 +110,8 @@ public class SecurityConfiguration {
         return source;
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return JwtDecoders.fromIssuerLocation("https://securetoken.google.com/vocahype");
-    }
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//        return JwtDecoders.fromIssuerLocation("https://securetoken.google.com/vocahype");
+//    }
 }

@@ -38,3 +38,6 @@ cronjob:
     partitionLearning:
       time: 0 0 7 * * ?
       active: false
+
+application:
+  dictionary-api-url: https://api.dictionaryapi.dev/api/v2/entries/en
