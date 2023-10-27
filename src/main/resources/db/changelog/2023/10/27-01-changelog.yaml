@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 27-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - tableExists:
+                schemaName: vh
+                tableName: meanings
+        - sql:
+            dbms: postgresql
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              INSERT INTO vh.meanings (pos_tag, word_id)
+              SELECT DISTINCT w.pos_tag, w.id
+              FROM vh.words w;
+            stripComments: true

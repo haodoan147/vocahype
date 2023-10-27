@@ -47,13 +47,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: pos_tag
-                  valueComputed: '(SELECT pos_tag FROM vh.word WHERE word.id = meanings.word_id)'
-        - dropForeignKeyConstraint:
-            constraintName: words_pos_pos_tag_fk
-            baseTableSchemaName: vh
-            baseTableName: words
-        - dropColumn:
-            schemaName: vh
-            tableName: words
-            columnName: pos_tag
+                  valueComputed: '(SELECT pos_tag FROM vh.words WHERE words.id = meanings.word_id)'
+#        - dropForeignKeyConstraint:
+#            constraintName: words_pos_pos_tag_fk
+#            baseTableSchemaName: vh
+#            baseTableName: words
+#        - dropColumn:
+#            schemaName: vh
+#            tableName: words
+#            columnName: pos_tag
       comment: Move pos_tag from word to meanings table

@@ -18,8 +18,8 @@ import java.io.Serializable;
 @Setter
 @Embeddable
 public class SynonymID implements Serializable {
-    @Column(name = "word_id")
-    private Long wordId;
+    @Column(name = "meanings_id")
+    private Long meaningsId;
     @Column(name = "synonym_id")
     private Long synonymId;
 }

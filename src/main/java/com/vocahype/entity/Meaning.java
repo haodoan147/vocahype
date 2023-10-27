@@ -16,10 +16,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedEntityGraphs;
-import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.io.Serializable;
@@ -29,7 +25,7 @@ import java.util.Set;
 @Entity
 @Setter
 @Getter
-@Table(name = "words", schema = "vh")
+@Table(name = "meanings", schema = "vh")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -50,54 +46,27 @@ import java.util.Set;
 //                }
 //        ),
 //})
-@NamedEntityGraphs({
-        @NamedEntityGraph(
-                name = "graph.WordMeaningPos",
-                attributeNodes =  @NamedAttributeNode(value = "meanings", subgraph = "subgraph.MeaningPos"),
-                subgraphs = {
-                        @NamedSubgraph(name = "subgraph.MeaningPos",
-                                attributeNodes = @NamedAttributeNode(value = "pos"))
-                }
-        ),
-})
-public class Word implements Serializable {
+public class Meaning implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "word")
-    private String word;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "word_id")
+    @JsonIgnore
+    private Word word;
 
-    @Column(name = "count")
-    private Long count;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pos_tag")
+    @JsonIgnore
+    private Pos pos;
 
-    @Column(name = "point")
-    private Double point;
+    @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
+    private Set<Definition> definitions;
 
-    @Column(name = "phonetic")
-    private String phonetic;
-
-    @Column(name = "syllables")
-    private Integer syllable;
-
-    @Column(name = "phonetic_start")
-    private String phoneticStart;
-
-    @Column(name = "phonetic_end")
-    private String phoneticEnd;
-
-    @Column(name = "created_on")
-    private Timestamp createdOn;
-
-    @Column(name = "updated_on")
-    private Timestamp updatedOn;
-
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
-    private Set<Meaning> meanings;
-
-    @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
     private Set<Synonym> synonyms;
 
     @Override

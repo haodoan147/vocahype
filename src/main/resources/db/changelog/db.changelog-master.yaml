@@ -5,3 +5,11 @@ databaseChangeLog:
       file: db/changelog/2023/07/10-02-initial-vh-data.yaml
   - include:
       file: db/changelog/2023/08/24-01-initial-learning-schema.yaml
+  - include:
+      file: db/changelog/2023/10/25-01-move-pos-tag-from-word-to-meaning-table.yaml
+  - include:
+      file: db/changelog/2023/10/27-01-changelog.yaml
+  - include:
+      file: db/changelog/2023/10/27-02-changelog.yaml
+  - include:
+      file: db/changelog/2023/10/27-03-changelog.yaml

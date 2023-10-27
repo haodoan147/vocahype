@@ -12,12 +12,19 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@NamedEntityGraphs({
-        @NamedEntityGraph(
-                name = "graph.SynonymWord",
-                attributeNodes =  @NamedAttributeNode(value = "word")
-        )
-})
+//@NamedEntityGraphs({
+//        @NamedEntityGraph(
+//                name = "graph.SynonymWord",
+//                attributeNodes =  @NamedAttributeNode(value = "meaning", subgraph = "subgraph.MeaningWord"),
+//        )
+//})
+@NamedEntityGraph(
+        name = "graph.SynonymMeaningsWord",
+        attributeNodes =  @NamedAttributeNode(value = "meaning", subgraph = "subgraph.MeaningsWord"),
+        subgraphs = {
+                @NamedSubgraph(name = "subgraph.MeaningsWord", attributeNodes = @NamedAttributeNode(value = "word"))
+        }
+)
 public class Synonym implements Serializable {
     @Id
     @EmbeddedId
@@ -25,9 +32,9 @@ public class Synonym implements Serializable {
     @Column(name = "is_synonym")
     private Boolean isSynonym;
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("wordId")
-    @JoinColumn(name = "word_id")
-    private Word word;
+    @MapsId("meaningsId")
+    @JoinColumn(name = "meanings_id")
+    private Meaning meaning;
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("synonymId")
     @JoinColumn(name = "synonym_id")

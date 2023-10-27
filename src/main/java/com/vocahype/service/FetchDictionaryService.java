@@ -1,10 +1,8 @@
 package com.vocahype.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.Word;
 import com.vocahype.repository.DefinitionRepository;
-import com.vocahype.repository.PartitionLearningsRepositoryCustomImpl;
 import com.vocahype.repository.PosRepository;
 import com.vocahype.repository.WordRepository;
 import lombok.Data;
@@ -18,8 +16,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Set;
-
-import static com.vocahype.util.ConversionUtils.roundDown;
 
 @Log4j2
 @Service
@@ -41,23 +37,23 @@ public class FetchDictionaryService {
                 })
                 .block();
         dictionaryEntries.forEach(dictionaryEntry -> {
-            Word word = wordRepository.findByWordIgnoreCase(dictionaryEntry.getWord()).orElse(new Word());
+            Word word = wordRepository.findByWordIgnoreCaseOrderById(dictionaryEntry.getWord()).orElse(new Word());
             if (word.getWord() == null) {
                 word.setWord(dictionaryEntry.getWord());
             }
-            if (!dictionaryEntry.getMeanings().isEmpty()) {
-                posRepository.findById(ConvertPos.valueOf(dictionaryEntry.getMeanings().stream().findFirst().get()
-                                .getPartOfSpeech().toUpperCase()).getTitle())
-                        .ifPresent(word::setPos);
-            }
+//            if (!dictionaryEntry.getMeanings().isEmpty()) {
+//                posRepository.findById(ConvertPos.valueOf(dictionaryEntry.getMeanings().stream().findFirst().get()
+//                                .getPartOfSpeech().toUpperCase()).getTitle())
+//                        .ifPresent(word::setPos);
+//            }
             if (!dictionaryEntry.getPhonetics().isEmpty()) {
                 word.setPhonetic(dictionaryEntry.getPhonetics().stream().findFirst().orElse(new Phonetic()).getText());
             }
             if (!dictionaryEntry.getMeanings().isEmpty()) {
-                if (word.getDefinitions() == null) {
+//                if (word.getDefinitions() == null) {
 //                    word.setDefinition(dictionaryEntry.getMeanings().get(0).getDefinitions().get(0).getDefinition());
 //                    word.setExample(dictionaryEntry.getMeanings().get(0).getDefinitions().get(0).getExample());
-                }
+//                }
             }
         });
     }

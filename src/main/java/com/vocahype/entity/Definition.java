@@ -36,8 +36,8 @@ public class Definition implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "word_id")
-    private Word word;
+    @JoinColumn(name = "meanings_id")
+    private Meaning meaning;
 
     @Column(name = "definition")
     private String definition;
