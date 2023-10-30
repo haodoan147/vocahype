@@ -21,3 +21,11 @@ databaseChangeLog:
       file: db/changelog/2023/10/30-01-add-topics-table.yaml
   - include:
       file: db/changelog/2023/10/30-02-changelog-import-dataset-topic-for-word.yaml
+  - include:
+      file: db/changelog/2023/10/30-03-add-word_topic-table.yaml
+  - include:
+      file: db/changelog/2023/10/30-04-add-emoji-column.yaml
+  - include:
+      file: db/changelog/2023/10/31-01-add-user-score-column.yaml
+  - include:
+      file: db/changelog/2023/10/31-05-update-data-topics-table.yaml

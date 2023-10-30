@@ -6,6 +6,7 @@ import com.vocahype.entity.UserLearningGoalTracking;
 import com.vocahype.entity.UserLearningGoalTrackingID;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.UserLearningGoalTrackingRepository;
+import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,10 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class UserLearningGoalTrackingService {
 
-    private static final String CURRENT_USER_ID = "100000";
     private final UserLearningGoalTrackingRepository userLearningGoalTrackingRepository;
 
     public void saveUserLearningGoalTracking(SaveUserLearningGoalTrackingDTO saveUserLearningGoalTrackingDTO) {
-        String userId = CURRENT_USER_ID;
+        String userId = SecurityUtil.getCurrentUserId();
         UserLearningGoalTrackingID id = new UserLearningGoalTrackingID(LocalDate.now(), userId);
         UserLearningGoalTracking userLearningGoalTracking = userLearningGoalTrackingRepository.findById(id)
                 .orElse(new UserLearningGoalTracking(id, 0));
@@ -32,14 +32,13 @@ public class UserLearningGoalTrackingService {
     }
 
     public GetUserLearningGoalTrackingDTO getUserLearningGoalTracking() {
-        String userId = CURRENT_USER_ID;
+        String userId = SecurityUtil.getCurrentUserId();
         UserLearningGoalTrackingID id = new UserLearningGoalTrackingID(LocalDate.now(), userId);
         UserLearningGoalTracking userLearningGoalTracking = userLearningGoalTrackingRepository.findById(id)
-                .orElseThrow(() ->
-                        new InvalidException("User have not learnt today!", "User have not learnt yet today!"));
+                .orElse(new UserLearningGoalTracking(id, 0));
         return new GetUserLearningGoalTrackingDTO(Timestamp.valueOf(
                 userLearningGoalTracking.getUserLearningGoalTrackingID().getDateLearn().atStartOfDay()),
-                userLearningGoalTracking.getUserLearningGoalTrackingID().getUserId(),
+                userId,
                 userLearningGoalTracking.getUserLearntTime());
     }
 }

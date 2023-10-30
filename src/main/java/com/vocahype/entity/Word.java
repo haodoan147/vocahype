@@ -1,27 +1,9 @@
 package com.vocahype.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedAttributeNode;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.NamedEntityGraphs;
-import javax.persistence.NamedSubgraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Set;
@@ -94,15 +76,17 @@ public class Word implements Serializable {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "topic_id")
-    private Topic topic;
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    private Set<WordTopic> wordTopics;
 
     @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
     private Set<Meaning> meanings;
 
     @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY)
     private Set<Synonym> synonyms;
+
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    private Set<UserWordComprehension> userWordComprehensions;
 
     @Override
     public String toString() {

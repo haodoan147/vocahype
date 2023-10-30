@@ -81,6 +81,9 @@ public class User implements Serializable {
     @Column(name = "goal_seconds")
     private Integer goalSeconds;
 
+    @Column(name = "score")
+    private Integer score;
+
     @Override
     public String toString() {
         return id.toString();

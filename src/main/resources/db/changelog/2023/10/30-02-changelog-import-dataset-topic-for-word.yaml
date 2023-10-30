@@ -53,11 +53,4 @@ databaseChangeLog:
               - column:
                     name: topic_id
                     type: bigint
-        - update:
-            schemaName: vh
-            tableName: words
-            columns:
-              - column:
-                  name: topic_id
-                  valueComputed: '(SELECT dt.topic_id FROM data.topics dt WHERE words.word = dt.word)'
       comment: Import dataset topic for word

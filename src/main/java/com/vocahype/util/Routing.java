@@ -20,5 +20,6 @@ public class Routing {
     public static final String DAILY_GOAL = PROFILE + "/daily-goal";
     public static final String FETCH_DICTIONARY = API_BASE + "/fetch-dictionary";
     public static final String FETCH_DICTIONARY_WORD = FETCH_DICTIONARY + "/{word}";
+    public static final String TOPICS = API_BASE + "/topics";
 
 }

@@ -22,6 +22,10 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     long countByWordContainsIgnoreCase(String word);
 
     long countByWordIgnoreCase(String word);
+
+    @Query("select count(w) from Word w " +
+            "where w.id > (select u.score from User u where u.id = ?1)")
+    long countWordByUserId(String userId);
 //    @EntityGraph("graph.WordSynonymSynonym")
 
 //    @EntityGraph("graph.SynonymWord")

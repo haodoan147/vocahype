@@ -2,9 +2,6 @@ package com.vocahype.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vocahype.entity.Meaning;
-import com.vocahype.entity.Pos;
-import com.vocahype.entity.Synonym;
 import com.vocahype.entity.Word;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,9 +11,7 @@ import lombok.Setter;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Setter
 @Getter

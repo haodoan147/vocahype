@@ -2,13 +2,12 @@ package com.vocahype.service;
 
 import com.vocahype.dto.WordUserKnowledgeDTO;
 import com.vocahype.dto.enumeration.Assessment;
-import com.vocahype.entity.User;
-import com.vocahype.entity.Word;
-import com.vocahype.entity.WordUserKnowledge;
-import com.vocahype.entity.WordUserKnowledgeID;
+import com.vocahype.entity.*;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.repository.UserRepository;
 import com.vocahype.repository.WordRepository;
 import com.vocahype.repository.WordUserKnowledgeRepository;
+import com.vocahype.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +15,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.text.DecimalFormat;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.vocahype.util.Constants.CURRENT_USER_ID;
 import static com.vocahype.util.Constants.WORD_COUNT;
 
 @Service
@@ -34,6 +33,7 @@ public class WordUserKnowledgeService {
     private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
     private final ModelMapper modelMapper;
     private final UserWordComprehensionService userWordComprehensionService;
+    private final UserRepository userRepository;
 
     public List<WordUserKnowledgeDTO> get50WordForUserKnowledge() {
         List<Long> randomIds = new ArrayList<>();
@@ -69,16 +69,21 @@ public class WordUserKnowledgeService {
     }
 
     public Map<String, Object> saveUserKnowledge(final List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
+        String userId = SecurityUtil.getCurrentUserId();
+        Optional<User> userOptional = userRepository.findById(userId);
+        User user = userOptional.orElseGet(() -> userRepository.save(
+                User.builder().id(userId).loginName(userId).firstName(userId).lastName("").status(1L).loginCount(0L)
+                        .createdOn(Timestamp.valueOf(LocalDateTime.now())).role(Role.builder().id(1L).build()).build()));
         Set<WordUserKnowledge> knownWords = new HashSet<>();
         AtomicReference<Double> score = new AtomicReference<>((double) 0);
         wordUserKnowledgeDTO.forEach(word -> {
             Word word1 = wordRepository.findById(word.getWordId()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
             if (word.getStatus()) {
                 knownWords.add(new WordUserKnowledge(
-                        new WordUserKnowledgeID(word.getWordId(), CURRENT_USER_ID),
+                        new WordUserKnowledgeID(word.getWordId(), userId),
                         true,
                         Word.builder().id(word.getWordId()).build(),
-                        User.builder().id(CURRENT_USER_ID).build())
+                        user)
                 );
                 score.updateAndGet(v -> v + (1 - (1 - word1.getPoint())));
                 userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.MASTERED);
@@ -90,17 +95,19 @@ public class WordUserKnowledgeService {
         wordUserKnowledgeRepository.saveAll(knownWords);
         double sum = score.get() <= 0 ? 0 : (score.get() / wordUserKnowledgeDTO.size() * WORD_COUNT);
         int formatted = (int) sum;
+        user.setScore(formatted);
+        userRepository.save(user);
         return Map.of("message", "We estimate your knowledge is " + formatted
                 + " words. Congratulation on the good work!", "estimate", formatted);
     }
 
     @Transactional
     public void resetUserKnowledge() {
-        wordUserKnowledgeRepository.deleteAllByWordUserKnowledgeID_UserId(CURRENT_USER_ID);
+        wordUserKnowledgeRepository.deleteAllByWordUserKnowledgeID_UserId(SecurityUtil.getCurrentUserId());
     }
 
     public List<WordUserKnowledgeDTO> getListWordUserKnowledge() {
-        String currentUserId = CURRENT_USER_ID;
+        String currentUserId = SecurityUtil.getCurrentUserId();
         return wordUserKnowledgeRepository.findAllByWordUserKnowledgeID_UserId(currentUserId);
     }
 

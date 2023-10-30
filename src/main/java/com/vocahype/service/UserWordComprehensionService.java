@@ -3,12 +3,14 @@ package com.vocahype.service;
 import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.dto.enumeration.Level;
+import com.vocahype.entity.User;
 import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.UserWordComprehensionID;
 import com.vocahype.entity.Word;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.repository.WordRepository;
+import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +38,7 @@ public class UserWordComprehensionService {
                         new UserWordComprehensionID(wordId, userId),
                         1,
                         null,
-                        word));
+                        word, User.builder().id(userId).build()));
         Integer level = getLevel(assessment, wordComprehension.getWordComprehensionLevel());
         wordComprehension.setWordComprehensionLevel(level);
         // mastered or ignore (no next learning time)
@@ -66,18 +68,23 @@ public class UserWordComprehensionService {
         return currentLevel;
     }
 
-    public List<WordDTO> getWordTest(int page, int size) {
-        String userId = CURRENT_USER_ID;
+    public List<WordDTO> getWordTest(int page, int size, Long topicId) {
+        String userId = SecurityUtil.getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size);
-        return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearning(userId, pageable);
+        if (topicId == null || topicId == 17) {
+            return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearning(userId, pageable);
+        } else {
+            return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(userId, pageable, topicId);
+        }
     }
 
     public long countWord() {
-        return wordRepository.count();
+        String userId = SecurityUtil.getCurrentUserId();
+        return wordRepository.countWordByUserId(userId);
     }
 
     public void delayLearningWord(Long wordId, int day) {
-        String userId = CURRENT_USER_ID;
+        String userId = SecurityUtil.getCurrentUserId();
         UserWordComprehension wordComprehension = userWordComprehensionRepository
                 .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId)
                 .orElseThrow(() -> new InvalidException("Learning word not found",

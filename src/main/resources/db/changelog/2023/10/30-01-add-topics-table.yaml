@@ -33,18 +33,6 @@ databaseChangeLog:
               - column:
                   name: description
                   type: text
-        - addColumn:
-            schemaName: vh
-            tableName: words
-            columns:
-              - column:
-                  name: topic_id
-                  type: bigint
-                  constraints:
-                    foreignKeyName: words_topic_id_fk
-                    referencedTableSchemaName: vh
-                    referencedTableName: topics
-                    referencedColumnNames: id
         - sql:
             endDelimiter: //
             splitStatements: true

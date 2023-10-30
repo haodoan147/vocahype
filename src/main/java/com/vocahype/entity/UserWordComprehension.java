@@ -41,9 +41,10 @@ public class UserWordComprehension implements Serializable {
     @JoinColumn(name = "word_id")
     private Word word;
 
-//    @MapsId("userId")
-//    @Column(name = "user_id")
-//    private String user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Override
     public String toString() {

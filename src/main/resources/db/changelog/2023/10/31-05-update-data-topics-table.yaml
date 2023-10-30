@@ -1,0 +1,104 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-05_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - tableExists:
+                tableName: topics
+                schemaName: vh
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              DELETE
+              FROM vh.topics
+              WHERE id = 17::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Comedy'::text,
+              description = 'Words and humor-related terms for comedy enthusiasts.'::text
+              WHERE id = 11::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Weddings'::text,
+              description = 'Vocabulary for weddings and matrimonial ceremonies.'::text
+              WHERE id = 15::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Travel'::text,
+              description = 'Vocabulary for exploring the world and traveling.'::text
+              WHERE id = 7::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Environment'::text,
+              description = 'Terms related to ecology and the natural world.'::text
+              WHERE id = 16::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Groups Voices'::text,
+              description = 'Words and phrases associated with community and groups.'::text
+              WHERE id = 6::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Science & Tech'::text,
+              description = 'Words related to science and technology innovations.'::text
+              WHERE id = 14::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Entertainment'::text,
+              description = 'Words associated with movies, music, and pop culture.'::text
+              WHERE id = 3::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Politics'::text,
+              description = 'Words and terms related to politics and government.'::text
+              WHERE id = 1::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Sports'::text,
+              description = 'Terms for various sports and athletic activities.'::text
+              WHERE id = 12::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Home & Living'::text,
+              description = 'Vocabulary for home, interior design, and lifestyle.'::text
+              WHERE id = 13::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Style & Beauty'::text,
+              description = 'Fashion and beauty-related vocabulary.'::text
+              WHERE id = 5::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Wellness'::text,
+              description = 'Vocabulary related to health, fitness, and well-being.'::text
+              WHERE id = 2::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Business & Finances'::text,
+              description = 'Vocabulary associated with economics and finance.'::text
+              WHERE id = 10::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Parenting'::text,
+              description = 'Terms relevant to raising children and parenting.'::text
+              WHERE id = 4::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'Food & Drink'::text,
+              description = 'Words related to cuisine, dining, and beverages.'::text
+              WHERE id = 8::bigint;
+              
+              UPDATE vh.topics
+              SET name        = 'World News'::text,
+              description = 'Terms for global news and current events.'::text
+              WHERE id = 9::bigint;
+              
+              UPDATE vh.topics
+              SET id          = 17::bigint,
+              name        = 'None'::text,
+              description = 'Words from all topics will be included.'::text
+              WHERE id = 18::bigint;
+      comment: Update data for topics table

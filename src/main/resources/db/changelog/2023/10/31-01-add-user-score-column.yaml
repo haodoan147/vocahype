@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-05_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+              - columnExists:
+                  tableName: users
+                  schemaName: vh
+                  columnName: score
+        - addColumn:
+            tableName: users
+            schemaName: vh
+            columns:
+              - column:
+                  name: score
+                  type: double precision
+                  defaultValueNumeric: '0'
+      comment: Add score column to users table

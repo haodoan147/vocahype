@@ -1,24 +1,10 @@
 package com.vocahype.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.Accessors;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -29,6 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class Topic implements Serializable {
 
     @Id
@@ -43,8 +30,11 @@ public class Topic implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "emoji")
+    private String emoji;
+
     @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
-    private Set<Word> word;
+    private Set<WordTopic> wordTopics;
 
     @Override
     public String toString() {

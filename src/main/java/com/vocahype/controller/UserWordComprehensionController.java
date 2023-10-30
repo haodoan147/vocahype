@@ -45,11 +45,12 @@ public class UserWordComprehensionController {
 
     @GetMapping(value = Routing.WORDS_LEARN)
     public ResponseEntityJsonApi getLearningWord(@RequestParam(name = "page[offset]") int offset,
-                                                 @RequestParam(name = "page[limit]") int limit) {
+                                                 @RequestParam(name = "page[limit]") int limit,
+                                                 @RequestParam(name = "filter[topicId]", required = false) Long topicId) {
         if (offset <= 0 || limit <= 0) {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
-        List<WordDTO> wordTest = userWordComprehensionService.getWordTest(offset - 1, limit);
+        List<WordDTO> wordTest = userWordComprehensionService.getWordTest(offset - 1, limit, topicId);
         long total = userWordComprehensionService.countWord();
         return new ResponseEntityJsonApi(wordTest, new MetaResponseEntity(1, ConversionUtils.roundUp(total, limit), offset, limit, (int) total));
     }
