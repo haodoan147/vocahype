@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +26,8 @@ public class WordUserKnowledgeController {
     }
 
     @PostMapping(Routing.KNOWLEDGE_TEST_50)
-    public void saveUserKnowledge(@RequestBody List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
-        wordUserKnowledgeService.saveUserKnowledge(wordUserKnowledgeDTO);
+    public Map<String, Object> saveUserKnowledge(@RequestBody List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
+        return wordUserKnowledgeService.saveUserKnowledge(wordUserKnowledgeDTO);
     }
 
     @GetMapping(value = Routing.WORD_USER_KNOWLEDGE)

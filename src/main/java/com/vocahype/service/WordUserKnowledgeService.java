@@ -1,10 +1,12 @@
 package com.vocahype.service;
 
 import com.vocahype.dto.WordUserKnowledgeDTO;
+import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.entity.User;
 import com.vocahype.entity.Word;
 import com.vocahype.entity.WordUserKnowledge;
 import com.vocahype.entity.WordUserKnowledgeID;
+import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.WordRepository;
 import com.vocahype.repository.WordUserKnowledgeRepository;
 import lombok.AllArgsConstructor;
@@ -14,11 +16,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.text.DecimalFormat;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.vocahype.util.Constants.CURRENT_USER_ID;
@@ -32,6 +33,7 @@ public class WordUserKnowledgeService {
     private final WordRepository wordRepository;
     private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
     private final ModelMapper modelMapper;
+    private final UserWordComprehensionService userWordComprehensionService;
 
     public List<WordUserKnowledgeDTO> get50WordForUserKnowledge() {
         List<Long> randomIds = new ArrayList<>();
@@ -66,9 +68,11 @@ public class WordUserKnowledgeService {
         return randomNumbers;
     }
 
-    public void saveUserKnowledge(final List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
+    public Map<String, Object> saveUserKnowledge(final List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
         Set<WordUserKnowledge> knownWords = new HashSet<>();
+        AtomicReference<Double> score = new AtomicReference<>((double) 0);
         wordUserKnowledgeDTO.forEach(word -> {
+            Word word1 = wordRepository.findById(word.getWordId()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
             if (word.getStatus()) {
                 knownWords.add(new WordUserKnowledge(
                         new WordUserKnowledgeID(word.getWordId(), CURRENT_USER_ID),
@@ -76,9 +80,18 @@ public class WordUserKnowledgeService {
                         Word.builder().id(word.getWordId()).build(),
                         User.builder().id(CURRENT_USER_ID).build())
                 );
+                score.updateAndGet(v -> v + (1 - (1 - word1.getPoint())));
+                userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.MASTERED);
+            } else {
+                score.updateAndGet(v -> v - (1 - word1.getPoint()));
+                userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.HARD);
             }
         });
         wordUserKnowledgeRepository.saveAll(knownWords);
+        double sum = score.get() <= 0 ? 0 : (score.get() / wordUserKnowledgeDTO.size() * WORD_COUNT);
+        int formatted = (int) sum;
+        return Map.of("message", "We estimate your knowledge is " + formatted
+                + " words. Congratulation on the good work!", "estimate", formatted);
     }
 
     @Transactional

@@ -18,5 +18,7 @@ public class Routing {
     public static final String WORDS_DELAY = WORD_ID + "/delay";
     public static final String LEARNING_TIME = API_BASE + "/learning-time";
     public static final String DAILY_GOAL = PROFILE + "/daily-goal";
-    public static final String FETCH_DICTIONARY = API_BASE + "/fetch-dictionary/{word}";
+    public static final String FETCH_DICTIONARY = API_BASE + "/fetch-dictionary";
+    public static final String FETCH_DICTIONARY_WORD = FETCH_DICTIONARY + "/{word}";
+
 }

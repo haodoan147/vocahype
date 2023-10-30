@@ -17,14 +17,15 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("select new com.vocahype.dto.WordDTO(w, true, false) from Word w where lower(w.word) = lower(?1)")
     List<WordDTO> findByWordIgnoreCaseOrderById(String word, final Pageable pageable);
 
+    List<Word> findByCountIsNotNullAndIdGreaterThanOrderById(final Long id, final Pageable pageable);
+
     long countByWordContainsIgnoreCase(String word);
 
     long countByWordIgnoreCase(String word);
 //    @EntityGraph("graph.WordSynonymSynonym")
 
 //    @EntityGraph("graph.SynonymWord")
-    @Query("select new com.vocahype.dto.WordDTO(w, true, true) from Word w " +
-            "left join Meaning m on w.id = m.word.id "
+    @Query("select new com.vocahype.dto.WordDTO(w, true, true) from Word w "
 //            + "left join Synonym s on w.id = s.synonym.id and s.isSynonym = true "
 //            + "left join Synonym a on w.id = a.synonym.id and a.isSynonym = false "
             + "where w.id = ?1 ")
