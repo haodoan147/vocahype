@@ -17,3 +17,7 @@ databaseChangeLog:
       file: db/changelog/2023/10/28-01-changelog.yaml
   - include:
       file: db/changelog/2023/10/28-02-changelog.yaml
+  - include:
+      file: db/changelog/2023/10/30-01-add-topics-table.yaml
+  - include:
+      file: db/changelog/2023/10/30-02-changelog-import-dataset-topic-for-word.yaml

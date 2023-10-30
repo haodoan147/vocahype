@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-02_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - schemaExists:
+                schemaName: data
+        - sql:
+            dbms: postgresql
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              CREATE SCHEMA IF NOT EXISTS data;
+            stripComments: true
+      comment: Create schema data
+
+  - changeSet:
+      id: 30-02_02
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+              - tableExists:
+                  schemaName: data
+                  tableName: topics
+        - sql:
+            dbms: postgresql
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              create table if not exists data.topics
+              (
+              word      text,
+              frequency integer,
+              topic_id  bigint
+              );
+            stripComments: true
+        - loadData:
+            file: db/data/source/topics.csv
+            separator: ','
+            schemaName: data
+            tableName: topics
+            columns:
+              - column:
+                    name: word
+                    type: text
+              - column:
+                    name: frequency
+                    type: integer
+              - column:
+                    name: topic_id
+                    type: bigint
+        - update:
+            schemaName: vh
+            tableName: words
+            columns:
+              - column:
+                  name: topic_id
+                  valueComputed: '(SELECT dt.topic_id FROM data.topics dt WHERE words.word = dt.word)'
+      comment: Import dataset topic for word

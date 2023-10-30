@@ -94,6 +94,10 @@ public class Word implements Serializable {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
+
     @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
     private Set<Meaning> meanings;
 

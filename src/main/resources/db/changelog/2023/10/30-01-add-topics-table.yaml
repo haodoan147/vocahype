@@ -1,0 +1,71 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+              - tableExists:
+                  tableName: topics
+                  schemaName: vh
+        - createSequence:
+            sequenceName: seq_id_topics
+            schemaName: vh
+            startValue: 1
+            incrementBy: 1
+            cacheSize: 1
+        - createTable:
+            schemaName: vh
+            tableName: topics
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: seq_id_topics
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: text
+                  constraints:
+                    unique: true
+              - column:
+                  name: description
+                  type: text
+        - addColumn:
+            schemaName: vh
+            tableName: words
+            columns:
+              - column:
+                  name: topic_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: words_topic_id_fk
+                    referencedTableSchemaName: vh
+                    referencedTableName: topics
+                    referencedColumnNames: id
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              INSERT INTO vh.topics (name, description) VALUES
+              ('POLITICS', 'Politics'),
+              ('WELLNESS', 'Wellness'),
+              ('ENTERTAINMENT', 'Entertainment'),
+              ('PARENTING', 'Parenting'),
+              ('STYLE_AND_BEAUTY', 'Style & Beauty'),
+              ('GROUPS_VOICES', 'Groups Voices'),
+              ('TRAVEL', 'Travel'),
+              ('FOOD_AND_DRINK', 'Food & Drink'),
+              ('WORLD_NEWS', 'World News'),
+              ('BUSINESS_AND_FINANCE', 'Business & Finances'),
+              ('COMEDY', 'Comedy'),
+              ('SPORTS', 'Sports'),
+              ('HOME_AND_LIVING', 'Home & Living'),
+              ('SCIENCE_AND_TECH', 'Science & Tech'),
+              ('WEDDINGS', 'Weddings'),
+              ('ENVIRONMENT', 'Environment'),
+              ('SETTINGS', 'Settings'),
+              ('NONE', 'None');
+      comment: Create table vh.topics
