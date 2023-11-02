@@ -16,6 +16,8 @@ import java.io.Serializable;
 public class WordTopic implements Serializable {
     @EmbeddedId
     private WordTopicID wordTopicID;
+    @Column(name = "frequency")
+    private Long frequency;
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("wordId")
     @JoinColumn(name = "word_id")

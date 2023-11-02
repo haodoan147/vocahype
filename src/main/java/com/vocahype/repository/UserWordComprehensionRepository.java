@@ -23,7 +23,7 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = ?2 "
             + "where w.id > (select u.score from User u where u.id = ?1) "
             + "order by case when uwc.nextLearning <= current_date then 0"
-            + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, w.id")
+            + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, wt.frequency desc, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(final String userId,
                                                                                       final Pageable pageable,
                                                                                       final Long topicId);
