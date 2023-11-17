@@ -28,65 +28,24 @@ public class ResponseEntityJsonApi {
             try {
                 Object value = field.get(entity);
                 if (value != null) {
-//                    if (value.getClass().equals(ArrayList.class) && ((ArrayList<?>) value).size() > 0) {
-//                        ArrayList<?> list = ((ArrayList<?>) value);
-//                        relationships.put(field.getName(), Map.of("data", list.stream().map(item -> new DataResponseEntity(item, Map.of(), true)).toArray()));
-//                        list.forEach(item -> {
-////                            this.included.(entity2 -> entity2.getClass().getSimpleName()).collect(Collectors.toSet());
-//                            if (!PRIMITIVE_TYPES.contains(item.getClass())) {
-//                                ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi(item);
-//                                this.included.addAll(jsonApi.data);
-//                                this.included.addAll(jsonApi.included);
-//                            }
-//                        });
-//                    } else if (value.getClass().equals(PersistentSet.class) && ((PersistentSet) value).size() > 0) {
-//                        PersistentSet set = ((PersistentSet) value);
-//                        relationships.put(field.getName(), Map.of("data", set.stream().map(item -> new DataResponseEntity(item, Map.of(), true)).toArray()));
-//                        set.forEach(item -> {
-//                            if (!PRIMITIVE_TYPES.contains(item.getClass())) {
-//                                ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi(item);
-//                                this.included.addAll(jsonApi.data);
-//                                this.included.addAll(jsonApi.included);
-//                            }
-//                        });
-//                    } else if (value.getClass().equals(HashSet.class) && ((HashSet) value).size() > 0) {
-//                        HashSet set = ((HashSet) value);
-//                        relationships.put(field.getName(), Map.of("data", set.stream().map(item -> new DataResponseEntity(item, Map.of(), true)).toArray()));
-//                        set.forEach(item -> {
-//                            if (!PRIMITIVE_TYPES.contains(item.getClass())) {
-//                                ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi(item);
-//                                this.included.addAll(jsonApi.data);
-//                                this.included.addAll(jsonApi.included);
-//                            }
-//                        });
-//                    } else
-                        if (value instanceof Collection || value.getClass().equals(ArrayList.class)) {
-                            Collection collection = ((Collection) value);
-                            if (collection.size() > 0) {
-                                Set<DataResponseEntity> relation = new HashSet<>();
-//                                relationships.put(field.getName(), Map.of("data", collection.stream().map(item -> new DataResponseEntity(item, Map.of(), true)).toArray()));
-                                collection.forEach(item -> {
-//                            relationships.put(field.getName(), Map.of("data", new DataResponseEntity(item, Map.of(), true)));
-//                            relationships.put(field.getName(), Map.of("data", Arrays.asList(collection.stream()
-//                                    .map(item -> new DataResponseEntity(item, Map.of(), true))
-//                                    .toArray())));
-                                    if (!PRIMITIVE_TYPES.contains(item.getClass())) {
-                                        relation.add(new DataResponseEntity(item, Map.of(), true));
-                                        ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi(item);
-                                        this.included.addAll(jsonApi.data);
-                                        this.included.addAll(jsonApi.included);
-                                    }
-                                });
-                                relationships.put(field.getName(), Map.of("data", relation.stream().sorted(Comparator.comparing(DataResponseEntity::getType)
-                                        .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId))));
-                            }
+                    if (value instanceof Collection || value.getClass().equals(ArrayList.class)) {
+                        Collection collection = ((Collection) value);
+                        if (collection.size() > 0) {
+                            Set<DataResponseEntity> relation = new HashSet<>();
+                            collection.forEach(item -> {
+                                if (!PRIMITIVE_TYPES.contains(item.getClass())) {
+                                    relation.add(new DataResponseEntity(item, Map.of(), true));
+                                    ResponseEntityJsonApi jsonApi = new ResponseEntityJsonApi(item);
+                                    this.included.addAll(jsonApi.data);
+                                    this.included.addAll(jsonApi.included);
+                                }
+                            });
+                            relationships.put(field.getName(), Map.of("data", relation.stream().sorted(Comparator.comparing(DataResponseEntity::getType)
+                                    .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId))));
+                        }
                     } else if (!PRIMITIVE_TYPES.contains(value.getClass())) {
                         relationships.put(field.getName(), Map.of("data", new DataResponseEntity(value, Map.of(), true)));
-//                        relationships.put(field.getName(), new ResponseEntityJsonApi(value));
                         this.included.add(new DataResponseEntity(value, null));
-//                        included.put(field.getName(), value);
-//                        this.included.add(new DataResponseEntity(value, null));
-//                        relationships.put(field.getName(), Map.of("data", Map.of("type", value.getClass().getSimpleName().split("\\$")[0], "id", value.toString())));
                     }
                 }
             } catch (IllegalAccessException e) {
@@ -94,7 +53,6 @@ public class ResponseEntityJsonApi {
             }
         });
         data.add(new DataResponseEntity(entity, relationships));
-//        this.included.add(new DataResponseEntity(included, Map.of()));
     }
 
 //    private ResponseEntityJsonApi sort() {

@@ -44,7 +44,7 @@ public class Topic implements Serializable {
     private String description;
 
     @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
-    private Set<Word> word;
+    private Set<WordTopic> wordTopics;
 
     @Override
     public String toString() {
