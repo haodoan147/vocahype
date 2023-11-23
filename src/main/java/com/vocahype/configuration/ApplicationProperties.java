@@ -10,4 +10,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApplicationProperties {
 
     public String dictionaryApiUrl;
+    public Long dataWord;
 }

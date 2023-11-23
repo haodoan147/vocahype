@@ -1,5 +1,6 @@
 package com.vocahype.service;
 
+import com.vocahype.configuration.ApplicationProperties;
 import com.vocahype.dto.WordUserKnowledgeDTO;
 import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.entity.*;
@@ -28,26 +29,24 @@ import static com.vocahype.util.Constants.WORD_COUNT;
 @RequiredArgsConstructor
 public class WordUserKnowledgeService {
 
-    public static final int BIAS = 10;
+    public static final int BIAS = 3;
     private final WordRepository wordRepository;
     private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
     private final ModelMapper modelMapper;
     private final UserWordComprehensionService userWordComprehensionService;
     private final UserRepository userRepository;
+    private final ApplicationProperties applicationProperties;
 
     public List<WordUserKnowledgeDTO> get50WordForUserKnowledge() {
+        long wordDataCount = 3000;
+        if (wordDataCount < 50) {
+            throw new InvalidException("Word data count is not enough", "wordDataCount: " + wordDataCount);
+        }
         List<Long> randomIds = new ArrayList<>();
         LongRange[] ranges = {
-                new LongRange(1L, WORD_COUNT / BIAS, 10),
-                new LongRange(WORD_COUNT / BIAS + 1 , WORD_COUNT / BIAS * 2, 9),
-                new LongRange(WORD_COUNT / BIAS * 2 + 1, WORD_COUNT / BIAS * 3, 7),
-                new LongRange(WORD_COUNT / BIAS * 3 + 1, WORD_COUNT / BIAS * 4, 6),
-                new LongRange(WORD_COUNT / BIAS * 4 + 1, WORD_COUNT / BIAS * 5, 5),
-                new LongRange(WORD_COUNT / BIAS * 5 + 1, WORD_COUNT / BIAS * 6, 4),
-                new LongRange(WORD_COUNT / BIAS * 6 + 1, WORD_COUNT / BIAS * 7, 3),
-                new LongRange(WORD_COUNT / BIAS * 7 + 1, WORD_COUNT / BIAS * 8, 3),
-                new LongRange(WORD_COUNT / BIAS * 8 + 1, WORD_COUNT / BIAS * 9, 2),
-                new LongRange(WORD_COUNT / BIAS * 9 + 1, WORD_COUNT, 1)
+                new LongRange(1L, wordDataCount / BIAS, 20),
+                new LongRange(wordDataCount / BIAS + 1 , wordDataCount / BIAS * 2, 15),
+                new LongRange(wordDataCount / BIAS * 2 + 1, wordDataCount, 15)
         };
         for (LongRange range : ranges) {
             randomIds.addAll(getRandomNumbersInRange(range.getMinId(), range.getMaxId(), range.getNumRecords()));

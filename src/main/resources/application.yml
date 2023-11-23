@@ -57,3 +57,4 @@ cronjob:
 
 application:
   dictionary-api-url: https://api.dictionaryapi.dev/api/v2/entries/en
+  data-word: 1000
