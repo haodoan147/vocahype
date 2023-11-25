@@ -7,10 +7,7 @@ import com.vocahype.service.SynonymService;
 import com.vocahype.service.UserService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,4 +24,8 @@ public class UserController {
         return new ResponseEntityJsonApi(userService.getUserProfile());
     }
 
+    @PostMapping(Routing.PROFILE_TOPIC)
+    void saveUserTopic(@PathVariable Long topicId) {
+        userService.saveUserTopic(topicId);
+    }
 }

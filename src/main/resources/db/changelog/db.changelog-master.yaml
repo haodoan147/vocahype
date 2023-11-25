@@ -31,3 +31,5 @@ databaseChangeLog:
       file: db/changelog/2023/10/31-05-update-data-topics-table.yaml
   - include:
       file: db/changelog/2023/10/31-02-import-data-frequency-to-topic.yaml
+  - include:
+      file: db/changelog/2023/11/25-01-add-topic_id-in-user-table.yaml

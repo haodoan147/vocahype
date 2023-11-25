@@ -84,6 +84,11 @@ public class User implements Serializable {
     @Column(name = "score")
     private Integer score;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id", nullable = false)
+    private Topic topic;
+
     @Override
     public String toString() {
         return id.toString();
