@@ -34,7 +34,7 @@ spring:
       ## Hibernate
       hibernate:
 #        dialect: com.vocahype.util.PostgreSQL10JsonDialect
-#        format_sql: true
+        format_sql: true
 #        jdbc:
 #          batch_size: 200
 #          use_get_generated_keys: true

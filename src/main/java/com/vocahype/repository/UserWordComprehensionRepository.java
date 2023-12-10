@@ -20,8 +20,8 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
             + "and uwc.nextLearning is not null "
-            + "join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = ?2 "
-            + "where w.id > (select u.score from User u where u.id = ?1) "
+            + "join User u on u.id = ?1 and w.id > u.score "
+            + "join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = ?2 and wt.wordTopicID.topicId = u.topic.id "
             + "order by case when uwc.nextLearning <= current_date then 0"
             + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, wt.frequency desc, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(final String userId,
@@ -34,8 +34,9 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
             + "and uwc.nextLearning is not null "
-            + "where w.id > (select u.score from User u where u.id = ?1) "
-            + "order by case when uwc.nextLearning <= current_date then 0"
+            + "join User u on u.id = ?1 and w.id > u.score "
+            + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = u.topic.id "
+            + "order by case when wt.topic.id is null then 1 else 0 end, case when uwc.nextLearning <= current_date then 0"
             + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
 }
