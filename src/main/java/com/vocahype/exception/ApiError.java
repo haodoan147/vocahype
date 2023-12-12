@@ -20,10 +20,12 @@ public class ApiError {
 
     public ApiError(HttpStatus status) {
         this.status = status;
+        this.errors = new Error("", "");
     }
 
     public void setMessage(String defaultMessage) {
         this.errors.setTitle(defaultMessage);
+        this.errors.setDetail(defaultMessage);
     }
 
     @AllArgsConstructor
