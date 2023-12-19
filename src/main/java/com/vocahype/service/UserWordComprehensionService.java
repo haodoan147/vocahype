@@ -30,7 +30,7 @@ public class UserWordComprehensionService {
     private final WordRepository wordRepository;
 
     public void saveWordUserKnowledge(Long wordId, Assessment assessment) {
-        String userId = CURRENT_USER_ID;
+        String userId = SecurityUtil.getCurrentUserId();
         Word word = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + wordId));
         UserWordComprehension wordComprehension = userWordComprehensionRepository
                 .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId)

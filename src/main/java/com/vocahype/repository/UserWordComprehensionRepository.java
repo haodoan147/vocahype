@@ -19,9 +19,10 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
-            + "and uwc.nextLearning is not null "
+//            + "and uwc.nextLearning is not null "
             + "join User u on u.id = ?1 and w.id > u.score "
-            + "join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = ?2 and wt.wordTopicID.topicId = u.topic.id "
+            + "join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = ?2 "
+            + "where uwc.wordComprehensionLevel is null or (uwc.wordComprehensionLevel != 11 and uwc.wordComprehensionLevel != 12) "
             + "order by case when uwc.nextLearning <= current_date then 0"
             + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, wt.frequency desc, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(final String userId,
@@ -33,9 +34,10 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
-            + "and uwc.nextLearning is not null "
+//            + "and uwc.nextLearning is not null "
             + "join User u on u.id = ?1 and w.id > u.score "
             + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = u.topic.id "
+            + "where uwc.wordComprehensionLevel is null or (uwc.wordComprehensionLevel != 11 and uwc.wordComprehensionLevel != 12) "
             + "order by case when wt.topic.id is null then 1 else 0 end, case when uwc.nextLearning <= current_date then 0"
             + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
