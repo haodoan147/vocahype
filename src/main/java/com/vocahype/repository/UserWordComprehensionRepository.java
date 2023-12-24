@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +46,10 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
 
     void deleteAllByUserWordComprehensionID_UserId(final String userId);
+
     void deleteAllByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(final String userId,
                                                                                     final Long wordId);
+
+    long countByUserWordComprehensionID_UserIdAndWordComprehensionLevelIn(String userWordComprehensionID_userId,
+                                                                          Collection<Integer> wordComprehensionLevel);
 }
