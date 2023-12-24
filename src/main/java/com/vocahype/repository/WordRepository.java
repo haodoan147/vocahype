@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface WordRepository extends JpaRepository<Word, Long> {
 //    @EntityGraph("graph.WordMeaningPos")
 //    List<Word> findByWordContainsIgnoreCaseOrderById(String word, final Pageable pageable);
-    @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
             + "from Word w "
             + "join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?2 "
@@ -22,7 +22,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     List<WordDTO> findByWordContainsIgnoreCaseAndUserWordComprehensionsOrderById(String word, String userId,
                                                                               List<Integer> levels, final Pageable pageable);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
             + "from Word w "
             + "join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?2 "
@@ -32,7 +32,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     List<WordDTO> findByWordIgnoreCaseAndUserWordComprehensionsOrderById(String word, String userId,
                                                                          List<Integer> levels, final Pageable pageable);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?2 "
@@ -40,7 +40,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
             + "order by w.id")
     List<WordDTO> findByWordContainsIgnoreCaseOrderById(String word, String userId, final Pageable pageable);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?2 "

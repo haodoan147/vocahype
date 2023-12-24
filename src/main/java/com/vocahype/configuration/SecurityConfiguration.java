@@ -43,6 +43,7 @@ public class SecurityConfiguration {
                 .antMatchers(Routing.WORDS_LEARN + "/**").authenticated()
                 .antMatchers(Routing.PROFILE + "/**").authenticated()
                 .antMatchers(Routing.RESET_LEARNING_PROGRESSION + "/**").authenticated()
+                .antMatchers(Routing.REPORT + "/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .sessionManagement()
