@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-05_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sqlCheck:
+                expectedResult: f
+                sql: SELECT EXISTS (
+                  SELECT column_name
+                  FROM information_schema.columns
+                  WHERE table_name = 'users'
+                  AND table_schema = 'vh'
+                  AND column_name = 'topic_id')
+        - addColumn:
+            tableName: users
+            schemaName: vh
+            columns:
+              - column:
+                  name: topic_id
+                  type: integer
+                  constraints:
+                    nullable: true
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: topic_id
+            constraintName: user_topic_id_fk
+            referencedTableName: topics
+            referencedColumnNames: id
+      comment: Add topic_id column in user table

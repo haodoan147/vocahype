@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 27-02_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - and:
+                - tableExists:
+                    schemaName: vh
+                    tableName: meanings
+                - not:
+                    - columnExists:
+                        columnName: meanings_id
+                        schemaName: vh
+                        tableName: definition
+        - addColumn:
+            schemaName: vh
+            tableName: definition
+            columns:
+              - column:
+                  name: meanings_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: definition_meanings_id_fk
+                    referencedTableSchemaName: vh
+                    referencedTableName: meanings
+                    referencedColumnNames: id
+        - update:
+            schemaName: vh
+            tableName: definition
+            columns:
+              - column:
+                  name: meanings_id
+                  valueComputed: '(SELECT id FROM vh.meanings WHERE meanings.word_id = definition.word_id)'
+      comment: Add meanings_id column to definition table

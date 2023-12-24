@@ -1,0 +1,150 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-04_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                - columnExists:
+                    tableName: topics
+                    schemaName: vh
+                    columnName: emoji
+        - addColumn:
+            schemaName: vh
+            tableName: topics
+            columns:
+              - column:
+                  name: emoji
+                  type: text
+                  constraints:
+                    nullable: true
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🏛️
+            where: id = 1
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 💪
+            where: id = 2
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🎬
+            where: id = 3
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 👨‍👩‍👧
+            where: id = 4
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 💄
+            where: id = 5
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🗣️
+            where: id = 6
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: ✈️
+            where: id = 7
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🍔
+            where: id = 8
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🌍
+            where: id = 9
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 💼
+            where: id = 10
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🤣
+            where: id = 11
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: ⚽
+            where: id = 12
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🏡
+            where: id = 13
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🔬
+            where: id = 14
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 💒
+            where: id = 15
+        - update:
+            tableName: topics
+            schemaName: vh
+            columns:
+              - column:
+                  name: emoji
+                  value: 🌱
+            where: id = 16
+      comment: Add column emoji to table topics

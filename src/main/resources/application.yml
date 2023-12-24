@@ -17,5 +17,47 @@ spring:
   profiles:
     default: staging
 
+  security:
+    user:
+      name: admin
+      password: admin
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://securetoken.google.com/vocahype
+          jwk-set-uri: https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-eqwnw%40vocahype.iam.gserviceaccount.com
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+    properties:
+      ## Hibernate
+      hibernate:
+#        dialect: com.vocahype.util.PostgreSQL10JsonDialect
+        format_sql: true
+#        jdbc:
+#          batch_size: 200
+#          use_get_generated_keys: true
+#        order_inserts: true
+#        show_sql: false
+#        use_sql_comments: true
+#    hibernate:
+#      ddl-auto: update
+    show-sql: true
+#    open-in-view: false
+
 server:
   port: 8080
+
+cronjob:
+  scheduler:
+    partitionLearning:
+      time: 0 0 7 * * ?
+      active: false
+
+application:
+  dictionary-api-url: https://api.dictionaryapi.dev/api/v2/entries/en
+  data-word: 1000
