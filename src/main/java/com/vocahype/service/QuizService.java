@@ -37,7 +37,7 @@ public class QuizService {
                 .build();
 
         // Create JSON content for the user message
-        String userMessageContent = "{\"question\":\"follow template here: " + singleSelectQuiz.getQuestion() + "\", \"difficulty_of_answer\":\"" + singleSelectQuiz.getLevelOfQuiz().getDetail() + "\", \"correctAnswer\":\"" + singleSelectQuiz.getWord() + "\", \"typeOfQuiz\":\"" + singleSelectQuiz.getTypeOfQuiz() + "\"}";
+        String userMessageContent = "{\"question\":\"follow template here: " + singleSelectQuiz.getQuestion() + "\", \"difficulty_of_answer\":\"" + singleSelectQuiz.getLevelOfQuiz().getDetail() + "\", \"correctAnswer\":\"" + singleSelectQuiz.getWord() + "\", \"typeOfQuiz\":\"" + singleSelectQuiz.getTypeOfQuiz().getDetail() + "\"}";
 
         // Create a chat message for OpenAI API
         String systemMessageContent = "You are a helpful assistant that generates quizzes based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"options\":[\"<option 1>\",\"<option 2>\",\"<option 3>\",\"<option 4>\"],\"answer\":\"<the index number of the correct answer>\"}. Each option is an answer based on the quiz type with the chosen difficulty to challenge the user without indicating A, B, C, D.";
@@ -55,7 +55,7 @@ public class QuizService {
 
         // Make a request to OpenAI API using WebClient
         String responseFormat = "json_object";
-        String responseBody = webClient.post()
+        String responseBody = webClient.put()
                 .uri("")
                 .body(BodyInserters.fromValue("{\"messages\":" + messagesJson + ", \"response_format\": \"" + responseFormat + "\"}"))
                 .retrieve()
