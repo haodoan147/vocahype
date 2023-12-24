@@ -8,6 +8,7 @@ import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.UserWordComprehensionID;
 import com.vocahype.entity.Word;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.repository.UserRepository;
 import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.repository.WordRepository;
 import com.vocahype.util.SecurityUtil;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -28,6 +30,7 @@ public class UserWordComprehensionService {
     public static final String CURRENT_USER_ID = "abcxyz";
     private final UserWordComprehensionRepository userWordComprehensionRepository;
     private final WordRepository wordRepository;
+    private final UserRepository userRepository;
 
     public void saveWordUserKnowledge(Long wordId, Assessment assessment) {
         String userId = SecurityUtil.getCurrentUserId();
@@ -97,5 +100,21 @@ public class UserWordComprehensionService {
                 .plusDays(day)
                 .truncatedTo(ChronoUnit.DAYS)));
         userWordComprehensionRepository.save(wordComprehension);
+    }
+
+    @Transactional
+    public void resetLearningProgression() {
+        String userId = SecurityUtil.getCurrentUserId();
+        userWordComprehensionRepository.deleteAllByUserWordComprehensionID_UserId(userId);
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setScore(null);
+            userRepository.save(user);
+        });
+    }
+
+    @Transactional
+    public void resetLearningProgression(final Long wordId) {
+        String userId = SecurityUtil.getCurrentUserId();
+        userWordComprehensionRepository.deleteAllByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId);
     }
 }

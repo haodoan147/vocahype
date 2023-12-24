@@ -18,6 +18,8 @@ public class Routing {
     public static final String WORDS_LEARN = WORD + "/learn";
     public static final String WORDS_DELAY = WORD_ID + "/delay";
     public static final String LEARNING_TIME = API_BASE + "/learning-time";
+    public static final String RESET_LEARNING_PROGRESSION = API_BASE + "/reset-learning-progression";
+    public static final String RESET_LEARNING_PROGRESSION_WORD_ID = RESET_LEARNING_PROGRESSION + "/word/{wordId}";
     public static final String DAILY_GOAL = PROFILE + "/daily-goal";
     public static final String PROFILE_TOPIC = PROFILE + "/topic";
     public static final String FETCH_DICTIONARY = API_BASE + "/fetch-dictionary";

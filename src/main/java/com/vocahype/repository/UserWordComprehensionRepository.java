@@ -45,4 +45,8 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "when wt.wordTopicID.topicId is not null then 3 "
             + "else 4 end, uwc.nextLearning, w.id")
     List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
+
+    void deleteAllByUserWordComprehensionID_UserId(final String userId);
+    void deleteAllByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(final String userId,
+                                                                                    final Long wordId);
 }

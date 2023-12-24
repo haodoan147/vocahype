@@ -61,4 +61,13 @@ public class UserWordComprehensionController {
         userWordComprehensionService.delayLearningWord(wordId, day);
     }
 
+    @DeleteMapping(value = Routing.RESET_LEARNING_PROGRESSION)
+    public void resetLearningProgression() {
+        userWordComprehensionService.resetLearningProgression();
+    }
+
+    @DeleteMapping(value = Routing.RESET_LEARNING_PROGRESSION_WORD_ID)
+    public void resetLearningProgression(@PathVariable final Long wordId) {
+        userWordComprehensionService.resetLearningProgression(wordId);
+    }
 }
