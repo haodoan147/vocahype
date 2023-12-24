@@ -14,13 +14,12 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
 
     Optional<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(final String userId, final Long wordId);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, false, "
-            + "case when uwc.userWordComprehensionID.userId is null then 'to learn' else 'learning' end, uwc.nextLearning, uwc.wordComprehensionLevel, true) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, true) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
 //            + "and uwc.nextLearning is not null "
-            + "join User u on u.id = ?1 and w.id > u.score "
+            + "join User u on u.id = ?1 and (w.id > u.score or u.score is null) "
             + "join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = ?2 "
             + "where uwc.wordComprehensionLevel is null or (uwc.wordComprehensionLevel != 11 and uwc.wordComprehensionLevel != 12) "
             + "order by case when uwc.nextLearning <= current_date then 0"
@@ -29,13 +28,12 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
                                                                                       final Pageable pageable,
                                                                                       final Long topicId);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, false, "
-            + "case when uwc.userWordComprehensionID.userId is null then 'to learn' else 'learning' end, uwc.nextLearning, uwc.wordComprehensionLevel, true) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, true) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
 //            + "and uwc.nextLearning is not null "
-            + "join User u on u.id = ?1 and w.id > u.score "
+            + "join User u on u.id = ?1 and (w.id > u.score or u.score is null) "
             + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and wt.wordTopicID.topicId = u.topic.id "
             + "where uwc.wordComprehensionLevel is null or (uwc.wordComprehensionLevel != 11 and uwc.wordComprehensionLevel != 12) "
             + "order by case "

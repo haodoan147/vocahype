@@ -26,7 +26,7 @@ public class WordService {
     private final SynonymRepository synonymRepository;
 
     public WordDTO getWordById(Long id) {
-        WordDTO word = wordRepository.findWordDTOById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
+        WordDTO word = wordRepository.findWordDTOById(id, SecurityUtil.getCurrentUserId()).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
         if (word.getMeanings() != null) {
             word.getMeanings().forEach(meaningDTO -> {
                 Set<SynonymDTO> synonym = meaningDTO.getSynonyms();
@@ -40,18 +40,18 @@ public class WordService {
 
     public List<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size, final String status) {
         Pageable pageable = PageRequest.of(page, size);
+        String userId = SecurityUtil.getCurrentUserId();
         if (status != null && !status.equalsIgnoreCase("TO_LEARN")) {
             try {
                 List<Integer> levelList = WordStatus.valueOf(status.toUpperCase()).getLevelList();
-                String userId = SecurityUtil.getCurrentUserId();
                 if (exact) return wordRepository.findByWordIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
                 return wordRepository.findByWordContainsIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
             } catch (IllegalArgumentException e) {
                 throw new InvalidException("Invalid param", "Status must be one of: " + Arrays.toString(WordStatus.values()));
             }
         }
-        if (exact) return wordRepository.findByWordIgnoreCaseOrderById(word, pageable);
-        return wordRepository.findByWordContainsIgnoreCaseOrderById(word, pageable);
+        if (exact) return wordRepository.findByWordIgnoreCaseOrderById(word, userId, pageable);
+        return wordRepository.findByWordContainsIgnoreCaseOrderById(word, userId, pageable);
     }
 
     public long countWord(final String word, final boolean exact) {

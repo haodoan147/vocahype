@@ -22,17 +22,6 @@ public class WordController {
 
     @GetMapping(value = Routing.WORD_ID)
     public ResponseEntityJsonApi getWord(@PathVariable Long wordId) {
-//        WordDTO word = wordService.getWordById(wordId);
-////        return ResponseEntity.of(word, ResponseEntity.mapOfNullable(
-////                "pos", word.getPos(),
-////                "definition", word.getDefinitions().stream().map(definition -> ResponseEntity.of(definition, ResponseEntity.mapOfNullable(
-////                        "examples", definition.getExamples())
-////                )).collect(Collectors.toList()),
-////                "synonyms", word.getSynonyms().stream().map(synonym -> ResponseEntity.of(new SynonymDTO(synonym.getSynonym().getId(), synonym.getSynonym().getWord(), synonym.getIsSynonym()))).collect(Collectors.toList())
-////        ));
-//        ResponseEntityJsonApi responseEntityJsonApi = new ResponseEntityJsonApi();
-//        responseEntityJsonApi.add(word);
-//        return responseEntityJsonApi.sort();
         return new ResponseEntityJsonApi(wordService.getWordById(wordId));
     }
 

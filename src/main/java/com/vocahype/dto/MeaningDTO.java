@@ -5,14 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vocahype.entity.Meaning;
 import com.vocahype.entity.Pos;
 import com.vocahype.entity.Synonym;
-import com.vocahype.entity.Word;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,19 +24,13 @@ public class MeaningDTO {
     @JsonIgnore
     private Pos pos;
     @JsonIgnore
-    private ComprehensionDTO comprehension;
-    @JsonIgnore
     private Set<DefinitionDTO> definitions;
     @JsonIgnore
     private Set<SynonymDTO> synonyms;
 
-    public MeaningDTO(Meaning meaning, boolean isContainDefinitions, String status, Date dueDate,
-                      Integer comprehensionLevel, List<Synonym> synonyms, List<Synonym> antonyms) {
+    public MeaningDTO(Meaning meaning, boolean isContainDefinitions, List<Synonym> synonyms, List<Synonym> antonyms) {
         this.id = meaning.getId();
         this.pos = meaning.getPos();
-        if (status != null && dueDate != null && comprehensionLevel != null) {
-            this.comprehension = new ComprehensionDTO(status, dueDate, comprehensionLevel);
-        }
         this.definitions = new HashSet<>();
         this.synonyms = new HashSet<>();
         if (isContainDefinitions) {
@@ -71,23 +62,19 @@ public class MeaningDTO {
     }
 
     public MeaningDTO(Meaning meaning, List<Synonym> synonyms, List<Synonym> antonyms) {
-        this(meaning, false, null, null, null, synonyms, antonyms);
+        this(meaning, false, synonyms, antonyms);
     }
 
     public MeaningDTO(Meaning meaning, Synonym synonyms, Synonym antonyms) {
-        this(meaning, false, null, null, null, List.of(synonyms), List.of(antonyms));
+        this(meaning, false, List.of(synonyms), List.of(antonyms));
     }
 
     public MeaningDTO(Meaning meaning) {
-        this(meaning, false, null, null, null);
+        this(meaning, false);
     }
 
     public MeaningDTO(Meaning meaning, boolean isContainDefinitions) {
-        this(meaning, isContainDefinitions, null, null, null);
-    }
-
-    public MeaningDTO(Meaning meaning, boolean isContainDefinitions, String status, Date dueDate, Integer comprehensionLevel) {
-        this(meaning, isContainDefinitions, status, dueDate, comprehensionLevel, null, null);
+        this(meaning, isContainDefinitions, null, null);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class WordDTO {
     @JsonIgnore
     private Set<MeaningDTO> meanings;
 
-    public WordDTO(Word word, boolean isContainMeaning, String status, Date dueDate,
+    public WordDTO(Word word, boolean isContainMeaning, Date dueDate,
                    Integer comprehensionLevel, boolean isContainDefinition) {
         this.id = word.getId();
         this.word = word.getWord();
@@ -45,9 +45,7 @@ public class WordDTO {
         this.phoneticEnd = word.getPhoneticEnd();
         this.createdOn = word.getCreatedOn();
         this.updatedOn = word.getUpdatedOn();
-        if (status != null && dueDate != null && comprehensionLevel != null) {
-            this.comprehension = new ComprehensionDTO(status, dueDate, comprehensionLevel);
-        }
+        this.comprehension = new ComprehensionDTO(dueDate, comprehensionLevel, word.getId());
         this.meanings = new HashSet<>();
         if (isContainMeaning) {
             word.getMeanings().forEach(meaning -> this.meanings.add(new MeaningDTO(meaning, isContainDefinition)));
@@ -55,11 +53,11 @@ public class WordDTO {
     }
 
     public WordDTO(Word word) {
-        this(word, false, null, null, null, false);
+        this(word, false, null, null, false);
     }
 
     public WordDTO(Word word, boolean isContainMeaning, boolean isContainDefinition) {
-        this(word, isContainMeaning, null, null, null, isContainDefinition);
+        this(word, isContainMeaning, null, null, isContainDefinition);
     }
 
     @Override
