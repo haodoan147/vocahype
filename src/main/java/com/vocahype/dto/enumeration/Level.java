@@ -1,5 +1,10 @@
 package com.vocahype.dto.enumeration;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum Level {
     LEVEL_1(0, "to learn"),
     LEVEL_2(1, "learning"),
@@ -16,17 +21,4 @@ public enum Level {
 
     private final long day;
     private final String title;
-
-    Level(final long day, final String title) {
-        this.day = day;
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public long getDay() {
-        return day;
-    }
 }

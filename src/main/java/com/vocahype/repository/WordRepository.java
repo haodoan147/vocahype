@@ -11,10 +11,38 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WordRepository extends JpaRepository<Word, Long> {
-    @EntityGraph("graph.WordMeaningPos")
-    List<Word> findByWordContainsIgnoreCaseOrderById(String word, final Pageable pageable);
+//    @EntityGraph("graph.WordMeaningPos")
+//    List<Word> findByWordContainsIgnoreCaseOrderById(String word, final Pageable pageable);
+    @Query("select new com.vocahype.dto.WordDTO(w, true, false) "
+            + "from Word w "
+            + "join UserWordComprehension u on w.id = u.userWordComprehensionID.wordId "
+            + "and u.userWordComprehensionID.userId = ?2 "
+            + "and u.wordComprehensionLevel in ?3 "
+            + "where lower(w.word) like lower(concat('%', ?1, '%'))"
+            + "order by w.id")
+    List<WordDTO> findByWordContainsIgnoreCaseAndUserWordComprehensionsOrderById(String word, String userId,
+                                                                              List<Integer> levels, final Pageable pageable);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, true, false) from Word w where lower(w.word) = lower(?1)")
+    @Query("select new com.vocahype.dto.WordDTO(w, true, false) "
+            + "from Word w "
+            + "join UserWordComprehension u on w.id = u.userWordComprehensionID.wordId "
+            + "and u.userWordComprehensionID.userId = ?2 "
+            + "and u.wordComprehensionLevel in ?3 "
+            + "where lower(w.word) = lower(?1)"
+            + "order by w.id")
+    List<WordDTO> findByWordIgnoreCaseAndUserWordComprehensionsOrderById(String word, String userId,
+                                                                         List<Integer> levels, final Pageable pageable);
+
+    @Query("select new com.vocahype.dto.WordDTO(w, true, false) "
+            + "from Word w "
+            + "where lower(w.word) like lower(concat('%', ?1, '%'))"
+            + "order by w.id")
+    List<WordDTO> findByWordContainsIgnoreCaseOrderById(String word, final Pageable pageable);
+
+    @Query("select new com.vocahype.dto.WordDTO(w, true, false) "
+            + "from Word w "
+            + "where lower(w.word) = lower(?1)"
+            + "order by w.id")
     List<WordDTO> findByWordIgnoreCaseOrderById(String word, final Pageable pageable);
 
     List<Word> findByCountIsNotNullAndIdGreaterThanOrderById(final Long id, final Pageable pageable);

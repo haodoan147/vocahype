@@ -39,12 +39,13 @@ public class WordController {
     @GetMapping(value = Routing.WORD)
     public ResponseEntityJsonApi searchWords(@RequestParam(name = "search") String word,
                                              @RequestParam(name = "exact") boolean exact,
+                                             @RequestParam(name = "status", required = false) String status,
                                              @RequestParam(name = "page[offset]") int offset,
                                              @RequestParam(name = "page[limit]") int limit) {
         if (offset <= 0 || limit <= 0) {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
-        List<WordDTO> wordsByWord = wordService.getWordsByWord(word, exact, offset - 1, limit);
+        List<WordDTO> wordsByWord = wordService.getWordsByWord(word, exact, offset - 1, limit, status);
         long countWord = wordService.countWord(word, exact);
         return new ResponseEntityJsonApi(wordsByWord,
                 new MetaResponseEntity(1, ConversionUtils.roundUp(countWord, limit), offset, limit, countWord));

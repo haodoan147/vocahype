@@ -71,7 +71,8 @@ public class WordUserKnowledgeService {
         String userId = SecurityUtil.getCurrentUserId();
         Optional<User> userOptional = userRepository.findById(userId);
         User user = userOptional.orElseGet(() -> userRepository.save(
-                User.builder().id(userId).loginName(userId).firstName(userId).lastName("").status(1L).loginCount(0L)
+                User.builder().id(userId).loginName(SecurityUtil.getCurrentUserEmail())
+                        .firstName(SecurityUtil.getCurrentUserName()).lastName("").status(1L).loginCount(0L)
                         .createdOn(Timestamp.valueOf(LocalDateTime.now())).role(Role.builder().id(1L).build()).build()));
         Set<WordUserKnowledge> knownWords = new HashSet<>();
         AtomicReference<Double> score = new AtomicReference<>((double) 0);

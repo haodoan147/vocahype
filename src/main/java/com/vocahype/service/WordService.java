@@ -2,18 +2,20 @@ package com.vocahype.service;
 
 import com.vocahype.dto.SynonymDTO;
 import com.vocahype.dto.WordDTO;
+import com.vocahype.dto.enumeration.WordStatus;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.SynonymRepository;
 import com.vocahype.repository.WordRepository;
+import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,18 +38,20 @@ public class WordService {
         return word;
     }
 
-    public List<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size) {
+    public List<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size, final String status) {
         Pageable pageable = PageRequest.of(page, size);
+        if (status != null && !status.equalsIgnoreCase("TO_LEARN")) {
+            try {
+                List<Integer> levelList = WordStatus.valueOf(status.toUpperCase()).getLevelList();
+                String userId = SecurityUtil.getCurrentUserId();
+                if (exact) return wordRepository.findByWordIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
+                return wordRepository.findByWordContainsIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
+            } catch (IllegalArgumentException e) {
+                throw new InvalidException("Invalid param", "Status must be one of: " + Arrays.toString(WordStatus.values()));
+            }
+        }
         if (exact) return wordRepository.findByWordIgnoreCaseOrderById(word, pageable);
-        return wordRepository.findByWordContainsIgnoreCaseOrderById(word, pageable).stream().map((element) -> {
-//            WordDTO wordDTO = modelMapper.map(element, WordDTO.class);
-            WordDTO wordDTO = new WordDTO(element);
-//            element.getMeanings().forEach(meaning -> {
-//                wordDTO.getMeanings(meaning.getSynonyms() == null ? null : meaning.getSynonyms().stream().map(SynonymDTO::new).collect(Collectors.toSet()));
-//
-//            });
-            return wordDTO;
-        }).collect(Collectors.toList());
+        return wordRepository.findByWordContainsIgnoreCaseOrderById(word, pageable);
     }
 
     public long countWord(final String word, final boolean exact) {
