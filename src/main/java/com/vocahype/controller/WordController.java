@@ -35,7 +35,7 @@ public class WordController {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
         List<WordDTO> wordsByWord = wordService.getWordsByWord(word, exact, offset - 1, limit, status);
-        long countWord = wordService.countWord(word, exact);
+        long countWord = wordsByWord.size();
         return new ResponseEntityJsonApi(wordsByWord,
                 new MetaResponseEntity(1, ConversionUtils.roundUp(countWord, limit), offset, limit, countWord));
     }

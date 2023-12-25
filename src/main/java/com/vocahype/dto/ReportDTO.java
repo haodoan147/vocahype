@@ -6,8 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -15,17 +19,17 @@ import java.util.List;
 @AllArgsConstructor
 public class ReportDTO {
     private List<String> labels;
-    private List<Long> datas;
+    private List<Integer> datas;
     private Long mastered;
     private Long learning;
     private Long ignored;
 
-    public ReportDTO(List<UserLearningGoalTracking> userLearningGoalTrackings, Long mastered, Long learning, Long ignored) {
+    public ReportDTO(List<Map.Entry<String, Integer>> localDateMap, Long mastered, Long learning, Long ignored) {
         this.labels = new ArrayList<>();
         this.datas = new ArrayList<>();
-        userLearningGoalTrackings.forEach(userLearningGoalTracking -> {
-            labels.add(userLearningGoalTracking.getUserLearningGoalTrackingID().getDateLearn().toString());
-            datas.add(userLearningGoalTracking.getUserLearntTime().longValue());
+        localDateMap.forEach(stringIntegerEntry -> {
+            this.labels.add(stringIntegerEntry.getKey());
+            this.datas.add(stringIntegerEntry.getValue());
         });
         this.mastered = mastered;
         this.learning = learning;
