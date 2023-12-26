@@ -46,5 +46,6 @@ public class ReportService {
                 userId,
                 List.of(12));
         return new ReportDTO(localDateMap.entrySet().stream().sorted(Map.Entry.comparingByKey()).collect(Collectors.toList()), mastered, learning, ignored);
+
     }
 }

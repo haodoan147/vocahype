@@ -30,6 +30,7 @@ public class ReportDTO {
         localDateMap.forEach(stringIntegerEntry -> {
             this.labels.add(stringIntegerEntry.getKey());
             this.datas.add(stringIntegerEntry.getValue());
+
         });
         this.mastered = mastered;
         this.learning = learning;
