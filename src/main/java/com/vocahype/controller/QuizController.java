@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,7 +20,7 @@ public class QuizController {
     private final QuizService quizService;
 
     @GetMapping(value = Routing.WORD_QUIZ)
-    public ResponseEntityJsonApi getQuizGen(@Valid @RequestBody QuizRequest quizRequest) throws JsonProcessingException {
-        return new ResponseEntityJsonApi(quizService.getQuizGen(quizRequest));
+    public Map getQuizGen(@Valid @RequestBody QuizRequest quizRequest) throws JsonProcessingException {
+        return quizService.getQuizGen(quizRequest);
     }
 }

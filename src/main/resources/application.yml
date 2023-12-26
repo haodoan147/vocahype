@@ -14,9 +14,6 @@ spring:
     default-schema: vh
     liquibase-schema: public
 
-  profiles:
-    default: staging
-
   security:
     user:
       name: admin
@@ -61,3 +58,4 @@ cronjob:
 application:
   dictionary-api-url: https://api.dictionaryapi.dev/api/v2/entries/en
   data-word: 1000
+  open-ai-api-key: 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
