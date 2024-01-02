@@ -9,6 +9,7 @@ import com.vocahype.repository.WordRepository;
 import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,10 +39,10 @@ public class WordService {
         return word;
     }
 
-    public List<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size, final String status) {
+    public Page<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size, final String status) {
         Pageable pageable = PageRequest.of(page, size);
         String userId = SecurityUtil.getCurrentUserId();
-        if (status != null && !status.equalsIgnoreCase("TO_LEARN")) {
+        if (status != null && !status.equalsIgnoreCase("TO_LEARN") && !status.isBlank()) {
             try {
                 List<Integer> levelList = WordStatus.valueOf(status.toUpperCase()).getLevelList();
                 if (exact) return wordRepository.findByWordIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);

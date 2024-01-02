@@ -8,6 +8,7 @@ import com.vocahype.service.WordService;
 import com.vocahype.util.ConversionUtils;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,9 +35,9 @@ public class WordController {
         if (offset <= 0 || limit <= 0) {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
-        List<WordDTO> wordsByWord = wordService.getWordsByWord(word, exact, offset - 1, limit, status);
-        long countWord = wordsByWord.size();
-        return new ResponseEntityJsonApi(wordsByWord,
+        Page<WordDTO> wordsByWord = wordService.getWordsByWord(word, exact, offset - 1, limit, status);
+        long countWord = wordsByWord.getTotalElements();
+        return new ResponseEntityJsonApi(wordsByWord.getContent(),
                 new MetaResponseEntity(1, ConversionUtils.roundUp(countWord, limit), offset, limit, countWord));
     }
 }

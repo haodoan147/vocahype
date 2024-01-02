@@ -15,23 +15,6 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-//@NamedEntityGraphs({
-//        @NamedEntityGraph(
-//                name = "graph.WordDefinitionExample",
-//                attributeNodes =  @NamedAttributeNode(value = "definitions", subgraph = "subgraph.DefinitionExample"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.DefinitionExample", attributeNodes = @NamedAttributeNode(value = "examples"))
-//                }
-//        ),
-//        @NamedEntityGraph(
-//                name = "graph.WordSynonymSynonym",
-//                attributeNodes =  @NamedAttributeNode(value = "synonyms", subgraph = "subgraph.SynonymSynonymID"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonym")),
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonymID"))
-//                }
-//        ),
-//})
 @NamedEntityGraphs({
         @NamedEntityGraph(
                 name = "graph.WordMeaningPos",

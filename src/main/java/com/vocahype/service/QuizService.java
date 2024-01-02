@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class QuizService {
     private final ApplicationProperties applicationProperties;
 
     public Map getQuizGen(final QuizRequest quizRequest) throws JsonProcessingException {
-        String apiKey = applicationProperties.getOpenAiApiKey();
+        String apiKey = new String(Base64.getDecoder().decode(applicationProperties.getOpenAiApiKey()));
 
         // Create a single select quiz
         try {

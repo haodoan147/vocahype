@@ -13,6 +13,7 @@ import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.repository.WordRepository;
 import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,7 @@ public class UserWordComprehensionService {
         return currentLevel;
     }
 
-    public List<WordDTO> getWordTest(int page, int size, Long topicId) {
+    public Page<WordDTO> getWordTest(int page, int size, Long topicId) {
         String userId = SecurityUtil.getCurrentUserId();
         Pageable pageable = PageRequest.of(page, size);
         if (topicId == null || topicId == 17) {
