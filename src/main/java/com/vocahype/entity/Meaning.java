@@ -2,15 +2,12 @@ package com.vocahype.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.vocahype.converter.JsonConverter;
+import com.vocahype.dto.DefinitionDTO;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
@@ -45,6 +42,10 @@ public class Meaning implements Serializable {
     @SequenceGenerator(name = "seq_id_meanings", sequenceName = "seq_id_meanings", allocationSize = 1, schema = "vh")
     private Long id;
 
+    @Column(name = "definitions", columnDefinition = "jsonb")
+    @Convert(converter = JsonConverter.class)
+    private Set<DefinitionDTO> definitions;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id")
     @JsonIgnore
@@ -55,8 +56,8 @@ public class Meaning implements Serializable {
     @JsonIgnore
     private Pos pos;
 
-    @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
-    private Set<Definition> definitions;
+//    @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
+//    private Set<Definition> definitions;
 
     @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
     private Set<Synonym> synonyms;
