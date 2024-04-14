@@ -23,8 +23,7 @@ public class MeaningDTO {
     private Long id;
     @JsonIgnore
     private Pos pos;
-    @JsonIgnore
-    private Set<DefinitionDTO> definitions;
+    private CustomList<DefinitionDTO> definitions;
 //    @JsonIgnore
 //    private Set<DefinitionDTO> definitions;
     @JsonIgnore
@@ -33,7 +32,8 @@ public class MeaningDTO {
     public MeaningDTO(Meaning meaning, boolean isContainDefinitions, List<Synonym> synonyms, List<Synonym> antonyms) {
         this.id = meaning.getId();
         this.pos = meaning.getPos();
-        this.definitions = meaning.getDefinitions();
+        this.definitions = new CustomList<>();
+        this.definitions.addAll(meaning.getDefinitions());
 //        this.definitions = new HashSet<>();
         this.synonyms = new HashSet<>();
         if (isContainDefinitions) {
