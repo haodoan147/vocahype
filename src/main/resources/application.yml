@@ -58,4 +58,4 @@ cronjob:
 application:
   dictionary-api-url: https://api.dictionaryapi.dev/api/v2/entries/en
   data-word: 1000
-  open-ai-api-key: c2staXc1cmpUdExxSW44eGd2WGE1WlZUM0JsYmtGSmt2bUd1aGFvWFN0SDU2ajZ1bFIx
+  open-ai-api-key: c2stbG5FV2J4NUNKbHpQc1BZdk5LMm9UM0JsYmtGSkM1TnNnd1Z6WEw1TmF1V1lvbDl5

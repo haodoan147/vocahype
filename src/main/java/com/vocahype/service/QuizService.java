@@ -6,7 +6,6 @@ import com.vocahype.configuration.ApplicationProperties;
 import com.vocahype.dto.SingleSelectQuiz;
 import com.vocahype.dto.enumeration.LevelOfQuiz;
 import com.vocahype.dto.enumeration.TypeOfQuiz;
-import com.vocahype.dto.request.QuizRequest;
 import com.vocahype.exception.InvalidException;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
@@ -27,19 +26,19 @@ public class QuizService {
     private final ObjectMapper objectMapper;
     private final ApplicationProperties applicationProperties;
 
-    public Map getQuizGen(final QuizRequest quizRequest) throws JsonProcessingException {
+    public Map getQuizGen(final String word, final String level) throws JsonProcessingException {
         String apiKey = new String(Base64.getDecoder().decode(applicationProperties.getOpenAiApiKey()));
 
         // Create a single select quiz
         try {
-            LevelOfQuiz.valueOf(quizRequest.getLevel().toUpperCase());
+            LevelOfQuiz.valueOf(level.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new InvalidException("Invalid level of quiz", "Invalid level: " + quizRequest.getLevel());
+            throw new InvalidException("Invalid level of quiz", "Invalid level: " + level);
         }
         SingleSelectQuiz singleSelectQuiz = SingleSelectQuiz.builder()
                 .typeOfQuiz(TypeOfQuiz.WORD_USAGE_IN_CONTEXT)
-                .levelOfQuiz(LevelOfQuiz.valueOf(quizRequest.getLevel().toUpperCase()))
-                .word(quizRequest.getWord())
+                .levelOfQuiz(LevelOfQuiz.valueOf(level.toUpperCase()))
+                .word(word)
                 .question("What is an example sentence for the word?")
                 .build();
 
@@ -78,7 +77,7 @@ public class QuizService {
         String responseFormat = "json_object";
         String model = "gpt-3.5-turbo-1106";
         String responseBody = webClient.post()
-                .body(BodyInserters.fromValue("{\"model\": \"" + model + "\", \"messages\":" + messagesJson + "}"))
+                .body(BodyInserters.fromValue("{\"model\": \"" + model + "\", \"response_format\": {\"type\": \"json_object\"}, \"messages\":" + messagesJson + "}"))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
