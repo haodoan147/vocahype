@@ -32,7 +32,7 @@ public class Word implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "word")
+    @Column(name = "word", unique = true)
     private String word;
 
     @Column(name = "count")

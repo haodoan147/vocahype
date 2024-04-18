@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface WordRepository extends JpaRepository<Word, Long> {
 //    @EntityGraph("graph.WordMeaningPos")
@@ -84,4 +85,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     Optional<WordDTO> findWordDTOById(Long aLong, String userId);
 
     Optional<Word> findByWordIgnoreCaseOrderById(String word);
+
+    List<Word> findAllByWordIn(Set<String> words);
 }

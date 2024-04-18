@@ -1,0 +1,16 @@
+databaseChangeLog:
+    - changeSet:
+          id: 18-02_01
+          author: hao.doanvonhut
+          changes:
+              - preConditions:
+                    - onFail: MARK_RAN
+                    - sqlCheck:
+                            expectedResult: f
+                            sql: SELECT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'words_word_key');
+              - addUniqueConstraint:
+                  columnNames: word
+                  constraintName: words_word_key
+                  schemaName: vh
+                  tableName: words
+          comment: Add unique constraint on word column in words table
