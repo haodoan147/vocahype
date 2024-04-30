@@ -70,8 +70,8 @@ public class WordService {
     }
 
     @Transactional
-    public WordDTO updateWord(final Long id, final JsonNode jsonNode) {
-        Word targetWord = wordRepository.findById(id).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
+    public WordDTO updateWord(final Long wordId, final JsonNode jsonNode) {
+        Word targetWord = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
 
         Word resourceWord = objectMapper.convertValue(jsonNode.get("data").get(0).get("attributes"), Word.class);
 
@@ -96,19 +96,33 @@ public class WordService {
         Set<Meaning> meanings = new HashSet<>();
         jsonNode.get("included").forEach(included -> {
             if (included.get("type").asText().equals("meaning")) {
-                Long meaningId = included.get("id").asLong();
-                Meaning meaning = meaningRepository.findById(meaningId).orElseThrow(() ->
-                        new InvalidException("Meaning not found", "Not found any meaning with id: " + meaningId));
-                if (!included.get("relationships").has("pos")) {
-                    throw new InvalidException("Pos not found", "Pos not found in meaning with id: " + meaningId);
+                Meaning meaning;
+                boolean isMeaningExist = included.has("id");
+                if (isMeaningExist) {
+                    meaning = meaningRepository.findById(included.get("id").asLong())
+                            .orElseThrow(() -> new InvalidException("Meaning not found", "Not found any meaning with id: " + included.get("id").asLong()));
+                    if (!meaning.getWord().getId().equals(wordId)) {
+                        throw new InvalidException("Meaning not found", "Meaning with id: " + meaning.getId()+ " not belong to current word with id: " + wordId);
+                    }
+                } else {
+                    meaning = Meaning.builder().word(targetWord).build();
                 }
-                JsonNode dataPos = included.get("relationships").get("pos").get("data");
-                if (dataPos.has("id") && !dataPos.get("id").asText().equals(meaning.getPos().getPosTag())) {
-                    meaning.setPos(posRepository.findById(dataPos.get("id")
-                            .asText()).orElseThrow(() -> new InvalidException("Pos not found",
-                            "Not found any pos with id: "
-                            + dataPos.get("id").asText())));
+                if (!isMeaningExist && !included.get("relationships").has("pos")) {
+                    throw new InvalidException("Pos not found", "Pos is required for new meaning");
                 }
+                if (included.get("relationships").has("pos")) {
+                    JsonNode dataPos = included.get("relationships").get("pos").get("data");
+                    if (!dataPos.has("id")) {
+                        throw new InvalidException("Pos not found", "Pos id is required for new meaning");
+                    }
+                    if (!isMeaningExist || !dataPos.get("id").asText().equals(meaning.getPos().getPosTag())) {
+                        meaning.setPos(posRepository.findById(dataPos.get("id")
+                                .asText()).orElseThrow(() -> new InvalidException("Pos not found",
+                                "Not found any pos with wordId: "
+                                        + dataPos.get("id").asText())));
+                    }
+                }
+
                 Set<DefinitionDTO> definitionDTOs = new HashSet<>();
                 if (included.get("attributes").has("definitions")) {
                     included.get("attributes").get("definitions").forEach(definition -> {
@@ -120,6 +134,7 @@ public class WordService {
                 meanings.add(meaning);
             }
         });
+        meaningRepository.saveAllAndFlush(meanings);
         targetWord.setMeanings(meanings);
 
         return new WordDTO(targetWord, true, true);

@@ -3,9 +3,12 @@ package com.vocahype.repository;
 import com.vocahype.entity.Meaning;
 import com.vocahype.entity.UserLearningGoalTracking;
 import com.vocahype.entity.UserLearningGoalTrackingID;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import java.util.Optional;
 
 public interface MeaningRepository extends JpaRepository<Meaning, Long> {
 
@@ -16,4 +19,8 @@ public interface MeaningRepository extends JpaRepository<Meaning, Long> {
     @Modifying
     @Query(value = "DELETE FROM vh.meanings where id = ?1 ", nativeQuery = true)
     void deleteAllById(Long aLong);
+
+    @EntityGraph(value = "graph.meaning.pos")
+    @Override
+    Optional<Meaning> findById(Long aLong);
 }

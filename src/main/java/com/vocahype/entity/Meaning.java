@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vocahype.converter.JsonConverter;
 import com.vocahype.dto.DefinitionDTO;
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,23 +18,11 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-//@NamedEntityGraphs({
-//        @NamedEntityGraph(
-//                name = "graph.WordDefinitionExample",
-//                attributeNodes =  @NamedAttributeNode(value = "definitions", subgraph = "subgraph.DefinitionExample"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.DefinitionExample", attributeNodes = @NamedAttributeNode(value = "examples"))
-//                }
-//        ),
-//        @NamedEntityGraph(
-//                name = "graph.WordSynonymSynonym",
-//                attributeNodes =  @NamedAttributeNode(value = "synonyms", subgraph = "subgraph.SynonymSynonymID"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonym")),
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonymID"))
-//                }
-//        ),
-//})
+@Accessors(chain = true)
+@NamedEntityGraph(
+        name = "graph.meaning.pos",
+        attributeNodes = @NamedAttributeNode("pos")
+)
 public class Meaning implements Serializable {
 
     @Id
