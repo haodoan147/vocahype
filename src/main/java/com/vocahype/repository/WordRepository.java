@@ -87,4 +87,6 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     Optional<Word> findByWordIgnoreCaseOrderById(String word);
 
     List<Word> findAllByWordIn(Set<String> words);
+
+    Optional<Word> findByWord(String word);
 }

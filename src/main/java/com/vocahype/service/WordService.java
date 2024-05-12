@@ -71,9 +71,18 @@ public class WordService {
 
     @Transactional
     public WordDTO updateWord(final Long wordId, final JsonNode jsonNode) {
-        Word targetWord = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
-
         Word resourceWord = objectMapper.convertValue(jsonNode.get("data").get(0).get("attributes"), Word.class);
+
+        Word targetWord;
+
+        if (wordId == null) {
+            wordRepository.findByWord(resourceWord.getWord()).ifPresent(word -> {
+                throw new InvalidException("Word already exist", "Word already exist with word: " + resourceWord.getWord());
+            });
+            targetWord = Word.builder().word(resourceWord.getWord()).build();
+        } else {
+            targetWord = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
+        }
 
         if (resourceWord.getCount() != null && !resourceWord.getCount().equals(targetWord.getCount())) {
             targetWord.setCount(resourceWord.getCount());
@@ -93,7 +102,11 @@ public class WordService {
         if (resourceWord.getPhoneticEnd() != null && !resourceWord.getPhoneticEnd().equals(targetWord.getPhoneticEnd())) {
             targetWord.setPhoneticEnd(resourceWord.getPhoneticEnd());
         }
+        if (wordId == null) {
+            targetWord = wordRepository.saveAndFlush(targetWord);
+        }
         Set<Meaning> meanings = new HashSet<>();
+        Word finalTargetWord = targetWord;
         jsonNode.get("included").forEach(included -> {
             if (included.get("type").asText().equals("meaning")) {
                 Meaning meaning;
@@ -101,11 +114,11 @@ public class WordService {
                 if (isMeaningExist) {
                     meaning = meaningRepository.findById(included.get("id").asLong())
                             .orElseThrow(() -> new InvalidException("Meaning not found", "Not found any meaning with id: " + included.get("id").asLong()));
-                    if (!meaning.getWord().getId().equals(wordId)) {
-                        throw new InvalidException("Meaning not found", "Meaning with id: " + meaning.getId()+ " not belong to current word with id: " + wordId);
+                    if (!meaning.getWord().getId().equals(finalTargetWord.getId())) {
+                        throw new InvalidException("Meaning not found", "Meaning with id: " + meaning.getId()+ " not belong to current word with id: " + finalTargetWord.getId());
                     }
                 } else {
-                    meaning = Meaning.builder().word(targetWord).build();
+                    meaning = Meaning.builder().word(finalTargetWord).build();
                 }
                 if (!isMeaningExist && !included.get("relationships").has("pos")) {
                     throw new InvalidException("Pos not found", "Pos is required for new meaning");

@@ -12,16 +12,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-public class TopicController {
-    private final TopicService topicService;
+public class ImportController {
+    private final ImportService importService;
 
-    @GetMapping(Routing.TOPICS)
-    ResponseEntityJsonApi getUserProfile() {
-        return new ResponseEntityJsonApi(topicService.getListTopic());
+    @PostMapping(Routing.IMPORT)
+    void getUserProfile(@RequestParam("file") MultipartFile file,
+                        @RequestParam("topicId") Integer topicId) {
+        importService.importWordInTopic(file, topicId);
     }
 
-    @PostMapping(Routing.TOPICS)
-    ResponseEntityJsonApi createTopic(@RequestBody JsonNode jsonNode) {
-        return new ResponseEntityJsonApi(topicService.createTopic(jsonNode));
-    }
 }

@@ -43,4 +43,9 @@ public class WordController {
     public ResponseEntityJsonApi updateWord(@PathVariable Long wordId, @RequestBody JsonNode jsonNode) {
         return new ResponseEntityJsonApi(wordService.updateWord(wordId, jsonNode));
     }
+
+    @PostMapping(value = Routing.WORD)
+    public ResponseEntityJsonApi updateWord(@RequestBody JsonNode jsonNode) {
+        return new ResponseEntityJsonApi(wordService.updateWord(null, jsonNode));
+    }
 }

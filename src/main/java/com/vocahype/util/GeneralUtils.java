@@ -16,9 +16,10 @@ public class GeneralUtils {
     private static final ModelMapper modelMapper = new ModelMapper();
 
     public static TopicDTO convertToDto(Topic topic) {
-        String userId = SecurityUtil.getCurrentUserId();
         TopicDTO topicDTO = modelMapper.map(topic, TopicDTO.class);
-        topicDTO.setWordCount((long) topic.getWordTopics().size());
+        if (topic.getWordTopics() != null) {
+            topicDTO.setWordCount((long) topic.getWordTopics().size());
+        }
         return topicDTO;
     }
 
