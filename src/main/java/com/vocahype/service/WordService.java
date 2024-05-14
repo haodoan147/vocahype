@@ -152,4 +152,9 @@ public class WordService {
 
         return new WordDTO(targetWord, true, true);
     }
+
+    public void deleteWord(final Long wordId) {
+        wordRepository.findById(wordId)
+                .ifPresent(wordRepository::delete);
+    }
 }

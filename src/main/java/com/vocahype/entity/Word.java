@@ -59,16 +59,16 @@ public class Word implements Serializable {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<WordTopic> wordTopics;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Meaning> meanings;
 
-    @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Synonym> synonyms;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserWordComprehension> userWordComprehensions;
 
     @Override

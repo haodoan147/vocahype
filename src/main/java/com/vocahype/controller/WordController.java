@@ -48,4 +48,9 @@ public class WordController {
     public ResponseEntityJsonApi updateWord(@RequestBody JsonNode jsonNode) {
         return new ResponseEntityJsonApi(wordService.updateWord(null, jsonNode));
     }
+
+    @DeleteMapping(value = Routing.WORD_ID)
+    public void deleteWord(@PathVariable Long wordId) {
+        wordService.deleteWord(wordId);
+    }
 }

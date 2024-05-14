@@ -25,6 +25,7 @@ public class Routing {
     public static final String FETCH_DICTIONARY = API_BASE + "/fetch-dictionary";
     public static final String FETCH_DICTIONARY_WORD = FETCH_DICTIONARY + "/{word}";
     public static final String TOPICS = API_BASE + "/topics";
+    public static final String TOPIC_ID = TOPICS + "/{topicId}";
     public static final String REPORT = API_BASE + "/report";
     public static final String IMPORT = API_BASE + "/import";
 

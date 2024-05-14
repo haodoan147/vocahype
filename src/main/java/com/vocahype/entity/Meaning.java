@@ -6,6 +6,7 @@ import com.vocahype.converter.JsonConverter;
 import com.vocahype.dto.DefinitionDTO;
 import lombok.*;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.ColumnTransformer;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -33,6 +34,7 @@ public class Meaning implements Serializable {
 
     @Column(name = "definitions", columnDefinition = "jsonb")
     @Convert(converter = JsonConverter.class)
+    @ColumnTransformer(write = "?::jsonb")
     private Set<DefinitionDTO> definitions;
 
     @ManyToOne(fetch = FetchType.LAZY)

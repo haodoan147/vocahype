@@ -24,4 +24,9 @@ public class TopicController {
     ResponseEntityJsonApi createTopic(@RequestBody JsonNode jsonNode) {
         return new ResponseEntityJsonApi(topicService.createTopic(jsonNode));
     }
+
+    @DeleteMapping(value = Routing.TOPIC_ID)
+    public void deleteTopic(@PathVariable Long topicId) {
+        topicService.deleteTopic(topicId);
+    }
 }

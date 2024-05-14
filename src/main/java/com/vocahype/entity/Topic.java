@@ -33,7 +33,7 @@ public class Topic implements Serializable {
     @Column(name = "emoji")
     private String emoji;
 
-    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<WordTopic> wordTopics;
 
     @Override
