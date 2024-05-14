@@ -17,7 +17,8 @@ public class TopicDTO {
     private Long wordCount;
     private Long learningWordCount;
     private Long masteredWordCount;
-    private List<Long> wordList;
+    private List<Long> addedWordIds;
+    private List<Long> removedWordIds;
 
     @Override
     public String toString() {

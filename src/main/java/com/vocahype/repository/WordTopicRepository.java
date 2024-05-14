@@ -3,8 +3,9 @@ package com.vocahype.repository;
 import com.vocahype.entity.WordTopic;
 import com.vocahype.entity.WordTopicID;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+
+import java.util.Set;
 
 public interface WordTopicRepository extends JpaRepository<WordTopic, WordTopicID> {
+    void deleteAllByTopicIdAndWordIdNotIn(final Long id, final Set<Long> collect);
 }

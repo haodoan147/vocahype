@@ -36,6 +36,16 @@ public class Topic implements Serializable {
     @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<WordTopic> wordTopics;
 
+    public void setWordTopics(Set<WordTopic> wordTopics) {
+        if (wordTopics == null) return;
+        if (this.wordTopics != null) {
+            this.wordTopics.clear();
+            this.wordTopics.addAll(wordTopics);
+        } else {
+            this.wordTopics = wordTopics;
+        }
+    }
+
     @Override
     public String toString() {
         return id.toString();
