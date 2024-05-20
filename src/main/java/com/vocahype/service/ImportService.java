@@ -3,28 +3,28 @@ package com.vocahype.service;
 import com.vocahype.entity.Word;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.WordRepository;
+import edu.stanford.nlp.ling.CoreLabel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.util.PropertiesUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ImportService {
 
+    public static final String WORD_REGEX = "^(?!.*'s$)[a-zA-Z']+$";
     private final JdbcTemplate jdbcTemplate;
     private final WordRepository wordRepository;
 
@@ -33,19 +33,34 @@ public class ImportService {
         if (file == null) {
             return;
         }
-        try {
-            List<String> wordLines = readWordsFromSrtFile(file);
-            if (wordLines.isEmpty()) {
-                throw new InvalidException("No words found in file", "No words found in file");
-            }
-            saveAndGetWords(wordLines);
-            insertMultipleValues(wordLines, topicId);
-        } catch (IOException e) {
-            throw new InvalidException("Error reading file", "Error reading file: " + e.getMessage());
+        Map<String, Long> wordFrequency = readWordsFromSrtFile(file);
+        if (wordFrequency.isEmpty()) {
+            throw new InvalidException("No words found in file", "No words found in file");
         }
+        saveWords(wordFrequency.keySet());
+        insertMultipleValues(wordFrequency.entrySet(), topicId);
     }
-    public static List<String> readWordsFromSrtFile(MultipartFile file) throws IOException {
-        List<String> words = new ArrayList<>();
+
+    public static Map<String, Long> extractWords(final String text) {
+        Map<String, Long> wordFrequency = new HashMap<>();
+        Properties props = PropertiesUtils.asProperties(
+                "annotators", "tokenize,ssplit,pos,lemma"
+        );
+        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+        CoreDocument document = new CoreDocument(text);
+        pipeline.annotate(document);
+        for (CoreLabel token : document.tokens()) {
+            String word = token.word();
+            if (word.matches(WORD_REGEX) && word.length() > 1) {
+                String lemma = token.get(CoreAnnotations.LemmaAnnotation.class).toLowerCase();
+                wordFrequency.put(lemma, wordFrequency.getOrDefault(lemma, 0L) + 1);
+            }
+        }
+        return wordFrequency;
+    }
+
+    public static Map<String, Long> readWordsFromSrtFile(MultipartFile file) {
+        Map<String, Long> wordFrequency = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -54,15 +69,20 @@ public class ImportService {
                 }
                 if (!line.trim().isEmpty()) {
                     if (!isIndexOrTimingLine(line)) {
-                        words.addAll(extractWords(line));
+                        Map<String, Long> lineWordFrequency = extractWords(line);
+                        for (Map.Entry<String, Long> entry : lineWordFrequency.entrySet()) {
+                            wordFrequency.merge(entry.getKey(), entry.getValue(), Long::sum);
+                        }
                     }
                 }
             }
+        } catch (IOException e) {
+            throw new InvalidException("Error reading file", "Error reading file: " + e.getMessage());
         }
-        return words;
+        return wordFrequency;
     }
 
-    private static List<String> extractWords(String line) {
+    private static List<String> extractOriginalWord(String line) {
         String[] words = line.split("[^a-zA-Z']");
         List<String> wordList = new ArrayList<>();
         for (String word : words) {
@@ -77,34 +97,35 @@ public class ImportService {
         return line.matches("^\\d+$") || line.matches("\\d{2}:\\d{2}:\\d{2},\\d{3} --> \\d{2}:\\d{2}:\\d{2},\\d{3}$");
     }
 
-    private List<Word> saveAndGetWords(List<String> words) {
-        Set<String> wordsSet = new HashSet<>(words);
-        List<Word> allByWord = wordRepository.findAllByWordIn(wordsSet);
-        Set<String> existWords = allByWord.stream().map(Word::getWord).collect(Collectors.toSet());
-        if (existWords.size() == wordsSet.size()) {
-            return allByWord;
+    private void saveWords(Set<String> words) {
+        List<Word> existWord = wordRepository.findAllByWordIn(words);
+        if (words.size() == existWord.size()) {
+            return;
         }
-        Set<Word> wordList = wordsSet.stream().filter(s -> !existWords.contains(s))
+        List<String> existWordList = existWord.stream().map(Word::getWord).collect(Collectors.toList());
+        Set<Word> wordList = words.stream().filter(s -> !existWordList.contains(s))
                 .map(word -> Word.builder().word(word).build()).collect(Collectors.toSet());
-        return wordRepository.saveAllAndFlush(wordList);
+        wordRepository.saveAllAndFlush(wordList);
     }
 
-    public void insertMultipleValues(final List<String> words, Integer topicId) {
+    public void insertMultipleValues(final Set<Map.Entry<String, Long>> wordFrequencies, Integer topicId) {
         String sql = "INSERT INTO word_topic AS wt (word_id, topic_id, frequency) "
-                + "SELECT w.id, ?, 1 FROM vh.words w "
+                + "SELECT w.id, ?, ? FROM vh.words w "
                 + "            where w.word = ? "
-                + "ON CONFLICT (word_id, topic_id) DO UPDATE SET frequency = wt.frequency + 1;";
+                + "ON CONFLICT (word_id, topic_id) DO UPDATE SET frequency = wt.frequency + ?;";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(final PreparedStatement ps, final int i) throws SQLException {
-                String word = words.get(i);
+                Map.Entry<String, Long> wordFrequency = wordFrequencies.stream().skip(i).findFirst().get();
                 ps.setInt(1, topicId);
-                ps.setString(2, word);
+                ps.setLong(2, wordFrequency.getValue());
+                ps.setString(3, wordFrequency.getKey());
+                ps.setLong(4, wordFrequency.getValue());
             }
 
             @Override
             public int getBatchSize() {
-                return words.size();
+                return wordFrequencies.size();
             }
         });
     }
