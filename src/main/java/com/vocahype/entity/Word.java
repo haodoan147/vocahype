@@ -75,4 +75,11 @@ public class Word implements Serializable {
     public String toString() {
         return id.toString();
     }
+
+    public void setMeanings(Set<Meaning> meanings) {
+        this.meanings.clear();
+        if (meanings != null) {
+            this.meanings.addAll(meanings);
+        }
+    }
 }

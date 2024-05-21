@@ -79,7 +79,7 @@ public class WordService {
             wordRepository.findByWord(resourceWord.getWord()).ifPresent(word -> {
                 throw new InvalidException("Word already exist", "Word already exist with word: " + resourceWord.getWord());
             });
-            targetWord = Word.builder().word(resourceWord.getWord()).build();
+            targetWord = Word.builder().word(resourceWord.getWord()).meanings(new HashSet<>()).build();
         } else {
             targetWord = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
         }
@@ -105,7 +105,7 @@ public class WordService {
         if (wordId == null) {
             targetWord = wordRepository.saveAndFlush(targetWord);
         }
-        Set<Meaning> meanings = new HashSet<>();
+        Set<Meaning> meanings = new HashSet<>(targetWord.getMeanings());
         Word finalTargetWord = targetWord;
         jsonNode.get("included").forEach(included -> {
             if (included.get("type").asText().equals("meaning")) {

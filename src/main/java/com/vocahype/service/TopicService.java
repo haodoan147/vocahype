@@ -1,5 +1,6 @@
 package com.vocahype.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vocahype.dto.TopicDTO;
@@ -7,6 +8,7 @@ import com.vocahype.entity.Topic;
 import com.vocahype.entity.WordTopic;
 import com.vocahype.entity.WordTopicID;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.exception.UserFriendlyException;
 import com.vocahype.repository.TopicRepository;
 import com.vocahype.repository.WordRepository;
 import com.vocahype.repository.WordTopicRepository;
@@ -15,6 +17,7 @@ import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,6 +31,7 @@ public class TopicService {
     private final ObjectMapper objectMapper;
     private final WordRepository wordRepository;
     private final WordTopicRepository wordTopicRepository;
+    private final ImportService importService;
 
     public Set<TopicDTO> getListTopic() {
         String userId = SecurityUtil.getCurrentUserId();
@@ -42,10 +46,30 @@ public class TopicService {
         return topicDTOSet;
     }
 
+    public TopicDTO getTopic(final Long topicID) {
+        TopicDTO topic = topicRepository.findFirstById(topicID)
+                .map(topic1 -> GeneralUtils.convertToDto(topic1, true))
+                .orElseThrow(() -> new InvalidException("Topic not found", "Topic with id " + topicID + " not found"));
+        topic.setMasteredWordCount(
+                (long) topicRepository.countLearningWordTopicsByTopicId(topicID, SecurityUtil.getCurrentUserId(), 11));
+        topic.setLearningWordCount(
+                (long) topicRepository.countLearningWordTopicsByTopicIdBetween(topicID, SecurityUtil.getCurrentUserId(), 2, 11));
+        return topic;
+    }
+
     @Transactional
-    public TopicDTO updateTopic(final Long topicID, final JsonNode jsonNode) {
+    public TopicDTO updateTopic(final Long topicID, final String topic, final MultipartFile file) {
+        try {
+            return updateTopic(topicID, objectMapper.readTree(topic), file);
+        } catch (JsonProcessingException e) {
+            throw new UserFriendlyException(e.getMessage());
+        }
+    }
+
+    @Transactional
+    public TopicDTO updateTopic(final Long topicID, final JsonNode jsonNode, final MultipartFile file) {
         boolean isNewTopic = topicID == null;
-        Topic topic = isNewTopic ? Topic.builder().build()
+        Topic topic = isNewTopic ? Topic.builder().wordTopics(new HashSet<>()).build()
                 : topicRepository.findById(topicID)
                 .orElseThrow(() -> new InvalidException("Topic not found", "Topic with id " + topicID + " not found"));
         TopicDTO resourceWord = objectMapper.convertValue(jsonNode.get("data").get(0).get("attributes"), TopicDTO.class);
@@ -90,6 +114,9 @@ public class TopicService {
             wordTopicRepository.deleteAllByTopicIdAndWordIdNotIn(topic.getId(),
                     wordList.stream().map(wt -> wt.getWordTopicID().getWordId()).collect(Collectors.toSet()));
             topic.setWordTopics(wordList);
+        }
+        if (file != null) {
+            importService.importWordInTopic(file, topic.getId().intValue());
         }
         return GeneralUtils.convertToDto(topic);
     }

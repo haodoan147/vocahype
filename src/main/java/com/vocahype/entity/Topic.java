@@ -16,6 +16,15 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
+@NamedEntityGraph(name = "graph.topic.wordTopics", attributeNodes = @NamedAttributeNode("wordTopics"))
+@NamedEntityGraph(
+        name = "graph.topic.wordTopics.word",
+        attributeNodes =  @NamedAttributeNode(value = "wordTopics", subgraph = "subgraph.topic.wordTopics"),
+        subgraphs = {
+                @NamedSubgraph(name = "subgraph.topic.wordTopics",
+                        attributeNodes = @NamedAttributeNode(value = "word"))
+        }
+)
 public class Topic implements Serializable {
 
     @Id

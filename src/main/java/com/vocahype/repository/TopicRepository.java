@@ -1,6 +1,7 @@
 package com.vocahype.repository;
 
 import com.vocahype.entity.Topic;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -21,4 +22,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     int countLearningWordTopicsByTopicIdBetween(Long topicId, String userId, Integer wordComprehensionLevelStart, Integer wordComprehensionLevelEnd);
 
     Optional<Topic> findByName(String name);
+
+    @EntityGraph(value = "graph.topic.wordTopics.word")
+    Optional<Topic> findFirstById(Long id);
 }

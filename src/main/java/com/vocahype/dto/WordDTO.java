@@ -3,10 +3,8 @@ package com.vocahype.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vocahype.entity.Word;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -17,6 +15,8 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+@Accessors(chain = true)
 public class WordDTO {
     private Long id;
     private String word;
