@@ -39,3 +39,5 @@ databaseChangeLog:
       file: db/changelog/2024/04/18-01-add-primary-key-for-word_topic-table.yaml
   - include:
       file: db/changelog/2024/04/18-02-add-unique-constraint-on-word-column-in-words-table.yaml
+  - include:
+      file: db/changelog/2024/05/23-01-insert-contributor-and-admin-role.yaml

@@ -47,7 +47,15 @@ spring:
 #    open-in-view: false
 
 server:
+  # If using spring-boot-devtools then hide the trace in exception responses here
+  error:
+    include-stacktrace: never
+  ## Define a custom server port
   port: 8080
+  servlet:
+    session:
+      cookie:
+        secure: true
 
 cronjob:
   scheduler:

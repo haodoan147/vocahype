@@ -1,8 +1,7 @@
 package com.vocahype.util;
 
-import com.google.firebase.auth.FirebaseToken;
 import com.vocahype.exception.InvalidException;
-import com.vocahype.security.FirebaseAuthentication;
+import com.vocahype.security.FirebaseUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -16,24 +15,32 @@ public final class SecurityUtil {
 
     public static String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() != null && authentication instanceof FirebaseAuthentication) {
-            return ((FirebaseToken) authentication.getDetails()).getEmail();
+        if (authentication.getPrincipal() != null && authentication.getPrincipal() instanceof FirebaseUser) {
+            return ((FirebaseUser) authentication.getPrincipal()).getEmail();
         }
         throw new InvalidException("Authentication Fail", "Current Authentication userId is null");
     }
 
     public static String getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() != null && authentication instanceof FirebaseAuthentication) {
-            return ((FirebaseAuthentication) authentication).getUid();
+        if (authentication.getPrincipal() != null && authentication.getPrincipal() instanceof FirebaseUser) {
+            return ((FirebaseUser) authentication.getPrincipal()).getUid();
         }
         throw new InvalidException("Authentication Fail", "Current Authentication userId is null");
     }
 
     public static String getCurrentUserName() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() != null && authentication instanceof FirebaseAuthentication) {
-            return ((FirebaseToken) authentication.getDetails()).getName();
+        if (authentication.getPrincipal() != null && authentication.getPrincipal() instanceof FirebaseUser) {
+            return ((FirebaseUser) authentication.getPrincipal()).getName();
+        }
+        throw new InvalidException("Authentication Fail", "Current Authentication userId is null");
+    }
+
+    public static String getCurrentUserRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() != null && authentication.getPrincipal() instanceof FirebaseUser) {
+            return ((FirebaseUser) authentication.getPrincipal()).getRole();
         }
         throw new InvalidException("Authentication Fail", "Current Authentication userId is null");
     }

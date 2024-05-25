@@ -1,16 +1,14 @@
 package com.vocahype.controller;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.vocahype.dto.ResponseEntityJsonApi;
 import com.vocahype.dto.UserProfileDTO;
 import com.vocahype.dto.UserTopicDTO;
 import com.vocahype.service.UserService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -32,5 +30,10 @@ public class UserController {
     @PostMapping(Routing.PROFILE_TOPIC)
     void saveUserTopic(@Valid @RequestBody UserTopicDTO userTopicDTO) {
         userService.saveUserTopic(userTopicDTO);
+    }
+
+    @PutMapping(Routing.USER_ID)
+    ResponseEntityJsonApi saveUserTopic(@RequestBody JsonNode user, @PathVariable String userId) {
+        return new ResponseEntityJsonApi(userService.saveUser(user, userId));
     }
 }
