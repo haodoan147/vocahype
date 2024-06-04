@@ -2,6 +2,11 @@
 spring:
   datasource:
     password: 123456
-    url: jdbc:postgresql://host.docker.internal:5433/vocahype?stringtype=unspecified
-    username: its
+    url: jdbc:postgresql://localhost:5433/vh?stringtype=unspecified
+    username: vh
 
+cronjob:
+  scheduler:
+    partitionLearning:
+      time: 0 0 7 * * ?
+      active: true

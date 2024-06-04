@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: 31-02_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - and:
+                - not:
+                    - columnExists:
+                        tableName: word_topic
+                        schemaName: vh
+                        columnName: frequency
+                - tableExists:
+                    schemaName: data
+                    tableName: topics
+        - loadData:
+            file: db/data/source/topics.csv
+            separator: ','
+            schemaName: data
+            tableName: topics
+            columns:
+              - column:
+                  name: word
+                  type: text
+              - column:
+                  name: frequency
+                  type: integer
+              - column:
+                  name: topic_id
+                  type: bigint
+        - addColumn:
+            tableName: word_topic
+            schemaName: vh
+            columns:
+              - column:
+                  name: frequency
+                  type: bigint
+                  defaultValueNumeric: '0'
+      comment: Import dataset topic for word
+  - changeSet:
+      id: 31-02_02
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - columnExists:
+                tableName: word_topic
+                schemaName: vh
+                columnName: frequency
+        - update:
+            schemaName: vh
+            tableName: word_topic
+            columns:
+              - column:
+                  name: frequency
+                  valueComputed: '(SELECT dt.frequency
+                 FROM data.topics dt
+                          JOIN vh.words w ON dt.word = w.word
+                 WHERE dt.topic_id = word_topic.topic_id and w.id = word_topic.word_id LIMIT 1)'
+      comment: Update frequency column in word_topic table
+  - changeSet:
+      id: 31-02_03
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - columnExists:
+                tableName: word_topic
+                schemaName: vh
+                columnName: frequency
+        - sql:
+            dbms: postgresql
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              truncate table data.topics cascade;
+      comment: Truncate table data.topics

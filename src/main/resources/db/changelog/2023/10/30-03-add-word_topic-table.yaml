@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 30-03_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+                - tableExists:
+                    tableName: word_topic
+                    schemaName: vh
+        - createTable:
+            schemaName: vh
+            tableName: word_topic
+            columns:
+              - column:
+                  name: word_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: word_topic_word_id_fk
+                    referencedTableSchemaName: vh
+                    referencedTableName: words
+                    referencedColumnNames: id
+              - column:
+                  name: topic_id
+                  type: bigint
+                  constraints:
+                    foreignKeyName: word_topic_topic_id_fk
+                    referencedTableSchemaName: vh
+                    referencedTableName: topics
+                    referencedColumnNames: id
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              INSERT INTO vh.word_topic (word_id, topic_id)
+              SELECT w.id, t.topic_id FROM data.topics t JOIN vh.words w ON t.word = w.word;
+        - delete:
+            tableName: topics
+            schemaName: data
+            where: 1 = 1
+      comment: Create table vh.word_topic

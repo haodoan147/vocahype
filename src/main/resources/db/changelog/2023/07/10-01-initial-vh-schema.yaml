@@ -1,5 +1,7 @@
 databaseChangeLog:
   - changeSet:
+      validCheckSum:
+        ANY
       id: 10-01_01
       author: hao.doanvonhut
       changes:

@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 09-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+              - columnExists:
+                  columnName: definitions
+                  schemaName: vh
+                  tableName: meanings
+        - addColumn:
+            tableName: meanings
+            schemaName: vh
+            columns:
+              - column:
+                  name: definitions
+                  type: jsonb
+        - sql:
+            dbms: postgresql
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              UPDATE vh.meanings m
+              SET definitions = (
+                SELECT jsonb_agg(jsonb_build_object(
+                  'definition', d.definition,
+                  'examples', (
+                    SELECT jsonb_agg(e.example)
+                    FROM vh.examples e
+                    WHERE e.definition_id = d.id
+                  )
+                )
+              )
+              FROM vh.definition d
+              WHERE d.meanings_id = m.id
+              ) WHERE definitions is null;
+            stripComments: true
+
+      comment: Migrate definitions table to definitions column in meanings table

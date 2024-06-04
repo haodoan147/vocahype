@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 28-02_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - columnExists:
+                tableName: synonyms
+                columnName: word_id
+                schemaName: vh
+        - dropPrimaryKey:
+            tableName: synonyms
+            schemaName: vh
+        - addPrimaryKey:
+            tableName: synonyms
+            columnNames: synonym_id, meanings_id
+            schemaName: vh
+  - changeSet:
+      id: 28-02_02
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - columnExists:
+                tableName: synonyms
+                columnName: word_id
+                schemaName: vh
+        - dropColumn:
+            tableName: synonyms
+            schemaName: vh
+            columnName: word_id
+      comment: Add primary key to synonyms table

@@ -1,0 +1,102 @@
+databaseChangeLog:
+  - changeSet:
+      id: 28-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sequenceExists:
+                sequenceName: seq_id_meanings
+                schemaName: vh
+        - createSequence:
+            sequenceName: seq_id_meanings
+            schemaName: vh
+            startValue: 1
+            incrementBy: 1
+            cacheSize: 1
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              DO
+                $$
+                    DECLARE
+                        max_id INT;
+                    BEGIN
+                        SELECT MAX(id) INTO max_id FROM vh.meanings;
+                        EXECUTE 'ALTER SEQUENCE vh.seq_id_meanings RESTART WITH ' || (COALESCE(max_id, 0) + 1);
+                    END
+                $$;
+      dbms: postgresql
+      comment: Reset sequence vh.seq_id_meanings
+  - changeSet:
+      id: 28-01_02
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sequenceExists:
+                sequenceName: seq_id_definition
+                schemaName: vh
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              DO
+                $$
+                    DECLARE
+                        max_id INT;
+                    BEGIN
+                        SELECT MAX(id) INTO max_id FROM vh.definition;
+                        EXECUTE 'ALTER SEQUENCE vh.seq_id_definition RESTART WITH ' || (COALESCE(max_id, 0) + 1);
+                    END
+                $$;
+      dbms: postgresql
+      comment: Reset sequence vh.seq_id_meanings
+  - changeSet:
+      id: 28-01_03
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sequenceExists:
+                sequenceName: seq_id_examples
+                schemaName: vh
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              DO
+                $$
+                    DECLARE
+                        max_id INT;
+                    BEGIN
+                        SELECT MAX(id) INTO max_id FROM vh.examples;
+                        EXECUTE 'ALTER SEQUENCE vh.seq_id_examples RESTART WITH ' || (COALESCE(max_id, 0) + 1);
+                    END
+                $$;
+      dbms: postgresql
+  - changeSet:
+      id: 28-01_05
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sequenceExists:
+                sequenceName: seq_id_meanings
+                schemaName: vh
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              DO
+                $$
+                    DECLARE
+                        max_id INT;
+                    BEGIN
+                        SELECT MAX(id) INTO max_id FROM vh.meanings;
+                        EXECUTE 'ALTER SEQUENCE vh.seq_id_meanings RESTART WITH ' || (COALESCE(max_id, 0) + 1);
+                    END
+                $$;
+      dbms: postgresql
+      comment: Reset sequence vh.seq_id_meanings
