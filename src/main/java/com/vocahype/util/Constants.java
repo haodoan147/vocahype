@@ -18,4 +18,7 @@ public class Constants {
     public static final int LEVEL_DAY_10 = 365;
     public static final int LEVEL_DAY_11 = -1;
     public static final int LEVEL_DAY_12 = -1;
+    public static final String[] RETRY_POS_TAGS = {"NN", "NNN", "NNS", "NNP", "NNPS", "VB", "VBP", "VBZ", "VBD", "VBN", "VBG", "DT", "QT", "CD",
+            "EX", "PRP", "PRP$", "POS", "RBS", "RBR", "RB", "JJS", "JJR", "JJ", "MD", "WDT", "WP", "WP$", "WRB", "TO",
+            "IN", "CC", "UH", "RP", "SYM", "PR"};
 }
