@@ -3,6 +3,7 @@ package com.vocahype.repository;
 import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.UserWordComprehensionID;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,7 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
 
     Optional<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(final String userId, final Long wordId);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, true) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, true, case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
@@ -25,11 +26,11 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "where uwc.wordComprehensionLevel is null or (uwc.wordComprehensionLevel != 11 and uwc.wordComprehensionLevel != 12) "
             + "order by case when uwc.nextLearning <= current_date then 0"
             + "when uwc.nextLearning is null then 1 else 2 end, uwc.nextLearning, wt.frequency desc, w.id")
-    List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(final String userId,
-                                                                                      final Pageable pageable,
-                                                                                      final Long topicId);
+    Page<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(final String userId,
+                                                                                       final Pageable pageable,
+                                                                                       final Long topicId);
 
-    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, true) "
+    @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, true, case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
             + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
             + "and uwc.userWordComprehensionID.userId = ?1 "
@@ -43,7 +44,7 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
             + "when uwc.nextLearning is null then 2 "
             + "when wt.wordTopicID.topicId is not null then 3 "
             + "else 4 end, uwc.nextLearning, w.id")
-    List<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
+    Page<WordDTO> findByUserWordComprehensionID_UserIdOrderByNextLearning(final String userId, final Pageable pageable);
 
     void deleteAllByUserWordComprehensionID_UserId(final String userId);
 

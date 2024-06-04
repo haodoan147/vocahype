@@ -15,23 +15,6 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-//@NamedEntityGraphs({
-//        @NamedEntityGraph(
-//                name = "graph.WordDefinitionExample",
-//                attributeNodes =  @NamedAttributeNode(value = "definitions", subgraph = "subgraph.DefinitionExample"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.DefinitionExample", attributeNodes = @NamedAttributeNode(value = "examples"))
-//                }
-//        ),
-//        @NamedEntityGraph(
-//                name = "graph.WordSynonymSynonym",
-//                attributeNodes =  @NamedAttributeNode(value = "synonyms", subgraph = "subgraph.SynonymSynonymID"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonym")),
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonymID"))
-//                }
-//        ),
-//})
 @NamedEntityGraphs({
         @NamedEntityGraph(
                 name = "graph.WordMeaningPos",
@@ -49,7 +32,7 @@ public class Word implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "word")
+    @Column(name = "word", unique = true)
     private String word;
 
     @Column(name = "count")
@@ -76,20 +59,27 @@ public class Word implements Serializable {
     @Column(name = "updated_on")
     private Timestamp updatedOn;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<WordTopic> wordTopics;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Meaning> meanings;
 
-    @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Synonym> synonyms;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<UserWordComprehension> userWordComprehensions;
 
     @Override
     public String toString() {
         return id.toString();
+    }
+
+    public void setMeanings(Set<Meaning> meanings) {
+        this.meanings.clear();
+        if (meanings != null) {
+            this.meanings.addAll(meanings);
+        }
     }
 }

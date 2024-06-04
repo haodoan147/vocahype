@@ -9,6 +9,7 @@ import com.vocahype.service.UserWordComprehensionService;
 import com.vocahype.util.ConversionUtils;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,9 +51,9 @@ public class UserWordComprehensionController {
         if (offset <= 0 || limit <= 0) {
             throw new InvalidException("Invalid param", "Offset and limit must be greater than 0!");
         }
-        List<WordDTO> wordTest = userWordComprehensionService.getWordTest(offset - 1, limit, topicId);
-        long total = userWordComprehensionService.countWord();
-        return new ResponseEntityJsonApi(wordTest, new MetaResponseEntity(1, ConversionUtils.roundUp(total, limit), offset, limit, (int) total));
+        Page<WordDTO> wordTest = userWordComprehensionService.getWordTest(offset - 1, limit, topicId);
+        long total = wordTest.getTotalElements();
+        return new ResponseEntityJsonApi(wordTest.getContent(), new MetaResponseEntity(1, ConversionUtils.roundUp(total, limit), offset, limit, (int) total));
     }
 
     @PutMapping(value = Routing.WORDS_DELAY)

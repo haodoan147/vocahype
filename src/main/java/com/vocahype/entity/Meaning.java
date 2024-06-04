@@ -2,15 +2,14 @@ package com.vocahype.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.vocahype.converter.JsonConverter;
+import com.vocahype.dto.DefinitionDTO;
+import lombok.*;
+import lombok.experimental.Accessors;
+import org.hibernate.annotations.ColumnTransformer;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
@@ -20,23 +19,11 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-//@NamedEntityGraphs({
-//        @NamedEntityGraph(
-//                name = "graph.WordDefinitionExample",
-//                attributeNodes =  @NamedAttributeNode(value = "definitions", subgraph = "subgraph.DefinitionExample"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.DefinitionExample", attributeNodes = @NamedAttributeNode(value = "examples"))
-//                }
-//        ),
-//        @NamedEntityGraph(
-//                name = "graph.WordSynonymSynonym",
-//                attributeNodes =  @NamedAttributeNode(value = "synonyms", subgraph = "subgraph.SynonymSynonymID"),
-//                subgraphs = {
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonym")),
-//                        @NamedSubgraph(name = "subgraph.SynonymSynonymID", attributeNodes = @NamedAttributeNode(value = "synonymID"))
-//                }
-//        ),
-//})
+@Accessors(chain = true)
+@NamedEntityGraph(
+        name = "graph.meaning.pos",
+        attributeNodes = @NamedAttributeNode("pos")
+)
 public class Meaning implements Serializable {
 
     @Id
@@ -44,6 +31,11 @@ public class Meaning implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_id_meanings")
     @SequenceGenerator(name = "seq_id_meanings", sequenceName = "seq_id_meanings", allocationSize = 1, schema = "vh")
     private Long id;
+
+    @Column(name = "definitions", columnDefinition = "jsonb")
+    @Convert(converter = JsonConverter.class)
+    @ColumnTransformer(write = "?::jsonb")
+    private Set<DefinitionDTO> definitions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id")
@@ -55,8 +47,8 @@ public class Meaning implements Serializable {
     @JsonIgnore
     private Pos pos;
 
-    @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
-    private Set<Definition> definitions;
+//    @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
+//    private Set<Definition> definitions;
 
     @OneToMany(mappedBy = "meaning", fetch = FetchType.LAZY)
     private Set<Synonym> synonyms;

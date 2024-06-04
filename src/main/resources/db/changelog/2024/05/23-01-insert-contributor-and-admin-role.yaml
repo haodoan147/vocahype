@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 23-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sqlCheck:
+                expectedResult: f
+                sql: SELECT EXISTS (SELECT 1 FROM vh.roles WHERE id = 2 or id = 3);
+        - insert:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  value: 2
+              - column:
+                  name: title
+                  value: 'contributor'
+        - insert:
+            tableName: roles
+            schemaName: vh
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: title
+                  value: 'admin'
+      comment: Insert contributor and admin role

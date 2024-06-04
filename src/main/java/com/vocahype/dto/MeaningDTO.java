@@ -23,18 +23,21 @@ public class MeaningDTO {
     private Long id;
     @JsonIgnore
     private Pos pos;
-    @JsonIgnore
-    private Set<DefinitionDTO> definitions;
+    private CustomList<DefinitionDTO> definitions;
+//    @JsonIgnore
+//    private Set<DefinitionDTO> definitions;
     @JsonIgnore
     private Set<SynonymDTO> synonyms;
 
-    public MeaningDTO(Meaning meaning, boolean isContainDefinitions, List<Synonym> synonyms, List<Synonym> antonyms) {
+    public MeaningDTO(Meaning meaning, boolean isContainSynonyms, List<Synonym> synonyms, List<Synonym> antonyms) {
         this.id = meaning.getId();
         this.pos = meaning.getPos();
-        this.definitions = new HashSet<>();
+        this.definitions = new CustomList<>();
+        this.definitions.addAll(meaning.getDefinitions());
+//        this.definitions = new HashSet<>();
         this.synonyms = new HashSet<>();
-        if (isContainDefinitions) {
-            meaning.getDefinitions().forEach(definition -> this.definitions.add(new DefinitionDTO(definition)));
+        if (isContainSynonyms && meaning.getSynonyms() != null) {
+//            meaning.getDefinitions().forEach(definition -> this.definitions.add(new DefinitionDTO(definition)));
             meaning.getSynonyms().forEach(synonym -> this.synonyms.add(new SynonymDTO(synonym)));
         }
         if (synonyms != null) {
@@ -73,8 +76,8 @@ public class MeaningDTO {
         this(meaning, false);
     }
 
-    public MeaningDTO(Meaning meaning, boolean isContainDefinitions) {
-        this(meaning, isContainDefinitions, null, null);
+    public MeaningDTO(Meaning meaning, boolean isContainSynonyms) {
+        this(meaning, isContainSynonyms, null, null);
     }
 
     @Override

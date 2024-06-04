@@ -33,3 +33,11 @@ databaseChangeLog:
       file: db/changelog/2023/10/31-02-import-data-frequency-to-topic.yaml
   - include:
       file: db/changelog/2023/11/25-01-add-topic_id-in-user-table.yaml
+  - include:
+      file: db/changelog/2024/04/09-01-migrate-definitions-table-to-definitions-column-in-meanings-table.yaml
+  - include:
+      file: db/changelog/2024/04/18-01-add-primary-key-for-word_topic-table.yaml
+  - include:
+      file: db/changelog/2024/04/18-02-add-unique-constraint-on-word-column-in-words-table.yaml
+  - include:
+      file: db/changelog/2024/05/23-01-insert-contributor-and-admin-role.yaml

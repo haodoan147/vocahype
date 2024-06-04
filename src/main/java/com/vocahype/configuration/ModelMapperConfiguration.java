@@ -3,13 +3,6 @@ package com.vocahype.configuration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
-import com.vocahype.dto.DefinitionDTO;
-import com.vocahype.dto.ExampleDTO;
-import com.vocahype.dto.MeaningDTO;
-import com.vocahype.dto.WordDTO;
-import com.vocahype.entity.Definition;
-import com.vocahype.entity.Meaning;
-import com.vocahype.entity.Word;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -19,8 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-
-import java.util.stream.Collectors;
 
 
 @Configuration
@@ -34,14 +25,14 @@ public class ModelMapperConfiguration {
 //        modelMapper.typeMap(Synonym.class, SynonymDTO.class)
 //                .addMapping(synonym -> synonym.getSynonymID() == null ? null : synonym.getSynonym().getId(), SynonymDTO::setId)
 //                .addMapping(synonym -> synonym.getSynonym() == null ? null : synonym.getSynonym().getWord(), SynonymDTO::setSynonym);
-        modelMapper.typeMap(Definition.class, DefinitionDTO.class)
-                .addMapping(definition -> definition.getExamples() == null ? null : definition.getExamples().stream().map(example -> modelMapper.map(example, ExampleDTO.class)).collect(Collectors.toSet()), DefinitionDTO::setExamples);
-        modelMapper.typeMap(Meaning.class, MeaningDTO.class)
+//        modelMapper.typeMap(Definition.class, DefinitionDTO.class)
+//                .addMapping(definition -> definition.getExamples() == null ? null : definition.getExamples().stream().map(example -> modelMapper.map(example, ExampleDTO.class)).collect(Collectors.toSet()), DefinitionDTO::setExamples);
+//        modelMapper.typeMap(Meaning.class, MeaningDTO.class)
 //                .addMapping(word -> word.getSynonyms() == null ? null : word.getSynonyms().stream().map(synonym -> new SynonymDTO(synonym)).collect(Collectors.toSet()), WordDTO::setSynonyms)
-                .addMapping(meaning -> meaning.getDefinitions() == null ? null : meaning.getDefinitions().stream().map(definition -> modelMapper.map(definition, DefinitionDTO.class)).collect(Collectors.toSet()), MeaningDTO::setDefinitions);
-        modelMapper.typeMap(Word.class, WordDTO.class)
+//                .addMapping(meaning -> meaning.getDefinitions() == null ? null : meaning.getDefinitions().stream().map(definition -> modelMapper.map(definition, DefinitionDTO.class)).collect(Collectors.toSet()), MeaningDTO::setDefinitions);
+//        modelMapper.typeMap(Word.class, WordDTO.class)
 //                .addMapping(word -> word.getSynonyms() == null ? null : word.getSynonyms().stream().map(synonym -> new SynonymDTO(synonym)).collect(Collectors.toSet()), WordDTO::setSynonyms)
-                .addMapping(word -> word.getMeanings() == null ? null : word.getMeanings().stream().map(meaning -> modelMapper.map(meaning, MeaningDTO.class)).collect(Collectors.toSet()), WordDTO::setMeanings);
+//                .addMapping(word -> word.getMeanings() == null ? null : word.getMeanings().stream().map(meaning -> modelMapper.map(meaning, MeaningDTO.class)).collect(Collectors.toSet()), WordDTO::setMeanings);
 
         return modelMapper;
     }

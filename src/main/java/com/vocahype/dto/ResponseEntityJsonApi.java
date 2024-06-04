@@ -80,7 +80,7 @@ public class ResponseEntityJsonApi {
                                 relationships.put(field.getName(), Map.of("data", relation.stream().sorted(Comparator.comparing(DataResponseEntity::getType)
                                         .thenComparingInt(o -> o.getId().length()).thenComparing(DataResponseEntity::getId))));
                             }
-                    } else if (!PRIMITIVE_TYPES.contains(value.getClass())) {
+                    } else if (!PRIMITIVE_TYPES.contains(value.getClass()) && !value.getClass().equals(CustomList.class)) {
                         relationships.put(field.getName(), Map.of("data", new DataResponseEntity(value, Map.of(), true)));
 //                        relationships.put(field.getName(), new ResponseEntityJsonApi(value));
                         this.included.add(new DataResponseEntity(value, null));

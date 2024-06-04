@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 18-01_01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - not:
+              - primaryKeyExists:
+                  columnNames: word_id, topic_id
+                  schemaName: vh
+                  tableName: word_topic
+        - addPrimaryKey:
+            columnNames: word_id, topic_id
+            constraintName: word_topic_pkey
+            schemaName: vh
+            tableName: word_topic
+      comment: Add primary key for word_topic table

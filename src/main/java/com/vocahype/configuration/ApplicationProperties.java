@@ -11,4 +11,5 @@ public class ApplicationProperties {
 
     public String dictionaryApiUrl;
     public Long dataWord;
+    public String openAiApiKey;
 }
