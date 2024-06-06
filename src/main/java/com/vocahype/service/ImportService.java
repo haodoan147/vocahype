@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class ImportService {
 
     public static final String WORD_REGEX = "^(?!.*'s$)[a-zA-Z']+$";
+    public static final long WORD_THRESHOLD = 300;
     private final JdbcTemplate jdbcTemplate;
     private final WordRepository wordRepository;
     static WhitespaceTokenizer tokenizer;
@@ -144,7 +145,7 @@ public class ImportService {
     public void insertMultipleValues(final Set<Map.Entry<String, Long>> wordFrequencies, Integer topicId) {
         String sql = "INSERT INTO vh.word_topic AS wt (word_id, topic_id, frequency) "
                 + "SELECT w.id, ?, ? FROM vh.words w "
-                + "            where w.word = ? "
+                + "            where w.word = ? and w.id > " + WORD_THRESHOLD
                 + "ON CONFLICT (word_id, topic_id) DO UPDATE SET frequency = wt.frequency + ?;";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
