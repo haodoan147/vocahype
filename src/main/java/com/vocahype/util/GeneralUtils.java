@@ -74,4 +74,19 @@ public class GeneralUtils {
                 .collect(Collectors.toSet()) : Collections.emptySet();
     }
 
+    public static String removeNonAlphanumericSuffix(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        // Regular expression to match any character that is not alphanumeric
+        String regex = "[^a-zA-Z0-9]$";
+
+        // Loop to remove non-alphanumeric characters from the end
+        while (input.matches(".*" + regex)) {
+            input = input.substring(0, input.length() - 1);
+        }
+
+        return input;
+    }
 }

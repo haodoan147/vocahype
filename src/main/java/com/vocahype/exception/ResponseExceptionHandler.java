@@ -21,6 +21,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import java.sql.SQLException;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -141,6 +143,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     protected ResponseEntity<Object> onBadCredentialsException(final BadCredentialsException ex) {
         ApiError apiError = new ApiError(BAD_REQUEST, "Invalid username or password", "Invalid username or password");
+        return buildResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    protected ResponseEntity<Object> onBadCredentialsException(final SQLException ex) {
+        ApiError apiError = new ApiError(BAD_REQUEST, "SQL Exception", "SQL Exception");
         return buildResponseEntity(apiError);
     }
 
