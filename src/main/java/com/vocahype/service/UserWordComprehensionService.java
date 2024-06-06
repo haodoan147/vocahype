@@ -28,7 +28,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserWordComprehensionService {
 
-    public static final String CURRENT_USER_ID = "abcxyz";
     private final UserWordComprehensionRepository userWordComprehensionRepository;
     private final WordRepository wordRepository;
     private final UserRepository userRepository;

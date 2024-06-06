@@ -3,18 +3,24 @@ package com.vocahype.service;
 import com.vocahype.entity.Word;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.repository.WordRepository;
-import edu.stanford.nlp.ling.CoreLabel;
+import com.vocahype.util.Constants;
+import com.vocahype.util.GeneralUtils;
 import lombok.RequiredArgsConstructor;
+import opennlp.tools.lemmatizer.DictionaryLemmatizer;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTaggerME;
+import opennlp.tools.tokenize.WhitespaceTokenizer;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.util.PropertiesUtils;
 
-import java.io.*;
+import javax.annotation.PostConstruct;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -27,6 +33,25 @@ public class ImportService {
     public static final String WORD_REGEX = "^(?!.*'s$)[a-zA-Z']+$";
     private final JdbcTemplate jdbcTemplate;
     private final WordRepository wordRepository;
+    static WhitespaceTokenizer tokenizer;
+    static POSTaggerME posTagger;
+    static DictionaryLemmatizer lemmatizer;
+
+    @PostConstruct
+    public void init() {
+        tokenizer = WhitespaceTokenizer.INSTANCE;
+        InputStream posModelIn = ImportService.class.getResourceAsStream("/models/en-pos-maxent.bin");
+        assert posModelIn != null;
+        try {
+            POSModel posModel = new POSModel(posModelIn);
+            posTagger = new POSTaggerME(posModel);
+            InputStream dictLemmatizer = ImportService.class.getResourceAsStream("/models/en-lemmatizer.dict");
+            assert dictLemmatizer != null;
+            lemmatizer = new DictionaryLemmatizer(dictLemmatizer);
+        } catch (IOException e) {
+            throw new InvalidException("Error reading model", "Error reading model: " + e.getMessage());
+        }
+    }
 
     @Transactional
     public void importWordInTopic(final MultipartFile file, final Integer topicId) {
@@ -43,16 +68,24 @@ public class ImportService {
 
     public static Map<String, Long> extractWords(final String text) {
         Map<String, Long> wordFrequency = new HashMap<>();
-        Properties props = PropertiesUtils.asProperties(
-                "annotators", "tokenize,ssplit,pos,lemma"
-        );
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
-        CoreDocument document = new CoreDocument(text);
-        pipeline.annotate(document);
-        for (CoreLabel token : document.tokens()) {
-            String word = token.word();
-            if (word.matches(WORD_REGEX) && word.length() > 1) {
-                String lemma = token.get(CoreAnnotations.LemmaAnnotation.class).toLowerCase();
+        String[] tokens = Arrays.stream(tokenizer.tokenize(text)).map(GeneralUtils::removeNonAlphanumericSuffix)
+                .toArray(String[]::new);
+        String[] posTags = posTagger.tag(tokens);
+        String[] lemmas = lemmatizer.lemmatize(tokens, posTags);
+        for (int i = 0; i < lemmas.length; i++) {
+            if ("O".equals(lemmas[i])) {
+                for (String retryPosTag : Constants.RETRY_POS_TAGS) {
+                    String[] retryLemma = lemmatizer.lemmatize(new String[]{tokens[i]}, new String[]{retryPosTag});
+                    if (!"O".equals(retryLemma[0])) {
+                        lemmas[i] = retryLemma[0];
+                        break;
+                    }
+                }
+            }
+        }
+        for (String lemma : lemmas) {
+            if (lemma.matches(WORD_REGEX) && lemma.length() > 1) {
+                lemma = lemma.toLowerCase();
                 wordFrequency.put(lemma, wordFrequency.getOrDefault(lemma, 0L) + 1);
             }
         }
@@ -109,7 +142,7 @@ public class ImportService {
     }
 
     public void insertMultipleValues(final Set<Map.Entry<String, Long>> wordFrequencies, Integer topicId) {
-        String sql = "INSERT INTO word_topic AS wt (word_id, topic_id, frequency) "
+        String sql = "INSERT INTO vh.word_topic AS wt (word_id, topic_id, frequency) "
                 + "SELECT w.id, ?, ? FROM vh.words w "
                 + "            where w.word = ? "
                 + "ON CONFLICT (word_id, topic_id) DO UPDATE SET frequency = wt.frequency + ?;";
