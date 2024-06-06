@@ -24,6 +24,7 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
 import java.time.Duration;
+import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -47,6 +48,15 @@ public class WebClientConfiguration {
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, "*/*");
+    }
+
+    @Bean
+    public WebClient openAI() {
+        String apiKey = properties.getOpenAiApiKey();
+        return webClientBuilder()
+                .baseUrl("https://api.openai.com/v1/chat/completions")
+                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .defaultHeader("Content-Type", "application/json").build();
     }
 
     @Bean

@@ -2,34 +2,40 @@ package com.vocahype.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vocahype.configuration.ApplicationProperties;
 import com.vocahype.dto.SingleSelectQuiz;
 import com.vocahype.dto.enumeration.LevelOfQuiz;
 import com.vocahype.dto.enumeration.TypeOfQuiz;
 import com.vocahype.exception.InvalidException;
-import lombok.RequiredArgsConstructor;
+import com.vocahype.repository.UserWordComprehensionRepository;
+import com.vocahype.util.SecurityUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-public class QuizService {
+public class AIService {
 
     private final ObjectMapper objectMapper;
-    private final ApplicationProperties applicationProperties;
+    private final WebClient openAI;
+    private final UserWordComprehensionRepository userWordComprehensionRepository;
+
+    public AIService(final ObjectMapper objectMapper, final @Qualifier("openAI") WebClient openAI,
+                     final UserWordComprehensionRepository userWordComprehensionRepository) {
+        this.objectMapper = objectMapper;
+        this.openAI = openAI;
+        this.userWordComprehensionRepository = userWordComprehensionRepository;
+    }
 
     public Map getQuizGen(final String word, final String level) throws JsonProcessingException {
-        String apiKey = new String(Base64.getDecoder().decode(applicationProperties.getOpenAiApiKey()));
-
-        // Create a single select quiz
         try {
             LevelOfQuiz.valueOf(level.toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -41,64 +47,51 @@ public class QuizService {
                 .word(word)
                 .question("What is an example sentence for the word?")
                 .build();
-
-        // Create JSON content for the user message
         String userMessageContent = "{\"question\":\"follow template here: " + singleSelectQuiz.getQuestion() + "\", \"difficulty_of_answer\":\"" + singleSelectQuiz.getLevelOfQuiz().getDetail() + "\", \"correctAnswer\":\"" + singleSelectQuiz.getWord() + "\", \"typeOfQuiz\":\"" + singleSelectQuiz.getTypeOfQuiz().getDetail() + "\"}";
-
-        // Create a chat message for OpenAI API
         String systemMessageContent = "You are a helpful assistant that generates quizzes based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"options\":[\"<option 1>\",\"<option 2>\",\"<option 3>\",\"<option 4>\"],\"answer\":\"<the index number of the correct answer>\"}. Each option is an answer based on the quiz type with the chosen difficulty to challenge the user without indicating A, B, C, D.";
+        return generate(userMessageContent, systemMessageContent);
+    }
 
+    public Map getStory(final long days) throws JsonProcessingException {
+        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfter(
+                SecurityUtil.getCurrentUserId(),
+                Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS))).stream()
+                .map(userWordComprehension -> userWordComprehension.getWord().getWord()).collect(Collectors.toSet());
+        if (word.isEmpty()) {
+            throw new InvalidException("No word found", "User did not learn any word in the last " + days + " days");
+        }
+        String userMessageContent = "{\"words\": " + word + "}";
+        String systemMessageContent = "You are a helpful assistant that generates a story based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"story\":\"<Auto generate the story based on the words>\"}.";
+
+        return generate(userMessageContent, systemMessageContent);
+    }
+
+    private Map generate(final String userMessageContent, final String systemMessageContent)
+            throws JsonProcessingException {
         List<Map<String, String>> messages = new ArrayList<>();
-//        messages.add(Map.of(
-//                "system", systemMessageContent,
-//                "user", userMessageContent
-//        ));
-
         messages.add(Map.of(
                 "role", "system",
                 "content", systemMessageContent
         ));
-
-
         messages.add(Map.of(
                 "role", "user",
                 "content", userMessageContent
         ));
-        // Convert the messages to JSON
         String messagesJson = objectMapper.writeValueAsString(messages);
-
-        // Set up your Spring WebClient
-        WebClient webClient = WebClient.builder()
-                .baseUrl("https://api.openai.com/v1/chat/completions")
-                .defaultHeader("Authorization", "Bearer " + apiKey)
-                .defaultHeader("Content-Type", "application/json").build();
-
-        // Make a request to OpenAI API using WebClient
-        String responseFormat = "json_object";
-        String model = "gpt-3.5-turbo-1106";
-        String responseBody = webClient.post()
+        String model = "gpt-3.5-turbo-0125";
+        String responseBody = openAI.post()
                 .body(BodyInserters.fromValue("{\"model\": \"" + model + "\", \"response_format\": {\"type\": \"json_object\"}, \"messages\":" + messagesJson + "}"))
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
         JSONObject jsonObject = new JSONObject(responseBody);
 
-        // Get the "choices" array
         JSONArray choicesArray = jsonObject.getJSONArray("choices");
-
-        // Get the first element from the "choices" array
         JSONObject firstChoice = choicesArray.getJSONObject(0);
-
-        // Get the "message" object from the first choice
         JSONObject messageObject = firstChoice.getJSONObject("message");
-
-        // Get the value of the "content" field from the "message" object
         String contentValue = messageObject.getString("content");
         ObjectMapper objectMapper = new ObjectMapper();
-
-        // Parse the JSON content into the ContentObject
         Map contentObject = objectMapper.readValue(contentValue, Map.class);
-        // Parse and handle the response as needed
         return contentObject;
     }
 

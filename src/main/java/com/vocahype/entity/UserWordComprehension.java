@@ -1,20 +1,12 @@
 package com.vocahype.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -25,6 +17,8 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(name = "graph.userWordComprehension.word",
+        attributeNodes = @NamedAttributeNode("word"))
 public class UserWordComprehension implements Serializable {
 
     @EmbeddedId
@@ -35,6 +29,9 @@ public class UserWordComprehension implements Serializable {
 
     @Column(name = "next_learning")
     private Timestamp nextLearning;
+
+    @Column(name = "update_at")
+    private Timestamp updateAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("wordId")

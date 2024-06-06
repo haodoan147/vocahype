@@ -1,7 +1,7 @@
 package com.vocahype.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vocahype.service.QuizService;
+import com.vocahype.service.AIService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,12 +12,17 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-public class QuizController {
+public class AIController {
 
-    private final QuizService quizService;
+    private final AIService aiService;
 
     @GetMapping(value = Routing.WORD_QUIZ)
     public Map getQuizGen(@RequestParam String word, @RequestParam String level) throws JsonProcessingException {
-        return quizService.getQuizGen(word, level);
+        return aiService.getQuizGen(word, level);
+    }
+
+    @GetMapping(Routing.WORD_STORY)
+    public Map getStory(@RequestParam long days) throws JsonProcessingException {
+        return aiService.getStory(days);
     }
 }

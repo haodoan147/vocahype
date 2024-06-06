@@ -5,9 +5,11 @@ import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.UserWordComprehensionID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -53,4 +55,7 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
 
     long countByUserWordComprehensionID_UserIdAndWordComprehensionLevelIn(String userWordComprehensionID_userId,
                                                                           Collection<Integer> wordComprehensionLevel);
+
+    @EntityGraph("graph.userWordComprehension.word")
+    List<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUpdateAtAfter(String userId, Timestamp start);
 }

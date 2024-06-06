@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 07-01-01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - and:
+                - tableExists:
+                    schemaName: learning
+                    tableName: user_word_comprehension
+                - not:
+                    - columnExists:
+                        columnName: update_at
+                        schemaName: learning
+                        tableName: user_word_comprehension
+        - addColumn:
+            tableName: user_word_comprehension
+            schemaName: learning
+            columns:
+                - column:
+                    name: update_at
+                    type: date
+                    defaultValueComputed: 'now()'
+                    remarks: 'The time when the user word comprehension is updated'
+      comment: Add column update_at in user_word_comprehension table

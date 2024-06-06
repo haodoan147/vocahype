@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +40,7 @@ public class UserWordComprehensionService {
                         new UserWordComprehensionID(wordId, userId),
                         1,
                         null,
+                        Timestamp.valueOf(LocalDateTime.now()),
                         word, User.builder().id(userId).build()));
         Integer level = getLevel(assessment, wordComprehension.getWordComprehensionLevel());
         wordComprehension.setWordComprehensionLevel(level);
@@ -48,6 +48,7 @@ public class UserWordComprehensionService {
         wordComprehension.setNextLearning((level != 11 && level != 12) ? Timestamp.valueOf(LocalDateTime.now()
                 .plusDays(Level.valueOf("LEVEL_" + level).getDay())
                 .truncatedTo(ChronoUnit.DAYS)) : null);
+        wordComprehension.setUpdateAt(Timestamp.valueOf(LocalDateTime.now()));
         userWordComprehensionRepository.save(wordComprehension);
     }
 
