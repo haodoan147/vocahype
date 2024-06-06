@@ -142,7 +142,7 @@ public class ImportService {
     }
 
     public void insertMultipleValues(final Set<Map.Entry<String, Long>> wordFrequencies, Integer topicId) {
-        String sql = "INSERT INTO word_topic AS wt (word_id, topic_id, frequency) "
+        String sql = "INSERT INTO vh.word_topic AS wt (word_id, topic_id, frequency) "
                 + "SELECT w.id, ?, ? FROM vh.words w "
                 + "            where w.word = ? "
                 + "ON CONFLICT (word_id, topic_id) DO UPDATE SET frequency = wt.frequency + ?;";
