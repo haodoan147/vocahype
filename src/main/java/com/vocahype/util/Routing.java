@@ -6,6 +6,7 @@ public class Routing {
     public static final String PROFILE = API_BASE + "/profile";
     public static final String WORD = API_BASE + "/words";
     public static final String WORD_STORY = API_BASE + "/story";
+    public static final String LIST_WORD_STORY = WORD_STORY + "/list-word";
     public static final String WORD_QUIZ = WORD + "/quiz";
     public static final String WORD_ID = WORD + "/{wordId}";
     public static final String WORD_USER_KNOWLEDGE = API_BASE + "/word-user-knowledge";

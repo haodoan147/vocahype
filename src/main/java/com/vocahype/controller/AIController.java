@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +23,13 @@ public class AIController {
     }
 
     @GetMapping(Routing.WORD_STORY)
-    public Map getStory(@RequestParam long days) throws JsonProcessingException {
+    public Map getStory(@RequestParam final long days) throws JsonProcessingException {
         return aiService.getStory(days);
+    }
+
+
+    @GetMapping(Routing.LIST_WORD_STORY)
+    public Set<String> geListWordStory(@RequestParam final long days) {
+        return aiService.getListWordStory(days);
     }
 }

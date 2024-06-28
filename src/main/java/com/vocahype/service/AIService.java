@@ -6,6 +6,7 @@ import com.vocahype.dto.SingleSelectQuiz;
 import com.vocahype.dto.enumeration.LevelOfQuiz;
 import com.vocahype.dto.enumeration.TypeOfQuiz;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.exception.NoContentException;
 import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.util.SecurityUtil;
 import org.json.JSONArray;
@@ -18,7 +19,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,17 +57,22 @@ public class AIService {
     }
 
     public Map getStory(final long days) throws JsonProcessingException {
+        Set<String> word = getListWordStory(days);
+        String userMessageContent = "{\"words\": " + word + "}";
+        String systemMessageContent = "You are a helpful assistant that generates a story based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"story\":\"<Auto generate the story based on the words>\"}.";
+
+        return generate(userMessageContent, systemMessageContent);
+    }
+
+    public Set<String> getListWordStory(final long days) {
         Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfter(
                 SecurityUtil.getCurrentUserId(),
                 Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS))).stream()
                 .map(userWordComprehension -> userWordComprehension.getWord().getWord()).collect(Collectors.toSet());
         if (word.isEmpty()) {
-            throw new InvalidException("No word found", "User did not learn any word in the last " + days + " days");
+            throw new NoContentException("No word found", "User did not learn any word in the last " + days + " days");
         }
-        String userMessageContent = "{\"words\": " + word + "}";
-        String systemMessageContent = "You are a helpful assistant that generates a story based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"story\":\"<Auto generate the story based on the words>\"}.";
-
-        return generate(userMessageContent, systemMessageContent);
+        return word;
     }
 
     private Map generate(final String userMessageContent, final String systemMessageContent)
