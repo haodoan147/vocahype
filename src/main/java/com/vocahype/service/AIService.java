@@ -3,6 +3,7 @@ package com.vocahype.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vocahype.dto.SingleSelectQuiz;
+import com.vocahype.dto.enumeration.Level;
 import com.vocahype.dto.enumeration.LevelOfQuiz;
 import com.vocahype.dto.enumeration.TypeOfQuiz;
 import com.vocahype.exception.InvalidException;
@@ -51,8 +52,8 @@ public class AIService {
                 .word(word)
                 .question("What is an example sentence for the word?")
                 .build();
-        String userMessageContent = "{\"question\":\"follow template here: " + singleSelectQuiz.getQuestion() + "\", \"difficulty_of_answer\":\"" + singleSelectQuiz.getLevelOfQuiz().getDetail() + "\", \"correctAnswer\":\"" + singleSelectQuiz.getWord() + "\", \"typeOfQuiz\":\"" + singleSelectQuiz.getTypeOfQuiz().getDetail() + "\"}";
-        String systemMessageContent = "You are a helpful assistant that generates quizzes based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"options\":[\"<option 1>\",\"<option 2>\",\"<option 3>\",\"<option 4>\"],\"answer\":\"<the index number of the correct answer>\"}. Each option is an answer based on the quiz type with the chosen difficulty to challenge the user without indicating A, B, C, D.";
+        String userMessageContent = "{\"difficulty\":\"" + singleSelectQuiz.getLevelOfQuiz().getDetail() + "\", \"word\":\"" + singleSelectQuiz.getWord() + "\"}";
+        String systemMessageContent = "You are a helpful assistant that smartly generates single-choice quizz based on English words and difficulty I provided. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"options\":[\"<option 1>\",\"<option 2>\",\"<option 3>\",\"<option 4>\"],\"answer\":\"<the index number of the correct answer (0-based index)>\"}. Each option is an answer based on the quiz type you choose with the chosen difficulty to challenge the user without indicating A, B, C, D. There are only one answer is right, another answer is obviously wrong (obviously or not based on the difficulty of the question).";
         return generate(userMessageContent, systemMessageContent);
     }
 
@@ -65,9 +66,10 @@ public class AIService {
     }
 
     public Set<String> getListWordStory(final long days) {
-        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfter(
-                SecurityUtil.getCurrentUserId(),
-                Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS))).stream()
+        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotIn(
+                        SecurityUtil.getCurrentUserId(),
+                        Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS)),
+                        List.of(Level.LEVEL_11.getLevel(), Level.LEVEL_12.getLevel())).stream()
                 .map(userWordComprehension -> userWordComprehension.getWord().getWord()).collect(Collectors.toSet());
         if (word.isEmpty()) {
             throw new NoContentException("No word found", "User did not learn any word in the last " + days + " days");
