@@ -3,6 +3,7 @@ package com.vocahype.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vocahype.dto.SingleSelectQuiz;
+import com.vocahype.dto.enumeration.Level;
 import com.vocahype.dto.enumeration.LevelOfQuiz;
 import com.vocahype.dto.enumeration.TypeOfQuiz;
 import com.vocahype.exception.InvalidException;
@@ -65,9 +66,10 @@ public class AIService {
     }
 
     public Set<String> getListWordStory(final long days) {
-        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfter(
-                SecurityUtil.getCurrentUserId(),
-                Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS))).stream()
+        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotIn(
+                        SecurityUtil.getCurrentUserId(),
+                        Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS)),
+                        List.of(Level.LEVEL_11.getLevel(), Level.LEVEL_12.getLevel())).stream()
                 .map(userWordComprehension -> userWordComprehension.getWord().getWord()).collect(Collectors.toSet());
         if (word.isEmpty()) {
             throw new NoContentException("No word found", "User did not learn any word in the last " + days + " days");

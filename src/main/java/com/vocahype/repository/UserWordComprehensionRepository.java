@@ -57,5 +57,5 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
                                                                           Collection<Integer> wordComprehensionLevel);
 
     @EntityGraph("graph.userWordComprehension.word")
-    List<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUpdateAtAfter(String userId, Timestamp start);
+    List<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotIn(String userId, Timestamp start, Collection<Integer> wordComprehensionLevel);
 }
