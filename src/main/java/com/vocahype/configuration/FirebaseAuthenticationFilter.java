@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.vocahype.entity.Role;
 import com.vocahype.entity.User;
+import com.vocahype.repository.RoleRepository;
 import com.vocahype.repository.UserRepository;
 import com.vocahype.security.FirebaseUser;
 import com.vocahype.util.GeneralUtils;
@@ -29,16 +30,23 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final Map<String, User> userSyncCache = new HashMap<>();
 
     public UsernamePasswordAuthenticationToken convert(final FirebaseToken decodedToken) {
         String userId = decodedToken.getUid();
-        FirebaseUser firebaseUser = new FirebaseUser(decodedToken.getUid(), "", Collections.emptyList(), decodedToken.getEmail(), decodedToken.getName());
+        FirebaseUser firebaseUser = new FirebaseUser(decodedToken.getUid(), "", Collections.emptyList(),
+                decodedToken.getEmail(), decodedToken.getName());
         if (!userSyncCache.containsKey(userId)) {
-            User user = userRepository.findFirstById(userId).orElseGet(() -> userRepository
-                    .save(User.builder().id(userId).loginName(firebaseUser.getEmail())
-                            .firstName(firebaseUser.getName()).lastName("").status(1L).loginCount(0L)
-                            .createdOn(Timestamp.valueOf(LocalDateTime.now())).role(Role.builder().id(1L).build()).build()));
+            User user = userRepository.findFirstById(userId).orElseGet(() -> {
+                Role role = roleRepository.findById(1L).get();
+                return userRepository
+                        .save(User.builder().id(userId).loginName(firebaseUser.getEmail())
+                                .firstName(firebaseUser.getName() != null ? firebaseUser.getEmail() : "User").lastName("")
+                                .status(1L).loginCount(0L)
+                                .createdOn(Timestamp.valueOf(LocalDateTime.now())).role(role)
+                                .build());
+            });
             userSyncCache.put(userId, user);
         }
         String role = userSyncCache.get(userId).getRole().getTitle();

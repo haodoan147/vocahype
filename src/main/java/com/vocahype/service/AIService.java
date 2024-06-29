@@ -59,7 +59,7 @@ public class AIService {
     public Map getStory(final long days) throws JsonProcessingException {
         Set<String> word = getListWordStory(days);
         String userMessageContent = "{\"words\": " + word + "}";
-        String systemMessageContent = "You are a helpful assistant that generates a story based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"story\":\"<Auto generate the story based on the words>\"}.";
+        String systemMessageContent = "You are a helpful assistant that generates a short story from 200 to 300 word, based on English words in a Vocabulary learning app. Provide your answer in JSON structure like this {\"story\":\"<Auto generate the story based on the words>\"}.";
 
         return generate(userMessageContent, systemMessageContent);
     }
