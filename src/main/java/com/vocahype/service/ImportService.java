@@ -164,4 +164,8 @@ public class ImportService {
             }
         });
     }
+
+    public void importWordInTopicFromApi() {
+
+    }
 }

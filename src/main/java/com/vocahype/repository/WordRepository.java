@@ -84,6 +84,16 @@ public interface WordRepository extends JpaRepository<Word, Long> {
             + "where w.id = ?1 ")
     Optional<WordDTO> findWordDTOById(Long aLong, String userId);
 
+    @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, true,"
+            + "case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
+            + "from Word w "
+            + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "and uwc.userWordComprehensionID.userId = ?2 "
+            + "left join User u on u.id = ?2 "
+            + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and u.topic.id = wt.wordTopicID.topicId "
+            + "where w.word = ?1 ")
+    List<WordDTO> findWordDTOByWord(String word, String userId);
+
     Optional<Word> findByWordIgnoreCaseOrderById(String word);
 
     List<Word> findAllByWordIn(Set<String> words);
