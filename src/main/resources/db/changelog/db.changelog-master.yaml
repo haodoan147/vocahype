@@ -43,3 +43,5 @@ databaseChangeLog:
       file: db/changelog/2024/05/23-01-insert-contributor-and-admin-role.yaml
   - include:
       file: db/changelog/2024/06/07-01-add-column-update_at-in-user_word_comprehension-table.yaml
+  - include:
+      file: db/changelog/2024/07/10-01-reset-all-topic-record.yaml

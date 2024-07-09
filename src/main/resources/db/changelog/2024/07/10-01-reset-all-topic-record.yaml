@@ -1,0 +1,80 @@
+databaseChangeLog:
+    - changeSet:
+        id: 07-10-01
+        author: hao.doanvonhut
+        changes:
+          - preConditions:
+              - onFail: MARK_RAN
+              - sqlCheck:
+                  expectedResult: t
+                  sql: SELECT EXISTS (
+                    SELECT * FROM vh.topics
+                    WHERE id = 1 and name = 'Politics');
+          - sql:
+              dbms: postgresql
+              sql: DELETE FROM vh.word_topic;
+          - sql:
+              dbms: postgresql
+              sql: UPDATE vh.users SET topic_id = NULL;
+          - sql:
+              dbms: postgresql
+              sql: DELETE FROM vh.topics;
+          - sql:
+              endDelimiter: //
+              splitStatements: true
+              sql: |
+                INSERT INTO vh.topics (id, name, description, emoji) VALUES
+                (1, 'Accounting', 'The process of recording financial transactions', '📊'),
+                (2, 'Agriculture', 'The science and practice of farming', '🌾'),
+                (3, 'Air travel', 'Transportation by aircraft', '✈️'),
+                (4, 'American football', 'A popular team sport in the United States', '🏈'),
+                (5, 'Anatomy', 'The study of the structure of living organisms', '🧠'),
+                (6, 'Anthropology', 'The study of humans and their societies', '🧬'),
+                (7, 'Architecture', 'The art and practice of designing buildings', '🏛️'),
+                (8, 'Art', 'Various forms of creative expression', '🎨'),
+                (9, 'Astronomy', 'The study of celestial objects and the universe', '🌌'),
+                (10, 'Banking', 'The business conducted by banks', '🏦'),
+                (11, 'Baseball', 'A bat-and-ball game played between two teams', '⚾'),
+                (12, 'Basketball', 'A sport played by two teams of five players', '🏀'),
+                (13, 'Biology', 'The study of living organisms', '🔬'),
+                (14, 'Business', 'The activity of making, buying, or selling goods or services', '💼'),
+                (15, 'Chemistry', 'The study of the properties of substances and their reactions', '⚗️'),
+                (16, 'Communication', 'The act of conveying information', '📡'),
+                (17, 'Computer science', 'The study of computers and computational systems', '💻'),
+                (18, 'Construction', 'The building of something, typically a large structure', '🏗️'),
+                (19, 'Cooking', 'The practice or skill of preparing food', '🍳'),
+                (20, 'Dance', 'The movement of the body in a rhythmic way', '💃'),
+                (21, 'Drama', 'A genre of narrative fiction intended to be more serious', '🎭'),
+                (22, 'Ecology', 'The study of organisms and their environments', '🌱'),
+                (23, 'Economics', 'The social science that studies the production, distribution, and consumption of goods and services', '📈'),
+                (24, 'Education', 'The process of facilitating learning', '📚'),
+                (25, 'Engineering', 'The application of scientific principles to design and build', '🛠️'),
+                (26, 'Environmental science', 'The study of the environment and how to protect it', '🌍'),
+                (27, 'Finance', 'The management of large amounts of money', '💰'),
+                (28, 'Fine arts', 'Creative art, especially visual art', '🎨'),
+                (29, 'Geography', 'The study of places and the relationships between people and their environments', '🌍'),
+                (30, 'Geology', 'The science that deals with the earth''s physical structure and substance', '🪨'),
+                (31, 'Government', 'The governing body of a nation, state, or community', '🏛️'),
+                (32, 'Health', 'The state of being free from illness or injury', '❤️'),
+                (33, 'History', 'The study of past events', '📜'),
+                (34, 'Journalism', 'The activity of gathering, assessing, creating, and presenting news and information', '📰'),
+                (35, 'Law', 'The system of rules that a particular country or community recognizes', '⚖️'),
+                (36, 'Literature', 'Written works, especially those considered of superior or lasting artistic merit', '📖'),
+                (37, 'Mathematics', 'The abstract science of number, quantity, and space', '➗'),
+                (38, 'Medicine', 'The science or practice of the diagnosis, treatment, and prevention of disease', '💊'),
+                (39, 'Music', 'The art of arranging sounds in time to produce a composition', '🎵'),
+                (40, 'Philosophy', 'The study of the fundamental nature of knowledge, reality, and existence', '🤔'),
+                (41, 'Physics', 'The natural science that studies matter, its motion and behavior', '🔭'),
+                (42, 'Politics', 'The activities associated with the governance of a country or area', '🏛️'),
+                (43, 'Psychology', 'The scientific study of the human mind and its functions', '🧠'),
+                (44, 'Religion', 'The belief in and worship of a superhuman controlling power', '🕊️'),
+                (45, 'Sociology', 'The study of the development, structure, and functioning of human society', '👥'),
+                (46, 'Sports', 'All forms of physical activity which, through casual or organized participation', '⚽'),
+                (47, 'Technology', 'The application of scientific knowledge for practical purposes', '🔧'),
+                (48, 'Theater', 'A building or outdoor area in which plays and other dramatic performances are given', '🎭'),
+                (49, 'Veterinary medicine', 'The branch of medicine that deals with the prevention, diagnosis, and treatment of disease, disorder, and injury in animals', '🐾'),
+                (50, 'Zoology', 'The scientific study of the behavior, structure, physiology, classification, and distribution of animals', '🦁');
+
+
+comment: Reset all topic record
+
