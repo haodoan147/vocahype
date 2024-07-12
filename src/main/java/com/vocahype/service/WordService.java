@@ -65,16 +65,16 @@ public class WordService {
                 List<Integer> levelList = WordStatus.valueOf(status.toUpperCase()).getLevelList();
                 if (exact) {
                     Page<UserWordComprehension> wordList = userWordComprehensionRepository
-                            .findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndWord_WordIgnoreCase(
+                            .findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndUserWordComprehensionID_WordIgnoreCase(
                                     userId, levelList, word, pageable);
-                    result.setData(wordList.stream().map(w -> w.getWord().getWord()).collect(Collectors.toList()));
+                    result.setData(wordList.stream().map(w -> w.getUserWordComprehensionID().getWord()).collect(Collectors.toList()));
                     result.setTotal((int) wordList.getTotalElements());
                     return result;
                 }
                 Page<UserWordComprehension> wordList = userWordComprehensionRepository
-                        .findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndWord_WordContainsIgnoreCase(
+                        .findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndUserWordComprehensionID_WordContainsIgnoreCase(
                                 userId, levelList, word, pageable);
-                result.setData(wordList.stream().map(w -> w.getWord().getWord()).collect(Collectors.toList()));
+                result.setData(wordList.stream().map(w -> w.getUserWordComprehensionID().getWord()).collect(Collectors.toList()));
                 result.setTotal((int) wordList.getTotalElements());
                 return result;
             } catch (IllegalArgumentException e) {
@@ -117,7 +117,7 @@ public class WordService {
     }
 
     @Transactional
-    public WordDTO updateWord(final Long wordId, final JsonNode jsonNode) {
+    public WordDTO updateWord(final String wordId, final JsonNode jsonNode) {
         Word resourceWord = objectMapper.convertValue(jsonNode.get("data").get(0).get("attributes"), Word.class);
 
         Word targetWord;
@@ -128,7 +128,7 @@ public class WordService {
             });
             targetWord = Word.builder().word(resourceWord.getWord()).meanings(new HashSet<>()).build();
         } else {
-            targetWord = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
+            targetWord = wordRepository.findByWord(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
         }
 
         if (resourceWord.getCount() != null && !resourceWord.getCount().equals(targetWord.getCount())) {
@@ -200,8 +200,8 @@ public class WordService {
         return new WordDTO(targetWord, true, true);
     }
 
-    public void deleteWord(final Long wordId) {
-        wordRepository.findById(wordId)
+    public void deleteWord(final String wordId) {
+        wordRepository.findByWord(wordId)
                 .ifPresent(wordRepository::delete);
     }
 
@@ -210,10 +210,16 @@ public class WordService {
                 .uri("/words/" + word)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<WordData>() {});
-        if (wordDataMono.block() == null) {
+        WordData wordData = wordDataMono.block();
+        if (wordData == null) {
             throw new InvalidException("Word not found", "Not found any word with word: " + word);
         }
-        return wordDataMono.block();
+        List<WordDTO> wordOnDB = wordRepository.findWordDTOByWord(word, SecurityUtil.getCurrentUserId());
+        if (!wordOnDB.isEmpty()) {
+            wordData.setComprehension(wordOnDB.get(0).getComprehension());
+        }
+
+        return wordData;
 //        List<WordDTO> wordDTOList = wordRepository.findWordDTOByWord(word, SecurityUtil.getCurrentUserId());
 //        if (wordDTOList.isEmpty()) {
 //            throw new InvalidException("Word not found", "Not found any word with word: " + word);

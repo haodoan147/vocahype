@@ -77,19 +77,18 @@ public class WordUserKnowledgeService {
         Set<WordUserKnowledge> knownWords = new HashSet<>();
         AtomicReference<Double> score = new AtomicReference<>((double) 0);
         wordUserKnowledgeDTO.forEach(word -> {
-            Word word1 = wordRepository.findById(word.getWordId()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
+            Word word1 = wordRepository.findByWord(word.getWord()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
             if (word.getStatus()) {
                 knownWords.add(new WordUserKnowledge(
-                        new WordUserKnowledgeID(word.getWordId(), userId),
+                        new WordUserKnowledgeID(word.getWord(), userId),
                         true,
-                        Word.builder().id(word.getWordId()).build(),
                         user)
                 );
                 score.updateAndGet(v -> v + (1 - (1 - word1.getPoint())));
-                userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.MASTERED);
+                userWordComprehensionService.saveWordUserKnowledge(word.getWord(), Assessment.MASTERED);
             } else {
                 score.updateAndGet(v -> v - (1 - word1.getPoint()));
-                userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.HARD);
+                userWordComprehensionService.saveWordUserKnowledge(word.getWord(), Assessment.HARD);
             }
         });
         wordUserKnowledgeRepository.saveAll(knownWords);

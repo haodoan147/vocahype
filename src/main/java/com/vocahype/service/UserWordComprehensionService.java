@@ -1,5 +1,7 @@
 package com.vocahype.service;
 
+import com.vocahype.dto.FrequencyDTO;
+import com.vocahype.dto.FrequencyResponseDTO;
 import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.dto.enumeration.Level;
@@ -22,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,17 +35,17 @@ public class UserWordComprehensionService {
     private final WordRepository wordRepository;
     private final UserRepository userRepository;
 
-    public void saveWordUserKnowledge(Long wordId, Assessment assessment) {
+    public void saveWordUserKnowledge(final String wordId, final Assessment assessment) {
         String userId = SecurityUtil.getCurrentUserId();
-        Word word = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + wordId));
+        Word word = wordRepository.findByWord(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + wordId));
         UserWordComprehension wordComprehension = userWordComprehensionRepository
-                .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId)
+                .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_Word(userId, wordId)
                 .orElse(new UserWordComprehension(
-                        new UserWordComprehensionID(wordId, userId),
+                        new UserWordComprehensionID(word.getWord(), userId),
                         1,
                         null,
                         Timestamp.valueOf(LocalDateTime.now()),
-                        word, User.builder().id(userId).build()));
+                        User.builder().id(userId).build()));
         Integer level = getLevel(assessment, wordComprehension.getWordComprehensionLevel());
         wordComprehension.setWordComprehensionLevel(level);
         // mastered or ignore (no next learning time)
@@ -72,14 +76,15 @@ public class UserWordComprehensionService {
         return currentLevel;
     }
 
-    public Page<WordDTO> getWordTest(int page, int size, Long topicId) {
+    public FrequencyResponseDTO getWordTest(int page, int size, Long topicId) {
         String userId = SecurityUtil.getCurrentUserId();
-        Pageable pageable = PageRequest.of(page, size);
-        if (topicId == null || topicId == 17) {
-            return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearning(userId, pageable);
-        } else {
-            return userWordComprehensionRepository.findByUserWordComprehensionID_UserIdOrderByNextLearningJoinWordTopic(userId, pageable, topicId);
-        }
+        List<FrequencyDTO> comprehension = userWordComprehensionRepository.getWordComprehension(userId, topicId, page, size);
+        FrequencyResponseDTO response = new FrequencyResponseDTO();
+        response.setPage(page);
+        response.setLimit(size);
+        response.setTotal(comprehension.get(0).getCount().intValue());
+        response.setData(comprehension.stream().peek(frequency -> frequency.setCount(null)).collect(Collectors.toList()));
+        return response;
     }
 
     public long countWord() {
@@ -87,10 +92,10 @@ public class UserWordComprehensionService {
         return wordRepository.countWordByUserId(userId);
     }
 
-    public void delayLearningWord(Long wordId, int day) {
+    public void delayLearningWord(String wordId, int day) {
         String userId = SecurityUtil.getCurrentUserId();
         UserWordComprehension wordComprehension = userWordComprehensionRepository
-                .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId)
+                .findByUserWordComprehensionID_UserIdAndUserWordComprehensionID_Word(userId, wordId)
                 .orElseThrow(() -> new InvalidException("Learning word not found",
                         "Not found any learning word with id: " + wordId));
         if (wordComprehension.getNextLearning() == null) {
@@ -114,8 +119,8 @@ public class UserWordComprehensionService {
     }
 
     @Transactional
-    public void resetLearningProgression(final Long wordId) {
+    public void resetLearningProgression(final String wordId) {
         String userId = SecurityUtil.getCurrentUserId();
-        userWordComprehensionRepository.deleteAllByUserWordComprehensionID_UserIdAndUserWordComprehensionID_WordId(userId, wordId);
+        userWordComprehensionRepository.deleteAllByUserWordComprehensionID_UserIdAndUserWordComprehensionID_Word(userId, wordId);
     }
 }

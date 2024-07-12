@@ -1,5 +1,7 @@
 package com.vocahype.dto.request.wordsapi;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.vocahype.dto.ComprehensionDTO;
 import com.vocahype.dto.WordDTO;
 import lombok.Data;
 import lombok.Getter;
@@ -13,6 +15,7 @@ public class WordData {
     private Syllables syllables;
     private Pronunciation pronunciation;
     private double frequency;
+    private ComprehensionDTO comprehension;
 
     public WordDTO toWordDTO() {
         WordDTO wordDTO = new WordDTO();

@@ -16,7 +16,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 //    List<Word> findByWordContainsIgnoreCaseOrderById(String word, final Pageable pageable);
     @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false, case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
-            + "join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "join UserWordComprehension uwc on w.word = uwc.userWordComprehensionID.word "
             + "and uwc.userWordComprehensionID.userId = ?2 "
             + "and uwc.wordComprehensionLevel in ?3 "
             + "left join User u on u.id = ?2 "
@@ -29,7 +29,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false, case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
-            + "join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "join UserWordComprehension uwc on w.word = uwc.userWordComprehensionID.word "
             + "and uwc.userWordComprehensionID.userId = ?2 "
             + "and uwc.wordComprehensionLevel in ?3 "
             + "left join User u on u.id = ?2 "
@@ -42,7 +42,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false, case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
-            + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "left join UserWordComprehension uwc on w.word = uwc.userWordComprehensionID.word "
             + "and uwc.userWordComprehensionID.userId = ?2 "
             + "left join User u on u.id = ?2 "
             + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and u.topic.id = wt.wordTopicID.topicId "
@@ -53,7 +53,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("select new com.vocahype.dto.WordDTO(w, false, uwc.nextLearning, uwc.wordComprehensionLevel, false, case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
-            + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "left join UserWordComprehension uwc on w.word = uwc.userWordComprehensionID.word "
             + "and uwc.userWordComprehensionID.userId = ?2 "
             + "left join User u on u.id = ?2 "
             + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and u.topic.id = wt.wordTopicID.topicId "
@@ -77,7 +77,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, true,"
             + "case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
-            + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "left join UserWordComprehension uwc on w.word = uwc.userWordComprehensionID.word "
             + "and uwc.userWordComprehensionID.userId = ?2 "
             + "left join User u on u.id = ?2 "
             + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and u.topic.id = wt.wordTopicID.topicId "
@@ -87,7 +87,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
     @Query("select new com.vocahype.dto.WordDTO(w, true, uwc.nextLearning, uwc.wordComprehensionLevel, true,"
             + "case when (u.topic.id is not null and u.topic.id = wt.wordTopicID.topicId) then 1 else 0 end) "
             + "from Word w "
-            + "left join UserWordComprehension uwc on w.id = uwc.userWordComprehensionID.wordId "
+            + "left join UserWordComprehension uwc on w.word = uwc.userWordComprehensionID.word "
             + "and uwc.userWordComprehensionID.userId = ?2 "
             + "left join User u on u.id = ?2 "
             + "left join WordTopic wt on w.id = wt.wordTopicID.wordId and u.topic.id = wt.wordTopicID.topicId "

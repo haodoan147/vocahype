@@ -70,7 +70,7 @@ public class AIService {
                         SecurityUtil.getCurrentUserId(),
                         Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS)),
                         List.of(Level.LEVEL_11.getLevel(), Level.LEVEL_12.getLevel())).stream()
-                .map(userWordComprehension -> userWordComprehension.getWord().getWord()).collect(Collectors.toSet());
+                .map(userWordComprehension -> userWordComprehension.getUserWordComprehensionID().getWord()).collect(Collectors.toSet());
         if (word.isEmpty()) {
             throw new NoContentException("No word found", "User did not learn any word in the last " + days + " days");
         }

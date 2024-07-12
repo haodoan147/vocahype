@@ -45,3 +45,11 @@ databaseChangeLog:
       file: db/changelog/2024/06/07-01-add-column-update_at-in-user_word_comprehension-table.yaml
   - include:
       file: db/changelog/2024/07/10-01-reset-all-topic-record.yaml
+  - include:
+      file: db/changelog/2024/07/10-02-crate-frequency-table.yaml
+  - include:
+      file: db/changelog/2024/07/10-03-refactor-word_id-to-word-user_word_comprehension.yaml
+  - include:
+      file: db/changelog/2024/07/10-04-refactor-word_id-to-word-words_user_knowledge.yaml
+  - include:
+      file: db/changelog/2024/07/10-05-refactor-word_id-to-word-word_topic-table.yaml

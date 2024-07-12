@@ -41,7 +41,7 @@ public class WordController {
     }
 
     @PutMapping(value = Routing.WORD_ID)
-    public ResponseEntityJsonApi updateWord(@PathVariable Long wordId, @RequestBody JsonNode jsonNode) {
+    public ResponseEntityJsonApi updateWord(@PathVariable String wordId, @RequestBody JsonNode jsonNode) {
         return new ResponseEntityJsonApi(wordService.updateWord(wordId, jsonNode));
     }
 
@@ -51,7 +51,7 @@ public class WordController {
     }
 
     @DeleteMapping(value = Routing.WORD_ID)
-    public void deleteWord(@PathVariable Long wordId) {
+    public void deleteWord(@PathVariable String wordId) {
         wordService.deleteWord(wordId);
     }
 }

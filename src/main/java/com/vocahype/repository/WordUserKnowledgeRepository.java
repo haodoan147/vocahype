@@ -17,7 +17,7 @@ public interface WordUserKnowledgeRepository extends JpaRepository<WordUserKnowl
 
     @Query("select new com.vocahype.dto.WordUserKnowledgeDTO(w.id, w.word) "
             + "from WordUserKnowledge wuk "
-            + "join Word w on w.id = wuk.wordUserKnowledgeID.wordId "
+            + "join Word w on w.word = wuk.wordUserKnowledgeID.word "
             + "where wuk.wordUserKnowledgeID.userId = ?1")
     List<WordUserKnowledgeDTO> findAllByWordUserKnowledgeID_UserId(String currentUserId);
 }

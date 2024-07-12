@@ -17,8 +17,6 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@NamedEntityGraph(name = "graph.userWordComprehension.word",
-        attributeNodes = @NamedAttributeNode("word"))
 public class UserWordComprehension implements Serializable {
 
     @EmbeddedId
@@ -34,17 +32,12 @@ public class UserWordComprehension implements Serializable {
     private Timestamp updateAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("wordId")
-    @JoinColumn(name = "word_id")
-    private Word word;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
     @Override
     public String toString() {
-        return word.getId().toString();
+        return getUserWordComprehensionID().getWord();
     }
 }
