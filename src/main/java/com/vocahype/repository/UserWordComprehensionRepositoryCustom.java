@@ -1,5 +1,6 @@
 package com.vocahype.repository;
 
+import com.vocahype.dto.ComprehensionDTO;
 import com.vocahype.dto.FrequencyDTO;
 import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.UserWordComprehension;

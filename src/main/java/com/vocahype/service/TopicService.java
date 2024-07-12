@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,28 +34,22 @@ public class TopicService {
     private final WordTopicRepository wordTopicRepository;
     private final ImportService importService;
 
-    public Set<TopicDTO> getListTopic() {
+    public List<TopicDTO> getListTopic() {
         String userId = SecurityUtil.getCurrentUserId();
-        Set<TopicDTO> topicDTOSet = topicRepository.findAll().stream().map(GeneralUtils::convertToDto).collect(Collectors.toSet());
-
-        topicDTOSet.forEach(topicDTO -> {
-            topicDTO.setMasteredWordCount(
-                    (long) topicRepository.countLearningWordTopicsByTopicId(topicDTO.getId(), userId, 11));
-            topicDTO.setLearningWordCount(
-                    (long) topicRepository.countLearningWordTopicsByTopicIdBetween(topicDTO.getId(), userId, 2, 11));
-        });
-        return topicDTOSet;
+//        Set<TopicDTO> topicDTOSet = topicRepository.findAll().stream().map(GeneralUtils::convertToDto).collect(Collectors.toSet());
+//
+//        topicDTOSet.forEach(topicDTO -> {
+//            topicDTO.setMasteredWordCount(
+//                    (long) topicRepository.countLearningWordTopicsByTopicId(topicDTO.getId(), userId, 11));
+//            topicDTO.setLearningWordCount(
+//                    (long) topicRepository.countLearningWordTopicsByTopicIdBetween(topicDTO.getId(), userId, 2, 11));
+//        });
+        return topicRepository.getAll(userId, null);
     }
 
     public TopicDTO getTopic(final Long topicID) {
-        TopicDTO topic = topicRepository.findFirstById(topicID)
-                .map(topic1 -> GeneralUtils.convertToDto(topic1, true))
+        return topicRepository.getAll(SecurityUtil.getCurrentUserId(), topicID).stream().findFirst()
                 .orElseThrow(() -> new InvalidException("Topic not found", "Topic with id " + topicID + " not found"));
-        topic.setMasteredWordCount(
-                (long) topicRepository.countLearningWordTopicsByTopicId(topicID, SecurityUtil.getCurrentUserId(), 11));
-        topic.setLearningWordCount(
-                (long) topicRepository.countLearningWordTopicsByTopicIdBetween(topicID, SecurityUtil.getCurrentUserId(), 2, 11));
-        return topic;
     }
 
     @Transactional
@@ -99,20 +94,20 @@ public class TopicService {
                     throw new InvalidException("Invalid request", "Word cannot be added and removed at the same time");
                 }
                 resourceWord.getAddedWordIds().forEach(wordId -> {
-                    if (wordList.stream().noneMatch(wt -> wt.getWordTopicID().getWordId().equals(wordId))) {
-                        wordRepository.findById(wordId)
+                    if (wordList.stream().noneMatch(wt -> wt.getWordTopicID().getWord().equals(wordId))) {
+                        wordRepository.findByWord(wordId)
                                 .ifPresent(word -> wordList.add(WordTopic.builder().wordTopicID(
-                                                WordTopicID.builder().topicId(finalTopic.getId()).wordId(word.getId()).build())
-                                        .word(word).topic(finalTopic).build()));
+                                                WordTopicID.builder().topicId(finalTopic.getId()).word(word.getWord()).build())
+                                        .topic(finalTopic).build()));
                     }
                 });
             }
             if (resourceWord.getRemovedWordIds() != null) {
-                wordList.removeIf(wt -> resourceWord.getRemovedWordIds().contains(wt.getWordTopicID().getWordId()));
+                wordList.removeIf(wt -> resourceWord.getRemovedWordIds().contains(wt.getWordTopicID().getWord()));
             }
             wordTopicRepository.saveAllAndFlush(wordList);
-            wordTopicRepository.deleteAllByTopicIdAndWordIdNotIn(topic.getId(),
-                    wordList.stream().map(wt -> wt.getWordTopicID().getWordId()).collect(Collectors.toSet()));
+            wordTopicRepository.deleteAllByTopicIdAndWordNotIn(topic.getId(),
+                    wordList.stream().map(wt -> wt.getWordTopicID().getWord()).collect(Collectors.toSet()));
             topic.setWordTopics(wordList);
         }
         if (file != null) {

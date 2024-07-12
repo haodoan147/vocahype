@@ -32,8 +32,8 @@ public class GeneralUtils {
         if (topic.getWordTopics() != null) {
             topicDTO.setWordCount((long) topic.getWordTopics().size());
             if (includeWordTopics) {
-                topicDTO.setWordInTopic(topic.getWordTopics().stream().map(wordTopic -> WordDTO.builder().id(wordTopic.getWord().getId())
-                        .word(wordTopic.getWord().getWord()).build()).collect(Collectors.toSet()));
+                topicDTO.setWordInTopic(topic.getWordTopics().stream().map(wordTopic -> WordDTO.builder().word(wordTopic.getWordTopicID().getWord())
+                        .word(wordTopic.getWordTopicID().getWord()).build()).collect(Collectors.toSet()));
             }
         }
         return topicDTO;

@@ -1,13 +1,15 @@
 package com.vocahype.repository;
 
+import com.vocahype.dto.TopicDTO;
 import com.vocahype.entity.Topic;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface TopicRepository extends JpaRepository<Topic, Long> {
+public interface TopicRepository extends JpaRepository<Topic, Long>, TopicRepositoryCustom {
 
     @Query("select count(wt) " +
             "from WordTopic wt " +
@@ -25,4 +27,9 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     @EntityGraph(value = "graph.topic.wordTopics.word")
     Optional<Topic> findFirstById(Long id);
+
+    @Query(value = "select com. from vh.topics t " +
+            "join vh.word_topic wt ON t.id = wt.topic_id " +
+            "join vh.words w ON w.word = wt.word;", nativeQuery = true)
+    List<TopicDTO> findAllTopic();
 }

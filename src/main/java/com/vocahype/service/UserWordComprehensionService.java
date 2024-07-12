@@ -83,7 +83,10 @@ public class UserWordComprehensionService {
         response.setPage(page);
         response.setLimit(size);
         response.setTotal(comprehension.get(0).getCount().intValue());
-        response.setData(comprehension.stream().peek(frequency -> frequency.setCount(null)).collect(Collectors.toList()));
+        response.setData(comprehension.stream().peek(frequency -> {
+            frequency.setCount(null);
+            frequency.setStatus();
+        }).collect(Collectors.toList()));
         return response;
     }
 

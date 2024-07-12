@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface WordTopicRepository extends JpaRepository<WordTopic, WordTopicID> {
-    void deleteAllByTopicIdAndWordIdNotIn(final Long id, final Set<Long> collect);
+    void deleteAllByTopicIdAndWordNotIn(final Long id, final Set<String> collect);
     List<WordTopic> findAllByTopic_Id(final Long id);
 }
