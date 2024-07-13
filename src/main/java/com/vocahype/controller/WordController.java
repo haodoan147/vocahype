@@ -10,6 +10,8 @@ import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @RequiredArgsConstructor
 public class WordController {
@@ -21,7 +23,7 @@ public class WordController {
     }
 
     @GetMapping(value = Routing.WORD_BY_WORD)
-    public WordData getWordByWord(@PathVariable String word) {
+    public WordData getWordByWord(@PathVariable String word) throws ExecutionException, InterruptedException {
         return wordService.getWordByWord(word);
     }
 

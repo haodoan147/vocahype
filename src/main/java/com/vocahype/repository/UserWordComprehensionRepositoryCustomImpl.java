@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,4 +51,23 @@ public class UserWordComprehensionRepositoryCustomImpl extends BaseRepository im
         }
         return getRecords(sql, parameters, FrequencyDTO.class);
     }
+
+    @Override
+    public List<FrequencyDTO> getRandomWords(Integer size) {
+        String sql = "SELECT lemma word FROM vh.frequency WHERE id > 220 ORDER BY RANDOM() LIMIT :size";
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("size", size);
+        return getRecords(sql, parameters, FrequencyDTO.class);
+    }
+
+    @Override
+    public List<FrequencyDTO> getRandomWordsNotIn(Integer size, Collection<String> words) {
+        String sql = "SELECT lemma word FROM vh.frequency WHERE id > 220 AND lemma NOT IN (:words) ORDER BY RANDOM() LIMIT :size";
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("size", size);
+        parameters.put("words", words);
+        return getRecords(sql, parameters, FrequencyDTO.class);
+    }
+
+
 }

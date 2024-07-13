@@ -23,4 +23,12 @@ public interface UserWordComprehensionRepositoryCustom {
             Integer size
     );
 
+    List<FrequencyDTO> getRandomWords(
+            Integer size
+    );
+
+    List<FrequencyDTO> getRandomWordsNotIn(
+            Integer size,
+            Collection<String> words
+    );
 }

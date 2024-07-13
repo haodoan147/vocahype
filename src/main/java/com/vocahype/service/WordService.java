@@ -20,12 +20,17 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -206,10 +211,7 @@ public class WordService {
     }
 
     public WordData getWordByWord(final String word) {
-        Mono<WordData> wordDataMono = wordsApiWebClient.get()
-                .uri("/words/" + word)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<WordData>() {});
+        Mono<WordData> wordDataMono = getWordData(word);
         WordData wordData = wordDataMono.block();
         if (wordData == null) {
             throw new InvalidException("Word not found", "Not found any word with word: " + word);
@@ -235,5 +237,20 @@ public class WordService {
 //            }
 //        });
 //        return wordDTOList;
+    }
+
+    public List<WordData> getWordDataInParallel(List<String> words) {
+        return Flux.fromIterable(words)// Execute each request in parallel
+                .flatMap(this::getWordData)
+                .toStream()
+                .collect(Collectors.toList()); // Block until all requests complete (for demonstration)
+    }
+
+    public Mono<WordData> getWordData(String word) {
+        return wordsApiWebClient.get()
+                .uri("/words/" + word)
+                .retrieve()
+                .onStatus(HttpStatus::isError, response -> Mono.empty())
+                .bodyToMono(new ParameterizedTypeReference<WordData>() {});
     }
 }

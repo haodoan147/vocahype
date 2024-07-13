@@ -2,29 +2,38 @@ package com.vocahype.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vocahype.dto.FrequencyDTO;
 import com.vocahype.dto.SingleSelectQuiz;
 import com.vocahype.dto.enumeration.Level;
 import com.vocahype.dto.enumeration.LevelOfQuiz;
 import com.vocahype.dto.enumeration.TypeOfQuiz;
+import com.vocahype.dto.quiz.DefinitionSelectAnswer;
+import com.vocahype.dto.quiz.QuizDTO;
+import com.vocahype.dto.quiz.QuizType;
+import com.vocahype.dto.request.wordsapi.Result;
+import com.vocahype.dto.request.wordsapi.WordData;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.exception.NoContentException;
 import com.vocahype.repository.UserWordComprehensionRepository;
+import com.vocahype.util.GeneralUtils;
 import com.vocahype.util.SecurityUtil;
+import lombok.SneakyThrows;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import static org.hibernate.type.StandardBasicTypes.TRUE_FALSE;
 
 @Service
 public class AIService {
@@ -32,29 +41,211 @@ public class AIService {
     private final ObjectMapper objectMapper;
     private final WebClient openAI;
     private final UserWordComprehensionRepository userWordComprehensionRepository;
+    private final WordService wordService;
 
     public AIService(final ObjectMapper objectMapper, final @Qualifier("openAI") WebClient openAI,
-                     final UserWordComprehensionRepository userWordComprehensionRepository) {
+                     final UserWordComprehensionRepository userWordComprehensionRepository,
+                     final WordService wordService) {
         this.objectMapper = objectMapper;
         this.openAI = openAI;
         this.userWordComprehensionRepository = userWordComprehensionRepository;
+        this.wordService = wordService;
     }
 
-    public Map getQuizGen(final String word, final String level) throws JsonProcessingException {
+    public QuizDTO getQuizGen(final String word) {
+//        try {
+//            LevelOfQuiz.valueOf(level.toUpperCase());
+//        } catch (IllegalArgumentException e) {
+//            throw new InvalidException("Invalid level of quiz", "Invalid level: " + level);
+//        }
+        QuizType quizType = QuizType.getRandomType();
         try {
-            LevelOfQuiz.valueOf(level.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidException("Invalid level of quiz", "Invalid level: " + level);
+            switch (quizType) {
+                case DEFINITION_SINGLE_SELECT:
+                    return getDefinitionSingleSelect(word);
+                case DEFINITION_MULTIPLE_SELECT:
+                    return getDefinitionMultipleSelect(word);
+                case TRUE_FALSE:
+                    return getTrueFalse(word);
+                case RELATED_WORD_SELECT:
+                    return getRelatedWordSelect(word);
+                case ANTONYM_SYNONYM_MATCH:
+                    return getAntonymSynonymMatch(word);
+                default:
+                    throw new InvalidException("Invalid quiz type", "Invalid quiz type: " + quizType);
+            }
+        } catch (JsonProcessingException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        SingleSelectQuiz singleSelectQuiz = SingleSelectQuiz.builder()
-                .typeOfQuiz(TypeOfQuiz.WORD_USAGE_IN_CONTEXT)
-                .levelOfQuiz(LevelOfQuiz.valueOf(level.toUpperCase()))
+    }
+
+//    private QuizDTO getWordGuess(String word) {
+//        WordData wordData = wordService.getWordData(word).block();
+//        if (wordData == null) {
+//            return getQuizGen(word);
+//        }
+//        List<Result> result = GeneralUtils.shuffleList(wordData.getResults(), 1);
+//        if (result == null || result.isEmpty()) {
+//            return getQuizGen(word);
+//        }
+//        Result quizResult = result.get(0);
+//        String description = "The word is a " + quizResult.getPartOfSpeech() + ". "
+//                + "It has " + wordData.getSyllables().getCount() + " syllables. "
+//                + (quizResult.getSynonyms() == null ? "" : "The synonym of the word is " + GeneralUtils.listToSense(quizResult.getSynonyms()) + ". ")
+//                + (quizResult.getAntonyms() == null ? "" : "The antonym of the word is " + GeneralUtils.listToSense(quizResult.getAntonyms()) + ". ")
+//                + (quizResult.getSimilarTo() == null ? "" : "The word is similar to " + GeneralUtils.listToSense(quizResult.getSimilarTo()) + ". ");
+//        return QuizDTO.builder()
+//                .type(QuizType.WORD_GUESS.getTitle())
+//                .question("Guess the original word using the following information.")
+//                .word(word)
+//                .description(description)
+//                .build();
+//    }
+
+    private QuizDTO getAntonymSynonymMatch(String word) {
+        WordData list = wordService.getWordData(word).block();
+        if (list == null) {
+            return getQuizGen(word);
+        }
+        List<Result> resultList = list.getResults().stream().filter(result -> result.getSynonyms() != null
+                || result.getAntonyms() != null).collect(Collectors.toList());
+        List<String> quizSynonymsResult = new ArrayList<>();
+        List<String> quizAntonymsResult = new ArrayList<>();
+        GeneralUtils.shuffleList(resultList, resultList.size()).forEach(result -> {
+            if (result.getSynonyms() != null) {
+                quizSynonymsResult.addAll(result.getSynonyms());
+            }
+            if (result.getAntonyms() != null) {
+                quizAntonymsResult.addAll(result.getAntonyms());
+            }
+        });
+        int minAntonyms = Math.min(quizAntonymsResult.size(), 2);
+        int minSynonyms = 3 - minAntonyms;
+        List<Map<String, Object>> antonymSynonym = new ArrayList<>();
+        GeneralUtils.shuffleList(quizAntonymsResult, minAntonyms).forEach(s ->
+                antonymSynonym.add(Map.of("text", s, "isAntonym", true)));
+        GeneralUtils.shuffleList(quizSynonymsResult, minSynonyms).forEach(s ->
+                antonymSynonym.add(Map.of("text", s, "isSynonym", true)));
+        quizSynonymsResult.addAll(quizAntonymsResult);
+        userWordComprehensionRepository.getRandomWordsNotIn(5, quizSynonymsResult).forEach(frequencyDTO ->
+                antonymSynonym.add(Map.of("text", frequencyDTO.getWord(), "isAntonym", false, "isSynonym", false)));
+        return QuizDTO.builder()
+                .type(QuizType.ANTONYM_SYNONYM_MATCH.getTitle())
+                .question("Match the antonym and synonym of the word.")
+                .result(GeneralUtils.shuffleList(antonymSynonym, 8))
                 .word(word)
-                .question("What is an example sentence for the word?")
                 .build();
-        String userMessageContent = "{\"difficulty\":\"" + singleSelectQuiz.getLevelOfQuiz().getDetail() + "\", \"word\":\"" + singleSelectQuiz.getWord() + "\"}";
-        String systemMessageContent = "You are a helpful assistant that smartly generates single-choice quizz based on English words and difficulty I provided. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"options\":[\"<option 1>\",\"<option 2>\",\"<option 3>\",\"<option 4>\"],\"answer\":\"<the index number of the correct answer (0-based index)>\"}. Each option is an answer based on the quiz type you choose with the chosen difficulty to challenge the user without indicating A, B, C, D. There are only one answer is right, another answer is obviously wrong (obviously or not based on the difficulty of the question).";
-        return generate(userMessageContent, systemMessageContent);
+    }
+
+    private QuizDTO getRelatedWordSelect(String word) {
+        WordData list = wordService.getWordData(word).block();
+        if (list == null) {
+            return getQuizGen(word);
+        }
+        List<Result> resultList = list.getResults().stream().filter(result -> result.getSynonyms() != null
+                || result.getAntonyms() != null || result.getSimilarTo() != null).collect(Collectors.toList());
+        List<String> quizResult = new ArrayList<>();;
+        resultList.forEach(result -> {
+            if (result.getSimilarTo() != null) {
+                quizResult.addAll(result.getSimilarTo());
+            }
+            if (result.getSynonyms() != null) {
+                quizResult.addAll(result.getSynonyms());
+            }
+            if (result.getAntonyms() != null) {
+                quizResult.addAll(result.getAntonyms());
+            }
+        });
+        List<Map<String, Object>> relatedWords = new ArrayList<>();
+        int min = Math.min(resultList.size(), 3);
+        GeneralUtils.shuffleList(resultList, min).forEach(result -> {
+            if (result.getSimilarTo() != null) {
+                relatedWords.add(Map.of("text", GeneralUtils.shuffleList(result.getSimilarTo(), 1).get(0), "correct", true, "type", "similar", "definition", result.getDefinition()));
+            }
+            if (result.getSynonyms() != null) {
+                relatedWords.add(Map.of("text", GeneralUtils.shuffleList(result.getSynonyms(), 1).get(0), "correct", true, "type", "synonym", "definition", result.getDefinition()));
+            }
+            if (result.getAntonyms() != null) {
+                relatedWords.add(Map.of("text", GeneralUtils.shuffleList(result.getAntonyms(), 1).get(0), "correct", true, "type", "antonym", "definition", result.getDefinition()));
+            }
+        });
+        userWordComprehensionRepository.getRandomWordsNotIn(8 - min, quizResult).forEach(frequencyDTO ->
+                relatedWords.add(Map.of("text", frequencyDTO.getWord(), "correct", false)));
+        return QuizDTO.builder()
+                .type(QuizType.RELATED_WORD_SELECT.getTitle())
+                .question("Select the word that is related to the word.")
+                .result(GeneralUtils.shuffleList(relatedWords, 8))
+                .word(word)
+                .build();
+    }
+
+    private QuizDTO getTrueFalse(String word) throws JsonProcessingException {
+        String userMessageContent = "{\"word\":\"" + word + "\"}";
+        String systemMessageContent = "You are a helpful assistant that smartly generates a yes or no quiz based on English words details. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"answer\":\"<answer of question (true or false)>\"}. The question should be a clear right or wrong question, it should not be a question with an answer that causes confusion. Example: {\"question\":\"The quality of being capable is called capability.\",\"answer\":\"true\"} for {\"word\":\"capability\"}";
+        Map generate = generate(userMessageContent, systemMessageContent);
+        return QuizDTO.builder()
+                .type(QuizType.TRUE_FALSE.getTitle())
+                .question("Is the following statement true or false?")
+                .statement(generate.get("question").toString())
+                .result(generate.get("answer").toString())
+                .word(word)
+                .build();
+    }
+
+    private QuizDTO getDefinitionMultipleSelect(String word) throws JsonProcessingException {
+        List<String> randomWords = userWordComprehensionRepository.getRandomWords(4).stream().map(FrequencyDTO::getWord).collect(Collectors.toList());
+        randomWords.add(word);
+        List<WordData> list = wordService.getWordDataInParallel(randomWords);
+        List<DefinitionSelectAnswer> results = new ArrayList<>();
+        list.forEach(wordData -> {
+            if (wordData.getWord().equals(word)) {
+                results.addAll(0, GeneralUtils.shuffleList(wordData.getResults(), 8).stream().map(result ->
+                        DefinitionSelectAnswer.builder().text(result.getDefinition()).correct(true).build()).collect(Collectors.toList()));
+            }
+            results.add(DefinitionSelectAnswer.builder().text(GeneralUtils.shuffleList(wordData.getResults(), 1).get(0).getDefinition()).correct(false).build());
+        });
+        return QuizDTO.builder()
+                .type(QuizType.DEFINITION_MULTIPLE_SELECT.getTitle())
+                .question("Select all the definitions that match the word.")
+                .result(GeneralUtils.shuffleList(results, 8))
+                .word(word)
+                .build();
+    }
+
+    private QuizDTO getDefinitionSingleSelect(String word) throws JsonProcessingException, ExecutionException, InterruptedException {
+        List<String> randomWords = userWordComprehensionRepository.getRandomWords(3).stream().map(FrequencyDTO::getWord).collect(Collectors.toList());
+        randomWords.add(word);
+        List<WordData> list = wordService.getWordDataInParallel(randomWords);
+        list = GeneralUtils.shuffleList(list, 4);
+        List<DefinitionSelectAnswer> selectAnswers = list.stream().map(wordData ->
+                DefinitionSelectAnswer.builder().text(GeneralUtils.shuffleList(wordData.getResults(), 1)
+                        .get(0).getDefinition()).correct(wordData.getWord().equals(word)).build()).collect(Collectors.toList());
+        return QuizDTO.builder()
+                .type(QuizType.DEFINITION_SINGLE_SELECT.getTitle())
+                .question("Select a definition that match the word.")
+                .result(selectAnswers)
+                .word(word)
+                .build();
+    }
+
+//    private QuizDTO getWordScramble(String word) {
+//        String scrambledWord = scrambleWord(word);
+//        return QuizDTO.builder()
+//                .type(QuizType.WORD_SCRAMBLE.getTitle())
+//                .question("Re-arrange the letters to form a word.")
+//                .word(word)
+//                .result(scrambledWord)
+//                .build();
+//    }
+
+    private String scrambleWord(String word) {
+        List<Character> characters = Arrays.asList(word.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
+        Collections.shuffle(characters);
+        StringBuilder scrambledWord = new StringBuilder();
+        for (char c : characters) {
+            scrambledWord.append(c);
+        }
+        return scrambledWord.toString();
     }
 
     public Map getStory(final long days) throws JsonProcessingException {

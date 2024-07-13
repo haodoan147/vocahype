@@ -13,10 +13,7 @@ import org.springframework.util.StringUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -88,5 +85,29 @@ public class GeneralUtils {
         }
 
         return input;
+    }
+
+    public static <T> List<T> shuffleList(List<T> list, int limit) {
+        // Create a mutable copy of the list
+        List<T> mutableList = new java.util.ArrayList<>(list).stream().limit(limit).collect(Collectors.toList());
+
+        // Fisher-Yates shuffle algorithm
+        for (int i = mutableList.size() - 1; i > 0; i--) {
+            int j = (int) Math.floor(Math.random() * (i + 1));
+            Collections.swap(mutableList, i, j);
+        }
+
+        return mutableList;
+    }
+
+    public static String listToSense(List<String> list) {
+        if (list == null || list.isEmpty()) return "";
+
+        if (list.size() == 1) return "'" + list.get(0) + "'";
+
+        StringJoiner joiner = new StringJoiner("', '", "'", "'");
+        list.subList(0, list.size() - 1).forEach(joiner::add);
+
+        return joiner.toString() + ", and '" + list.get(list.size() - 1) + "'";
     }
 }

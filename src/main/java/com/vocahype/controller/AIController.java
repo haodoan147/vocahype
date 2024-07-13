@@ -1,6 +1,7 @@
 package com.vocahype.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.vocahype.dto.quiz.QuizDTO;
 import com.vocahype.service.AIService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ public class AIController {
     private final AIService aiService;
 
     @GetMapping(value = Routing.WORD_QUIZ)
-    public Map getQuizGen(@RequestParam String word, @RequestParam String level) throws JsonProcessingException {
-        return aiService.getQuizGen(word, level);
+    public QuizDTO getQuizGen(@RequestParam String word) throws JsonProcessingException {
+        return aiService.getQuizGen(word);
     }
 
     @GetMapping(Routing.WORD_STORY)
