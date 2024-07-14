@@ -2,7 +2,6 @@ package com.vocahype.service;
 
 import com.vocahype.dto.FrequencyDTO;
 import com.vocahype.dto.FrequencyResponseDTO;
-import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.Assessment;
 import com.vocahype.dto.enumeration.Level;
 import com.vocahype.entity.User;
@@ -15,9 +14,6 @@ import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.repository.WordRepository;
 import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,9 +1,7 @@
 package com.vocahype.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vocahype.dto.enumeration.Level;
 import com.vocahype.exception.InvalidException;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
