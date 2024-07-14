@@ -9,6 +9,8 @@ import com.vocahype.dto.quiz.QuizDTO;
 import com.vocahype.dto.quiz.QuizType;
 import com.vocahype.dto.request.wordsapi.Result;
 import com.vocahype.dto.request.wordsapi.WordData;
+import com.vocahype.entity.User;
+import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.exception.InvalidException;
 import com.vocahype.exception.NoContentException;
 import com.vocahype.repository.UserWordComprehensionRepository;
@@ -262,6 +264,16 @@ public class AIService {
             throw new NoContentException("No word found", "User did not learn any word in the last " + days + " days");
         }
         return word;
+    }
+
+    public Map<User, List<UserWordComprehension>> getListWordNotLearn() {
+        List<UserWordComprehension> collect = userWordComprehensionRepository.findByNextLearningBeforeAndWordComprehensionLevelNotInOrderByUpdateAtDesc(
+                Timestamp.valueOf(LocalDateTime.now().plusDays(1).truncatedTo(ChronoUnit.DAYS)),
+                List.of(Level.LEVEL_11.getLevel(), Level.LEVEL_12.getLevel()));
+        if (collect.isEmpty()) {
+            throw new NoContentException("No word found", "User did not learn any word in the past");
+        }
+        return collect.stream().collect(Collectors.groupingBy(UserWordComprehension::getUser));
     }
 
     private Map generate(final String userMessageContent, final String systemMessageContent)

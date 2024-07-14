@@ -4,6 +4,7 @@ import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.UserWordComprehensionID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.sql.Timestamp;
@@ -67,6 +68,9 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
                                                                           Collection<Integer> wordComprehensionLevel);
 
     List<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotInOrderByUpdateAtDesc(String userId, Timestamp start, Collection<Integer> wordComprehensionLevel);
+
+    @EntityGraph(value = "graph.user_word_comprehension.user")
+    List<UserWordComprehension> findByNextLearningBeforeAndWordComprehensionLevelNotInOrderByUpdateAtDesc(Timestamp start, Collection<Integer> wordComprehensionLevel);
 
     Page<UserWordComprehension> findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndUserWordComprehensionID_WordIgnoreCase(String userId, Collection<Integer> wordComprehensionLevel, String word, Pageable pageable);
 

@@ -42,7 +42,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
                 Role role = roleRepository.findById(1L).get();
                 return userRepository
                         .save(User.builder().id(userId).loginName(firebaseUser.getEmail())
-                                .firstName(firebaseUser.getName() != null ? firebaseUser.getEmail() : "User").lastName("")
+                                .firstName(firebaseUser.getName() != null ? firebaseUser.getName() : "User").lastName("")
                                 .status(1L).loginCount(0L)
                                 .createdOn(Timestamp.valueOf(LocalDateTime.now())).role(role)
                                 .build());
