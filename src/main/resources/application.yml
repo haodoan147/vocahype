@@ -1,9 +1,9 @@
 #Config database
 spring:
   datasource:
-    password: O6PKvRZSyBbRWrzWEag7teV0g9iWd6pe
-    url: jdbc:postgresql://john.db.elephantsql.com:5432/uesimvzx?stringtype=unspecified
-    username: uesimvzx
+    password: PASSWORD
+    url: URL
+    username: USERNAME
 
   profiles:
     active: staging
@@ -45,6 +45,19 @@ spring:
 #      ddl-auto: update
     show-sql: true
 #    open-in-view: false
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: EMAIL_USERNAME
+    password: EMAIL_PASSWORD
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: false
+          timeout: 8000
 
 server:
   # If using spring-boot-devtools then hide the trace in exception responses here

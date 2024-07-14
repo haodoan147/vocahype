@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,11 +24,15 @@ public class AIController {
         return aiService.getQuizGen(word);
     }
 
+    @GetMapping(value = Routing.WORD_QUIZ_MULTI)
+    public List<QuizDTO> getQuizGen(@RequestParam final Integer days) throws JsonProcessingException {
+        return aiService.getQuizGens(days);
+    }
+
     @GetMapping(Routing.WORD_STORY)
     public Map getStory(@RequestParam final long days) throws JsonProcessingException {
         return aiService.getStory(days);
     }
-
 
     @GetMapping(Routing.LIST_WORD_STORY)
     public Set<String> geListWordStory(@RequestParam final long days) {

@@ -1,10 +1,6 @@
 package com.vocahype.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +13,9 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(name = "graph.user_word_comprehension.user",
+        attributeNodes = @NamedAttributeNode("user")
+)
 public class UserWordComprehension implements Serializable {
 
     @EmbeddedId
