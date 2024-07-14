@@ -1,14 +1,9 @@
 package com.vocahype.repository;
 
-import com.vocahype.dto.ComprehensionDTO;
 import com.vocahype.dto.FrequencyDTO;
-import com.vocahype.dto.WordDTO;
-import com.vocahype.dto.enumeration.TransformerType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;

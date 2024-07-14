@@ -1,6 +1,7 @@
 package com.vocahype.repository;
 
 import com.vocahype.dto.TopicDTO;
+import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.TransformerType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -28,5 +29,13 @@ public class TopicRepositoryCustomImpl extends BaseRepository implements TopicRe
             parameters.put("topicId", topicId);
         }
         return getRecords(sql, parameters, TopicDTO.class, TransformerType.NESTED_BEAN);
+    }
+
+    @Override
+    public List<WordDTO> getWordInTopic(Long topicId) {
+        String sql = "select wt.word from vh.word_topic wt where wt.topic_id = :topicId group by wt.word ;";
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("topicId", topicId);
+        return getRecords(sql, parameters, WordDTO.class, TransformerType.NESTED_BEAN);
     }
 }

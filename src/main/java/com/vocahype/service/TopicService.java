@@ -48,8 +48,10 @@ public class TopicService {
     }
 
     public TopicDTO getTopic(final Long topicID) {
-        return topicRepository.getAll(SecurityUtil.getCurrentUserId(), topicID).stream().findFirst()
+        TopicDTO topic = topicRepository.getAll(SecurityUtil.getCurrentUserId(), topicID).stream().findFirst()
                 .orElseThrow(() -> new InvalidException("Topic not found", "Topic with id " + topicID + " not found"));
+        topic.setWordInTopic(new HashSet<>(topicRepository.getWordInTopic(topicID)));
+        return topic;
     }
 
     @Transactional
