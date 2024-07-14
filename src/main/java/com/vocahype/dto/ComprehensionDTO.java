@@ -3,11 +3,12 @@ package com.vocahype.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vocahype.dto.enumeration.Level;
 import com.vocahype.exception.InvalidException;
+import lombok.Data;
 import lombok.Getter;
 
 import java.util.Date;
 
-@Getter
+@Data
 public class ComprehensionDTO {
     private final String status;
     private final Date dueDate;

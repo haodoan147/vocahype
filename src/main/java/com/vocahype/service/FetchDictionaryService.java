@@ -27,16 +27,28 @@ import java.util.Set;
 
 @Log4j2
 @Service
-@RequiredArgsConstructor
 public class FetchDictionaryService {
     private final WordRepository wordRepository;
     private final DefinitionRepository definitionRepository;
     private final PosRepository posRepository;
-    @Qualifier("dictionaryApiWebClient")
     private final WebClient webClient;
     private final MeaningRepository meaningRepository;
     private final ExampleRepository exampleRepository;
     private final SynonymRepository synonymRepository;
+
+    public FetchDictionaryService(final WordRepository wordRepository, final DefinitionRepository definitionRepository,
+                                  final PosRepository posRepository,
+                                  final @Qualifier("dictionaryApiWebClient") WebClient webClient,
+                                  final MeaningRepository meaningRepository, final ExampleRepository exampleRepository,
+                                  final SynonymRepository synonymRepository) {
+        this.wordRepository = wordRepository;
+        this.definitionRepository = definitionRepository;
+        this.posRepository = posRepository;
+        this.webClient = webClient;
+        this.meaningRepository = meaningRepository;
+        this.exampleRepository = exampleRepository;
+        this.synonymRepository = synonymRepository;
+    }
 
     @Transactional
     public void fetchDictionary(final String word) {

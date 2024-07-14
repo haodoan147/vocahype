@@ -21,10 +21,21 @@ public class TopicDTO {
     private Long wordCount;
     private Long learningWordCount;
     private Long masteredWordCount;
-    private List<Long> addedWordIds;
-    private List<Long> removedWordIds;
+    private List<String> addedWordIds;
+    private List<String> removedWordIds;
     @JsonIgnore
     private Set<WordDTO> wordInTopic;
+
+    public TopicDTO(Long id, String name, String description, String emoji, Long wordCount, Long learningWordCount, Long masteredWordCount) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.emoji = emoji;
+        this.wordCount = wordCount;
+        this.learningWordCount = learningWordCount;
+        this.masteredWordCount = masteredWordCount;
+    }
+
 
     @Override
     public String toString() {

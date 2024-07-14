@@ -30,6 +30,7 @@ import static com.vocahype.util.Constants.WORD_COUNT;
 public class WordUserKnowledgeService {
 
     public static final int BIAS = 3;
+    public static final long WORD_DATA_COUNT = 3000;
     private final WordRepository wordRepository;
     private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
     private final ModelMapper modelMapper;
@@ -38,15 +39,14 @@ public class WordUserKnowledgeService {
     private final ApplicationProperties applicationProperties;
 
     public List<WordUserKnowledgeDTO> get50WordForUserKnowledge() {
-        long wordDataCount = 3000;
-        if (wordDataCount < 50) {
-            throw new InvalidException("Word data count is not enough", "wordDataCount: " + wordDataCount);
+        if (WORD_DATA_COUNT < 50) {
+            throw new InvalidException("Word data count is not enough", "wordDataCount: " + WORD_DATA_COUNT);
         }
         List<Long> randomIds = new ArrayList<>();
         LongRange[] ranges = {
-                new LongRange(1L, wordDataCount / BIAS, 20),
-                new LongRange(wordDataCount / BIAS + 1 , wordDataCount / BIAS * 2, 15),
-                new LongRange(wordDataCount / BIAS * 2 + 1, wordDataCount, 15)
+                new LongRange(1L, WORD_DATA_COUNT / BIAS, 20),
+                new LongRange(WORD_DATA_COUNT / BIAS + 1 , WORD_DATA_COUNT / BIAS * 2, 15),
+                new LongRange(WORD_DATA_COUNT / BIAS * 2 + 1, WORD_DATA_COUNT, 15)
         };
         for (LongRange range : ranges) {
             randomIds.addAll(getRandomNumbersInRange(range.getMinId(), range.getMaxId(), range.getNumRecords()));
@@ -77,23 +77,22 @@ public class WordUserKnowledgeService {
         Set<WordUserKnowledge> knownWords = new HashSet<>();
         AtomicReference<Double> score = new AtomicReference<>((double) 0);
         wordUserKnowledgeDTO.forEach(word -> {
-            Word word1 = wordRepository.findById(word.getWordId()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
+            Word word1 = wordRepository.findByWord(word.getWord()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
             if (word.getStatus()) {
                 knownWords.add(new WordUserKnowledge(
-                        new WordUserKnowledgeID(word.getWordId(), userId),
+                        new WordUserKnowledgeID(word.getWord(), userId),
                         true,
-                        Word.builder().id(word.getWordId()).build(),
                         user)
                 );
                 score.updateAndGet(v -> v + (1 - (1 - word1.getPoint())));
-                userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.MASTERED);
+                userWordComprehensionService.saveWordUserKnowledge(word.getWord(), Assessment.MASTERED);
             } else {
                 score.updateAndGet(v -> v - (1 - word1.getPoint()));
-                userWordComprehensionService.saveWordUserKnowledge(word.getWordId(), Assessment.HARD);
+                userWordComprehensionService.saveWordUserKnowledge(word.getWord(), Assessment.HARD);
             }
         });
         wordUserKnowledgeRepository.saveAll(knownWords);
-        double sum = score.get() <= 0 ? 0 : (score.get() / wordUserKnowledgeDTO.size() * WORD_COUNT);
+        double sum = score.get() <= 0 ? 0 : (score.get() / wordUserKnowledgeDTO.size() * WORD_DATA_COUNT);
         int formatted = (int) sum;
         user.setScore(formatted);
         userRepository.save(user);

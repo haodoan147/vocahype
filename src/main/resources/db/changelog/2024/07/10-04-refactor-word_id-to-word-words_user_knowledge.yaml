@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10-03-01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sqlCheck:
+                expectedResult: t
+                sql: SELECT EXISTS (
+                  SELECT column_name
+                  FROM information_schema.columns
+                  WHERE table_name = 'words_user_knowledge'
+                  AND table_schema = 'vh'
+                  AND column_name = 'word_id');
+        - addColumn:
+            tableName: words_user_knowledge
+            schemaName: vh
+            columns:
+              - column:
+                  name: word
+                  type: text
+        - update:
+            schemaName: vh
+            tableName: words_user_knowledge
+            columns:
+              - column:
+                  name: word
+                  valueComputed: '(SELECT word FROM vh.words WHERE words.id = words_user_knowledge.word_id)'
+        - dropUniqueConstraint:
+            schemaName: vh
+            tableName: words_user_knowledge
+            constraintName: words_user_knowledge_pkey
+        - dropForeignKeyConstraint:
+            constraintName: words_user_knowledge_word_id_fk
+            baseTableSchemaName: vh
+            baseTableName: words_user_knowledge
+        - dropColumn:
+            schemaName: vh
+            tableName: words_user_knowledge
+            columnName: word_id
+        - addUniqueConstraint:
+            schemaName: vh
+            tableName: words_user_knowledge
+            constraintName: words_user_knowledge_pkey
+            columnNames: user_id, word
+      comment: Refactor word_id to word in words_user_knowledge table

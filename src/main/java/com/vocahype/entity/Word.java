@@ -68,9 +68,6 @@ public class Word implements Serializable {
     @OneToMany(mappedBy = "synonym", fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Synonym> synonyms;
 
-    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<UserWordComprehension> userWordComprehensions;
-
     @Override
     public String toString() {
         return id.toString();

@@ -19,8 +19,8 @@ public class WordTopic implements Serializable {
     @Column(name = "frequency")
     private Long frequency;
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("wordId")
-    @JoinColumn(name = "word_id")
+    @MapsId("word")
+    @JoinColumn(name = "word")
     private Word word;
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("topicId")
@@ -29,6 +29,6 @@ public class WordTopic implements Serializable {
 
     @Override
     public String toString() {
-        return word.getId().toString() + " - " + topic.getId().toString();
+        return wordTopicID.getWord() + " - " + topic.getId().toString();
     }
 }

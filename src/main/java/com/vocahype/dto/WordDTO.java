@@ -64,6 +64,6 @@ public class WordDTO {
 
     @Override
     public String toString() {
-        return id.toString();
+        return id != null ? id.toString() : word;
     }
 }

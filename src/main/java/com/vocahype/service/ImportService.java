@@ -1,8 +1,14 @@
 package com.vocahype.service;
 
+import com.vocahype.dto.request.hasCategories.HasCategories;
+import com.vocahype.dto.request.wordsapi.WordData;
+import com.vocahype.entity.Topic;
 import com.vocahype.entity.Word;
+import com.vocahype.entity.WordTopic;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.repository.TopicRepository;
 import com.vocahype.repository.WordRepository;
+import com.vocahype.repository.WordTopicRepository;
 import com.vocahype.util.Constants;
 import com.vocahype.util.GeneralUtils;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +16,13 @@ import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.WhitespaceTokenizer;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
@@ -37,6 +45,10 @@ public class ImportService {
     static WhitespaceTokenizer tokenizer;
     static POSTaggerME posTagger;
     static DictionaryLemmatizer lemmatizer;
+    private final TopicRepository topicRepository;
+    private final WebClient wordsApiWebClient;
+    private final WebClient wordsApiWebClientSearch;
+    private final WordTopicRepository wordTopicRepository;
 
     @PostConstruct
     public void init() {
@@ -163,5 +175,28 @@ public class ImportService {
                 return wordFrequencies.size();
             }
         });
+    }
+
+    @Transactional
+    public void importWordInTopicFromApi() {
+        List<Topic> all = topicRepository.findAll();
+        for (Topic topic : all) {
+            List<WordTopic> existTopic = wordTopicRepository.findAllByTopic_Id(topic.getId());
+            if (existTopic.size() >= 15) {
+                continue;
+            }
+            HasCategories categories = wordsApiWebClient.get().uri("/words/" + topic.getName() + "/hasCategories")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<HasCategories>() {
+                    }).block();
+            if (categories == null
+                    ||  categories.getSuccess() != null && !categories.getSuccess()) {
+                continue;
+            }
+            saveWords(categories.getHasCategories());
+            insertMultipleValues(categories.getHasCategories().stream().collect(Collectors.toMap(s -> s, s -> 1L))
+                    .entrySet(), topic.getId().intValue());
+        }
+
     }
 }

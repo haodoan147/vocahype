@@ -7,6 +7,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 
 @AllArgsConstructor
@@ -85,5 +86,18 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return id.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

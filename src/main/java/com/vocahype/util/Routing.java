@@ -5,8 +5,12 @@ public class Routing {
     public static final String API_BASE = "/api";
     public static final String PROFILE = API_BASE + "/profile";
     public static final String WORD = API_BASE + "/words";
+    public static final String WORD_STORY = API_BASE + "/story";
+    public static final String LIST_WORD_STORY = WORD_STORY + "/list-word";
     public static final String WORD_QUIZ = WORD + "/quiz";
+    public static final String WORD_QUIZ_MULTI = WORD_QUIZ + "/multi";
     public static final String WORD_ID = WORD + "/{wordId}";
+    public static final String WORD_BY_WORD = WORD + "/by/{word}";
     public static final String WORD_USER_KNOWLEDGE = API_BASE + "/word-user-knowledge";
     public static final String KNOWLEDGE_TEST_50 = WORD + "/knowledge-test";
     public static final String LEARNING_EASY = WORD_ID + "/easy";
@@ -27,6 +31,7 @@ public class Routing {
     public static final String TOPIC_ID = TOPICS + "/{topicId}";
     public static final String REPORT = API_BASE + "/report";
     public static final String IMPORT = API_BASE + "/import";
+    public static final String IMPORT_TOPIC = IMPORT + "/topic";
     public static final String USER = API_BASE + "/user";
     public static final String USER_ID = USER + "/{userId}";
 

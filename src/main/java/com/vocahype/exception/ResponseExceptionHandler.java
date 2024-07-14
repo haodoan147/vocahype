@@ -90,7 +90,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NoContentException.class)
     protected ResponseEntity<Object> handleNoContentException(final NoContentException ex) {
-        ApiError apiError = new ApiError(NO_CONTENT, ex.getMessage(), ex.getMessage());
+        ApiError apiError = new ApiError(NO_CONTENT, ex.getMessage(), ex.getDetail());
         return buildResponseEntity(apiError);
     }
 

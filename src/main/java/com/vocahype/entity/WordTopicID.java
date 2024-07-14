@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Embeddable
 public class WordTopicID implements Serializable {
     @Column(name = "word_id")
-    private Long wordId;
+    private String word;
     @Column(name = "topic_id")
     private Long topicId;
 }
