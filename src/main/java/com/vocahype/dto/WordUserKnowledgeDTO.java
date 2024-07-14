@@ -24,6 +24,6 @@ public class WordUserKnowledgeDTO {
 
     @Override
     public String toString() {
-        return id == null ? wordId.toString() : id.toString();
+        return id == null ? wordId != null ? wordId.toString() : word : id.toString();
     }
 }

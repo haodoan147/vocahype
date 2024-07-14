@@ -5,11 +5,7 @@ import com.vocahype.dto.WordUserKnowledgeDTO;
 import com.vocahype.service.WordUserKnowledgeService;
 import com.vocahype.util.Routing;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -30,12 +26,14 @@ public class WordUserKnowledgeController {
         return wordUserKnowledgeService.saveUserKnowledge(wordUserKnowledgeDTO);
     }
 
+    // Dedicated endpoint for the frontend to get the list of words for the user to learn
     @GetMapping(value = Routing.WORD_USER_KNOWLEDGE)
     public ResponseEntityJsonApi getListWordUserKnowledge() {
 //        return ResponseEntity.of(wordUserKnowledgeService.getListWordUserKnowledge());
         return new ResponseEntityJsonApi(wordUserKnowledgeService.getListWordUserKnowledge());
     }
 
+    // Dedicated endpoint for the frontend to get the list of words for the user to learn
     @PutMapping(Routing.WORD_USER_KNOWLEDGE)
     public void resetUserKnowledge() {
         wordUserKnowledgeService.resetUserKnowledge();

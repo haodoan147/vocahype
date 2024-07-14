@@ -22,11 +22,17 @@ public class UserWordComprehensionRepositoryCustomImpl extends BaseRepository im
 //                "WHERE uwc.word_comprehension_level IS NULL OR (uwc.word_comprehension_level != 11 AND uwc.word_comprehension_level != 12) " +
 //                "ORDER BY CASE WHEN uwc.next_learning <= CURRENT_DATE THEN 0 " +
 //                "WHEN uwc.next_learning IS NULL THEN 1 ELSE 2 END, uwc.next_learning, wt.frequency DESC, w.id";
-        String sql = "SELECT wt.word as word, MIN(f.frequency) AS frequency, count(*) over () AS count, uwc.next_learning as \"dueDate\", uwc.word_comprehension_levels_id as level, wt.topic_id IS NOT NULL AND u.topic_id IS NOT NULL AND wt.topic_id = u.topic_id \"isInTopic\" " +
+        String sql = "WITH MinTopic AS (\n" +
+                "    SELECT wt.word,\n" +
+                "           MIN(wt.topic_id) AS min_topic_id\n" +
+                "    FROM vh.word_topic wt\n" +
+                "    GROUP BY wt.word\n" +
+                ")SELECT wt.word as word, MIN(f.frequency) AS frequency, count(*) over () AS count, uwc.next_learning as \"dueDate\", uwc.word_comprehension_levels_id as level, wt.topic_id IS NOT NULL AND u.topic_id IS NOT NULL AND wt.topic_id = u.topic_id \"isInTopic\" " +
                 "FROM vh.word_topic wt " +
                 "         LEFT JOIN learning.user_word_comprehension uwc ON uwc.word = wt.word AND uwc.user_id = :userId " +
                 "         JOIN vh.users u ON u.id = :userId " +
-                "         LEFT JOIN vh.frequency f ON f.lemma = wt.word "+
+                "         LEFT JOIN vh.frequency f ON f.lemma = wt.word " +
+                "         JOIN MinTopic mt ON wt.word = mt.word AND wt.topic_id = mt.min_topic_id "+
                 "WHERE (uwc.word_comprehension_levels_id IS NULL OR " +
                 "       (uwc.word_comprehension_levels_id != 11 AND uwc.word_comprehension_levels_id != 12)) " +
                 "  AND (f.id IS NULL OR u.score IS NULL OR f.id > u.score) " +

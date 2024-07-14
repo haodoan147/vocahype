@@ -1,108 +1,89 @@
 package com.vocahype.service;
 
-import com.vocahype.configuration.ApplicationProperties;
+import com.vocahype.dto.FrequencyDTO;
 import com.vocahype.dto.WordUserKnowledgeDTO;
-import com.vocahype.dto.enumeration.Assessment;
-import com.vocahype.entity.*;
+import com.vocahype.dto.enumeration.Level;
+import com.vocahype.entity.User;
+import com.vocahype.entity.UserWordComprehension;
+import com.vocahype.entity.UserWordComprehensionID;
 import com.vocahype.exception.InvalidException;
-import com.vocahype.repository.UserRepository;
-import com.vocahype.repository.WordRepository;
-import com.vocahype.repository.WordUserKnowledgeRepository;
+import com.vocahype.repository.*;
 import com.vocahype.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import static com.vocahype.util.Constants.WORD_COUNT;
 
 @Service
 @RequiredArgsConstructor
 public class WordUserKnowledgeService {
 
     public static final int BIAS = 3;
-    public static final long WORD_DATA_COUNT = 3000;
+    public static final long WORD_DATA_COUNT = 1000;
     private final WordRepository wordRepository;
     private final WordUserKnowledgeRepository wordUserKnowledgeRepository;
-    private final ModelMapper modelMapper;
-    private final UserWordComprehensionService userWordComprehensionService;
     private final UserRepository userRepository;
-    private final ApplicationProperties applicationProperties;
+    private final UserWordComprehensionRepository userWordComprehensionRepository;
+    private final TopicRepository topicRepository;
 
     public List<WordUserKnowledgeDTO> get50WordForUserKnowledge() {
-        if (WORD_DATA_COUNT < 50) {
-            throw new InvalidException("Word data count is not enough", "wordDataCount: " + WORD_DATA_COUNT);
-        }
-        List<Long> randomIds = new ArrayList<>();
-        LongRange[] ranges = {
-                new LongRange(1L, WORD_DATA_COUNT / BIAS, 20),
-                new LongRange(WORD_DATA_COUNT / BIAS + 1 , WORD_DATA_COUNT / BIAS * 2, 15),
-                new LongRange(WORD_DATA_COUNT / BIAS * 2 + 1, WORD_DATA_COUNT, 15)
-        };
-        for (LongRange range : ranges) {
-            randomIds.addAll(getRandomNumbersInRange(range.getMinId(), range.getMaxId(), range.getNumRecords()));
-        }
-        return wordRepository.findAllById(randomIds).stream()
-                .map(word -> modelMapper.map(word, WordUserKnowledgeDTO.class))
-                .collect(Collectors.toList());
+        return topicRepository.getRandomWordInTopic(50);
     }
 
-    private static Set<Long> getRandomNumbersInRange(long min, long max, int count) {
-        if (count > (max - min + 1)) {
-            throw new IllegalArgumentException("Count must not exceed the range between min and max.");
+    public static int getTotalFrequency(List<FrequencyDTO> frequencyList) {
+        int totalFrequency = 0;
+        for (FrequencyDTO dto : frequencyList) {
+            if (dto.getFrequency() != null) {
+                totalFrequency += dto.getFrequency();
+            }
         }
-        Set<Long> randomNumbers = new HashSet<>();
-        while (randomNumbers.size() < count) {
-            randomNumbers.add(ThreadLocalRandom.current().nextLong(min, max + 1));
-        }
-        return randomNumbers;
+        return totalFrequency;
     }
 
     public Map<String, Object> saveUserKnowledge(final List<WordUserKnowledgeDTO> wordUserKnowledgeDTO) {
         String userId = SecurityUtil.getCurrentUserId();
-        Optional<User> userOptional = userRepository.findById(userId);
-        User user = userOptional.orElseGet(() -> userRepository.save(
-                User.builder().id(userId).loginName(SecurityUtil.getCurrentUserEmail())
-                        .firstName(SecurityUtil.getCurrentUserName()).lastName("").status(1L).loginCount(0L)
-                        .createdOn(Timestamp.valueOf(LocalDateTime.now())).role(Role.builder().id(1L).build()).build()));
-        Set<WordUserKnowledge> knownWords = new HashSet<>();
-        AtomicReference<Double> score = new AtomicReference<>((double) 0);
+        User user = userRepository.findById(userId).orElseThrow(() -> new InvalidException("User not found", "Not found any user with id: " + userId));
+        Set<UserWordComprehension> knownWords = new HashSet<>();
+        List<FrequencyDTO> frequencyByWordIn = topicRepository.getFrequencyByWordIn(wordUserKnowledgeDTO.stream().map(WordUserKnowledgeDTO::getWord).collect(Collectors.toList()));
+        AtomicReference<Integer> sumKnown = new AtomicReference<>(0);
         wordUserKnowledgeDTO.forEach(word -> {
-            Word word1 = wordRepository.findByWord(word.getWord()).orElseThrow(() -> new InvalidException("Word not found", "wordId: " + word.getWordId().toString()));
+            Optional<FrequencyDTO> wordOptional = frequencyByWordIn.stream().filter(word1 -> word1.getWord().equals(word.getWord())).findFirst();
+            if (wordOptional.isEmpty()) {
+                return;
+            }
             if (word.getStatus()) {
-                knownWords.add(new WordUserKnowledge(
-                        new WordUserKnowledgeID(word.getWord(), userId),
-                        true,
-                        user)
-                );
-                score.updateAndGet(v -> v + (1 - (1 - word1.getPoint())));
-                userWordComprehensionService.saveWordUserKnowledge(word.getWord(), Assessment.MASTERED);
+                sumKnown.updateAndGet(v -> v + wordOptional.get().getFrequency());
+                knownWords.add(UserWordComprehension.builder().userWordComprehensionID(UserWordComprehensionID.builder()
+                        .userId(userId).word(word.getWord()).build())
+                        .user(User.builder().id(userId).build()).wordComprehensionLevel(Level.LEVEL_11.getLevel()).build());
             } else {
-                score.updateAndGet(v -> v - (1 - word1.getPoint()));
-                userWordComprehensionService.saveWordUserKnowledge(word.getWord(), Assessment.HARD);
+                knownWords.add(UserWordComprehension.builder().userWordComprehensionID(UserWordComprehensionID.builder()
+                        .userId(userId).word(word.getWord()).build()).wordComprehensionLevel(Level.LEVEL_1.getLevel())
+                                .user(User.builder().id(userId).build())
+                        .nextLearning(Timestamp.valueOf(LocalDateTime.now()
+                                .plusDays(Level.LEVEL_1.getDay())
+                                .truncatedTo(ChronoUnit.DAYS))).build());
             }
         });
-        wordUserKnowledgeRepository.saveAll(knownWords);
-        double sum = score.get() <= 0 ? 0 : (score.get() / wordUserKnowledgeDTO.size() * WORD_DATA_COUNT);
-        int formatted = (int) sum;
-        user.setScore(formatted);
+        userWordComprehensionRepository.saveAll(knownWords);
+        double score = (double) sumKnown.get() / getTotalFrequency(frequencyByWordIn) * 1000;
+        user.setScore((int) score);
         userRepository.save(user);
-        return Map.of("message", "We estimate your knowledge is " + formatted
-                + " words. Congratulation on the good work!", "estimate", formatted);
+        return Map.of("message", "We estimate your knowledge is " + score
+                + " words. Congratulation on the good work!", "estimate", score);
     }
 
     @Transactional
     public void resetUserKnowledge() {
-        wordUserKnowledgeRepository.deleteAllByWordUserKnowledgeID_UserId(SecurityUtil.getCurrentUserId());
+        userWordComprehensionRepository.deleteAllByUserWordComprehensionID_UserId(SecurityUtil.getCurrentUserId());
     }
 
     public List<WordUserKnowledgeDTO> getListWordUserKnowledge() {
