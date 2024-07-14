@@ -23,4 +23,6 @@ public interface MeaningRepository extends JpaRepository<Meaning, Long> {
     @EntityGraph(value = "graph.meaning.pos")
     @Override
     Optional<Meaning> findById(Long aLong);
+
+
 }

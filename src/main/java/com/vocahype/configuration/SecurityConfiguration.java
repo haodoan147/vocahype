@@ -1,6 +1,7 @@
 package com.vocahype.configuration;
 
 import com.vocahype.dto.enumeration.RoleTitle;
+import com.vocahype.repository.RoleRepository;
 import com.vocahype.repository.UserRepository;
 import com.vocahype.security.BCryptPasswordEncoderCustom;
 import com.vocahype.security.FailAuthenticationEntryPoint;
@@ -42,6 +43,7 @@ import static com.vocahype.util.Routing.API_PUB;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
@@ -82,7 +84,7 @@ public class SecurityConfiguration {
 
     @Bean
     public FirebaseAuthenticationFilter firebaseAuthenticationFilter() {
-        return new FirebaseAuthenticationFilter(userRepository);
+        return new FirebaseAuthenticationFilter(userRepository, roleRepository);
     }
 
     @Bean

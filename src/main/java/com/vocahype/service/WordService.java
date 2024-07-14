@@ -6,34 +6,45 @@ import com.vocahype.dto.DefinitionDTO;
 import com.vocahype.dto.SynonymDTO;
 import com.vocahype.dto.WordDTO;
 import com.vocahype.dto.enumeration.WordStatus;
+import com.vocahype.dto.request.searchwordsapi.Result;
+import com.vocahype.dto.request.searchwordsapi.SearchWordData;
+import com.vocahype.dto.request.wordsapi.WordData;
+import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.Word;
 import com.vocahype.entity.Meaning;
 import com.vocahype.exception.InvalidException;
-import com.vocahype.repository.MeaningRepository;
-import com.vocahype.repository.PosRepository;
-import com.vocahype.repository.SynonymRepository;
-import com.vocahype.repository.WordRepository;
+import com.vocahype.repository.*;
 import com.vocahype.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class WordService {
 
     private final WordRepository wordRepository;
-    private final ModelMapper modelMapper;
+    private final WebClient wordsApiWebClient;
+    private final WebClient wordsApiWebClientSearch;
     private final SynonymRepository synonymRepository;
     private final ObjectMapper objectMapper;
     private final MeaningRepository meaningRepository;
     private final PosRepository posRepository;
+    private final UserWordComprehensionRepository userWordComprehensionRepository;
 
     public WordDTO getWordById(Long id) {
         WordDTO word = wordRepository.findWordDTOById(id, SecurityUtil.getCurrentUserId()).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with id: " + id));
@@ -48,20 +59,61 @@ public class WordService {
         return word;
     }
 
-    public Page<WordDTO> getWordsByWord(String word, boolean exact, final int page, final int size, final String status) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Result getWordsByWord(String word, boolean exact, final int page, final int size, final String status) {
         String userId = SecurityUtil.getCurrentUserId();
         if (status != null && !status.equalsIgnoreCase("TO_LEARN") && !status.isBlank()) {
+            Result result = new Result();
+            result.setPage(page);
+            result.setLimit(size);
+            Pageable pageable = PageRequest.of(page, size);
             try {
                 List<Integer> levelList = WordStatus.valueOf(status.toUpperCase()).getLevelList();
-                if (exact) return wordRepository.findByWordIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
-                return wordRepository.findByWordContainsIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
+                if (exact) {
+                    Page<UserWordComprehension> wordList = userWordComprehensionRepository
+                            .findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndUserWordComprehensionID_WordIgnoreCase(
+                                    userId, levelList, word, pageable);
+                    result.setData(wordList.stream().map(w -> w.getUserWordComprehensionID().getWord()).collect(Collectors.toList()));
+                    result.setTotal((int) wordList.getTotalElements());
+                    return result;
+                }
+                Page<UserWordComprehension> wordList = userWordComprehensionRepository
+                        .findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndUserWordComprehensionID_WordContainsIgnoreCase(
+                                userId, levelList, word, pageable);
+                result.setData(wordList.stream().map(w -> w.getUserWordComprehensionID().getWord()).collect(Collectors.toList()));
+                result.setTotal((int) wordList.getTotalElements());
+                return result;
             } catch (IllegalArgumentException e) {
                 throw new InvalidException("Invalid param", "Status must be one of: " + Arrays.toString(WordStatus.values()));
             }
         }
-        if (exact) return wordRepository.findByWordIgnoreCaseOrderById(word, userId, pageable);
-        return wordRepository.findByWordContainsIgnoreCaseOrderById(word, userId, pageable);
+        Mono<SearchWordData> wordDataMono = wordsApiWebClientSearch.get()
+                .uri(urlBuilder -> urlBuilder.path("/words")
+                        .queryParam("letterPattern", exact ? "^" + word + "$" : word)
+                        .queryParam("page", page + 1)
+                        .queryParam("limit", size)
+                        .build())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<SearchWordData>() {});
+        if (wordDataMono.block() == null) {
+            throw new InvalidException("Word not found", "Not found any word with word: " + word);
+        }
+        Result result = wordDataMono.block().getResults().get(0);
+        result.setPage(page);
+        result.setLimit(size);
+        return result;
+//        Pageable pageable = PageRequest.of(page, size);
+//        String userId = SecurityUtil.getCurrentUserId();
+//        if (status != null && !status.equalsIgnoreCase("TO_LEARN") && !status.isBlank()) {
+//            try {
+//                List<Integer> levelList = WordStatus.valueOf(status.toUpperCase()).getLevelList();
+//                if (exact) return wordRepository.findByWordIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
+//                return wordRepository.findByWordContainsIgnoreCaseAndUserWordComprehensionsOrderById(word, userId, levelList, pageable);
+//            } catch (IllegalArgumentException e) {
+//                throw new InvalidException("Invalid param", "Status must be one of: " + Arrays.toString(WordStatus.values()));
+//            }
+//        }
+//        if (exact) return wordRepository.findByWordIgnoreCaseOrderById(word, userId, pageable);
+//        return wordRepository.findByWordContainsIgnoreCaseOrderById(word, userId, pageable);
     }
 
     public long countWord(final String word, final boolean exact) {
@@ -70,7 +122,7 @@ public class WordService {
     }
 
     @Transactional
-    public WordDTO updateWord(final Long wordId, final JsonNode jsonNode) {
+    public WordDTO updateWord(final String wordId, final JsonNode jsonNode) {
         Word resourceWord = objectMapper.convertValue(jsonNode.get("data").get(0).get("attributes"), Word.class);
 
         Word targetWord;
@@ -81,7 +133,7 @@ public class WordService {
             });
             targetWord = Word.builder().word(resourceWord.getWord()).meanings(new HashSet<>()).build();
         } else {
-            targetWord = wordRepository.findById(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
+            targetWord = wordRepository.findByWord(wordId).orElseThrow(() -> new InvalidException("Word not found", "Not found any word with wordId: " + wordId));
         }
 
         if (resourceWord.getCount() != null && !resourceWord.getCount().equals(targetWord.getCount())) {
@@ -153,8 +205,52 @@ public class WordService {
         return new WordDTO(targetWord, true, true);
     }
 
-    public void deleteWord(final Long wordId) {
-        wordRepository.findById(wordId)
+    public void deleteWord(final String wordId) {
+        wordRepository.findByWord(wordId)
                 .ifPresent(wordRepository::delete);
+    }
+
+    public WordData getWordByWord(final String word) {
+        Mono<WordData> wordDataMono = getWordData(word);
+        WordData wordData = wordDataMono.block();
+        if (wordData == null) {
+            throw new InvalidException("Word not found", "Not found any word with word: " + word);
+        }
+        List<WordDTO> wordOnDB = wordRepository.findWordDTOByWord(word, SecurityUtil.getCurrentUserId());
+        if (!wordOnDB.isEmpty()) {
+            wordData.setComprehension(wordOnDB.get(0).getComprehension());
+        }
+
+        return wordData;
+//        List<WordDTO> wordDTOList = wordRepository.findWordDTOByWord(word, SecurityUtil.getCurrentUserId());
+//        if (wordDTOList.isEmpty()) {
+//            throw new InvalidException("Word not found", "Not found any word with word: " + word);
+//        }
+//        wordDTOList.forEach(wordDTO -> {
+//            if (wordDTO.getMeanings() != null) {
+//                wordDTO.getMeanings().forEach(meaningDTO -> {
+//                    Set<SynonymDTO> synonym = meaningDTO.getSynonyms();
+//                    synonym.addAll(synonymRepository.findWordSynonymDTOBySynonymID_SynonymIdAndIsSynonym(wordDTO.getId(), true));
+//                    synonym.addAll(synonymRepository.findWordSynonymDTOBySynonymID_SynonymIdAndIsSynonym(wordDTO.getId(), false));
+//                    meaningDTO.setSynonyms(synonym);
+//                });
+//            }
+//        });
+//        return wordDTOList;
+    }
+
+    public List<WordData> getWordDataInParallel(List<String> words) {
+        return Flux.fromIterable(words)// Execute each request in parallel
+                .flatMap(this::getWordData)
+                .toStream()
+                .collect(Collectors.toList()); // Block until all requests complete (for demonstration)
+    }
+
+    public Mono<WordData> getWordData(String word) {
+        return wordsApiWebClient.get()
+                .uri("/words/" + word)
+                .retrieve()
+                .onStatus(HttpStatus::isError, response -> Mono.empty())
+                .bodyToMono(new ParameterizedTypeReference<WordData>() {});
     }
 }

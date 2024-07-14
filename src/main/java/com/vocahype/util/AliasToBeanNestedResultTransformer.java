@@ -13,6 +13,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashMap;
@@ -128,6 +129,16 @@ public class AliasToBeanNestedResultTransformer extends AliasedTupleSubsetResult
                 value = ((BigDecimal) value).doubleValue();
             } else if (Integer.class.equals(clazz)) {
                 value = ((BigDecimal) value).intValue();
+            }
+        }
+
+        if (value instanceof BigInteger) {
+            if (Long.class.equals(clazz)) {
+                value = ((BigInteger) value).longValue();
+            } else if (Double.class.equals(clazz)) {
+                value = ((BigInteger) value).doubleValue();
+            } else if (Integer.class.equals(clazz)) {
+                value = ((BigInteger) value).intValue();
             }
         }
 

@@ -1,0 +1,101 @@
+databaseChangeLog:
+  - changeSet:
+      id: 10-05-01
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sqlCheck:
+                expectedResult: t
+                sql: SELECT EXISTS (
+                  SELECT column_name
+                  FROM information_schema.columns
+                  WHERE table_name = 'word_topic'
+                  AND table_schema = 'vh'
+                  AND column_name = 'word_id');
+        - addColumn:
+            tableName: frequency
+            schemaName: vh
+            columns:
+              - column:
+                  name: pos_tag
+                  type: text
+        - addForeignKeyConstraint:
+            baseColumnNames: pos_tag
+            baseTableName: frequency
+            baseTableSchemaName: vh
+            constraintName: frequency_pos_tag_fk
+            referencedColumnNames: pos_tag
+            referencedTableName: pos
+            referencedTableSchemaName: vh
+        - sql:
+            endDelimiter: //
+            splitStatements: true
+            sql: |
+              UPDATE vh.frequency ft
+              SET pos_tag = CASE ft.pos
+              WHEN 'abbr' THEN 'UNKNOWN'
+              WHEN 'm' THEN 'DT'
+              WHEN 'u' THEN 'QT'
+              WHEN 'v' THEN 'CD'
+              WHEN 'fw' THEN 'NN'
+              WHEN 'K' THEN 'NNS'
+              WHEN 'j' THEN 'NNP'
+              WHEN 'n' THEN 'NNPS'
+              WHEN 'r' THEN 'EX'
+              -- Add other mappings as necessary
+              ELSE 'UNKNOWN'
+              END;
+        - dropColumn:
+            schemaName: vh
+            tableName: frequency
+            columnName: pos
+      comment: Add pos_tag column to frequency table
+
+  - changeSet:
+      id: 10-05-02
+      author: hao.doanvonhut
+      changes:
+        - preConditions:
+            - onFail: MARK_RAN
+            - sqlCheck:
+                expectedResult: t
+                sql: SELECT EXISTS (
+                  SELECT column_name
+                  FROM information_schema.columns
+                  WHERE table_name = 'word_topic'
+                  AND table_schema = 'vh'
+                  AND column_name = 'word_id');
+        - addColumn:
+            tableName: word_topic
+            schemaName: vh
+            columns:
+              - column:
+                  name: word
+                  type: text
+        - update:
+            schemaName: vh
+            tableName: word_topic
+            columns:
+              - column:
+                  name: word
+                  valueComputed: '(SELECT word FROM vh.words WHERE words.id = word_id)'
+        - dropUniqueConstraint:
+            schemaName: vh
+            tableName: word_topic
+            constraintName: word_topic_pkey
+        - dropForeignKeyConstraint:
+            constraintName: word_topic_word_id_fk
+            baseTableSchemaName: vh
+            baseTableName: word_topic
+        - dropColumn:
+            schemaName: vh
+            tableName: word_topic
+            columnName: word_id
+        - addUniqueConstraint:
+            schemaName: vh
+            tableName: word_topic
+            constraintName: word_topic_pkey
+            columnNames: topic_id, word
+      comment: Refactor word_id to word in word_topic table
+

@@ -1,12 +1,12 @@
 package com.vocahype.exception;
 
+import lombok.Getter;
 
-
+@Getter
 public class NoContentException extends RuntimeException {
-    public NoContentException(final String message) {
+    private String detail;
+    public NoContentException(final String message, final String detail) {
         super(message);
-    }
-    public NoContentException(final String message, final Throwable cause) {
-        super(message, cause);
+        this.detail = detail;
     }
 }

@@ -1,8 +1,14 @@
 package com.vocahype.service;
 
+import com.vocahype.dto.request.hasCategories.HasCategories;
+import com.vocahype.dto.request.wordsapi.WordData;
+import com.vocahype.entity.Topic;
 import com.vocahype.entity.Word;
+import com.vocahype.entity.WordTopic;
 import com.vocahype.exception.InvalidException;
+import com.vocahype.repository.TopicRepository;
 import com.vocahype.repository.WordRepository;
+import com.vocahype.repository.WordTopicRepository;
 import com.vocahype.util.Constants;
 import com.vocahype.util.GeneralUtils;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +16,13 @@ import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.WhitespaceTokenizer;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
@@ -31,11 +39,16 @@ import java.util.stream.Collectors;
 public class ImportService {
 
     public static final String WORD_REGEX = "^(?!.*'s$)[a-zA-Z']+$";
+    public static final int WORD_THRESHOLD = 300;
     private final JdbcTemplate jdbcTemplate;
     private final WordRepository wordRepository;
     static WhitespaceTokenizer tokenizer;
     static POSTaggerME posTagger;
     static DictionaryLemmatizer lemmatizer;
+    private final TopicRepository topicRepository;
+    private final WebClient wordsApiWebClient;
+    private final WebClient wordsApiWebClientSearch;
+    private final WordTopicRepository wordTopicRepository;
 
     @PostConstruct
     public void init() {
@@ -144,7 +157,7 @@ public class ImportService {
     public void insertMultipleValues(final Set<Map.Entry<String, Long>> wordFrequencies, Integer topicId) {
         String sql = "INSERT INTO vh.word_topic AS wt (word_id, topic_id, frequency) "
                 + "SELECT w.id, ?, ? FROM vh.words w "
-                + "            where w.word = ? "
+                + "            where w.word = ? and w.id > ? "
                 + "ON CONFLICT (word_id, topic_id) DO UPDATE SET frequency = wt.frequency + ?;";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -153,7 +166,8 @@ public class ImportService {
                 ps.setInt(1, topicId);
                 ps.setLong(2, wordFrequency.getValue());
                 ps.setString(3, wordFrequency.getKey());
-                ps.setLong(4, wordFrequency.getValue());
+                ps.setInt(4, WORD_THRESHOLD);
+                ps.setLong(5, wordFrequency.getValue());
             }
 
             @Override
@@ -161,5 +175,28 @@ public class ImportService {
                 return wordFrequencies.size();
             }
         });
+    }
+
+    @Transactional
+    public void importWordInTopicFromApi() {
+        List<Topic> all = topicRepository.findAll();
+        for (Topic topic : all) {
+            List<WordTopic> existTopic = wordTopicRepository.findAllByTopic_Id(topic.getId());
+            if (existTopic.size() >= 15) {
+                continue;
+            }
+            HasCategories categories = wordsApiWebClient.get().uri("/words/" + topic.getName() + "/hasCategories")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<HasCategories>() {
+                    }).block();
+            if (categories == null
+                    ||  categories.getSuccess() != null && !categories.getSuccess()) {
+                continue;
+            }
+            saveWords(categories.getHasCategories());
+            insertMultipleValues(categories.getHasCategories().stream().collect(Collectors.toMap(s -> s, s -> 1L))
+                    .entrySet(), topic.getId().intValue());
+        }
+
     }
 }

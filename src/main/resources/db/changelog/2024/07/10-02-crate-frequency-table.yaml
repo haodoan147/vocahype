@@ -1,0 +1,37 @@
+databaseChangeLog:
+    - changeSet:
+        id: 07-10-02
+        author: hao.doanvonhut
+        changes:
+            - preConditions:
+                  - onFail: MARK_RAN
+                  - not:
+                      - tableExists:
+                          tableName: frequency
+                          schemaName: vh
+            - createSequence:
+                sequenceName: vh.seq_id_frequency
+                schemaName: vh
+                startValue: 1
+                incrementBy: 1
+                cacheSize: 1
+            - createTable:
+                schemaName: vh
+                tableName: frequency
+                columns:
+                    - column:
+                        name: id
+                        type: bigint
+                        defaultValueSequenceNext: vh.seq_id_frequency
+                        constraints:
+                            primaryKey: true
+                    - column:
+                        name: lemma
+                        type: text
+                    - column:
+                        name: pos
+                        type: text
+                    - column:
+                        name: frequency
+                        type: integer
+        comment: Create table vh.frequency

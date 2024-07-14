@@ -33,6 +33,6 @@ public class SynonymDTO {
 
     @Override
     public String toString() {
-        return id.toString();
+        return id != null ? id.toString() : synonym;
     }
 }

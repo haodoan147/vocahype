@@ -21,4 +21,8 @@ public class ImportController {
         importService.importWordInTopic(file, topicId);
     }
 
+    @PostMapping(Routing.IMPORT_TOPIC)
+    void getUserProfile() {
+        importService.importWordInTopicFromApi();
+    }
 }

@@ -1,20 +1,8 @@
 package com.vocahype.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -25,6 +13,9 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@NamedEntityGraph(name = "graph.user_word_comprehension.user",
+        attributeNodes = @NamedAttributeNode("user")
+)
 public class UserWordComprehension implements Serializable {
 
     @EmbeddedId
@@ -36,10 +27,8 @@ public class UserWordComprehension implements Serializable {
     @Column(name = "next_learning")
     private Timestamp nextLearning;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("wordId")
-    @JoinColumn(name = "word_id")
-    private Word word;
+    @Column(name = "update_at")
+    private Timestamp updateAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
@@ -48,6 +37,6 @@ public class UserWordComprehension implements Serializable {
 
     @Override
     public String toString() {
-        return word.getId().toString();
+        return getUserWordComprehensionID().getWord();
     }
 }

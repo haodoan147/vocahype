@@ -30,10 +30,6 @@ public class WordUserKnowledge implements Serializable {
     @Column(name = "status")
     private Boolean status;
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("wordId")
-    @JoinColumn(name = "word_id")
-    private Word word;
-    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;

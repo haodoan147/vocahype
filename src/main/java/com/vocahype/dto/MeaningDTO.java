@@ -82,6 +82,6 @@ public class MeaningDTO {
 
     @Override
     public String toString() {
-        return id.toString();
+        return id != null ? id.toString() : definitions.get(0).getDefinition();
     }
 }

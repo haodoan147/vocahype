@@ -1,11 +1,13 @@
 package com.vocahype.configuration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import io.netty.resolver.DefaultAddressResolverGroup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -24,6 +26,7 @@ import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
 import java.time.Duration;
+import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -47,6 +50,43 @@ public class WebClientConfiguration {
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, "*/*");
+    }
+
+    @Bean
+    public WebClient openAI() {
+        String apiKey = properties.getOpenAiApiKey();
+        return webClientBuilder()
+                .baseUrl("https://api.openai.com/v1/chat/completions")
+                .defaultHeader("Authorization", "Bearer " + apiKey)
+                .defaultHeader("Content-Type", "application/json").build();
+    }
+
+
+    @Bean
+    public WebClient wordsApiWebClientSearch() {
+        ObjectMapper newMapper = this.mapper
+                .copy()
+                .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
+                .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder()
+                .codecs(configurer -> configurer.defaultCodecs().jackson2JsonDecoder(new Jackson2JsonDecoder(newMapper)))
+                .build();
+        return webClientBuilder()
+                .exchangeStrategies(exchangeStrategies)
+                .baseUrl("https://wordsapiv1.p.rapidapi.com")
+                .defaultHeader("x-rapidapi-key", "c37116d0cfmsh1716d6a5a4539e9p16586bjsn5af79f47d5fd")
+                .defaultHeader("x-rapidapi-host", "wordsapiv1.p.rapidapi.com")
+                .build();
+    }
+
+    @Bean
+    public WebClient wordsApiWebClient() {
+        return webClientBuilder()
+                .baseUrl("https://wordsapiv1.p.rapidapi.com")
+                .defaultHeader("x-rapidapi-key", "c37116d0cfmsh1716d6a5a4539e9p16586bjsn5af79f47d5fd")
+                .defaultHeader("x-rapidapi-host", "wordsapiv1.p.rapidapi.com")
+                .build();
     }
 
     @Bean

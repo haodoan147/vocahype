@@ -1,10 +1,2 @@
-#Config database
-spring:
-  datasource:
-    password: cc324423fd08271a09dc68548ad334c02bd49538067a93e96471afc1c2d10bac
-    url: jdbc:postgresql://ec2-54-167-29-148.compute-1.amazonaws.com:5432/df69ueh93gmkqv?stringtype=unspecified
-    username: jnvrxocvrrjjsy
-
-
 application:
   data-word: 1000

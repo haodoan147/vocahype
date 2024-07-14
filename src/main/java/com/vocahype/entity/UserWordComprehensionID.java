@@ -18,8 +18,8 @@ import java.io.Serializable;
 @Setter
 @Embeddable
 public class UserWordComprehensionID implements Serializable {
-    @Column(name = "word_id")
-    private Long wordId;
+    @Column(name = "word")
+    private String word;
     @Column(name = "user_id")
     private String userId;
 }
