@@ -3,10 +3,7 @@ package com.vocahype.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vocahype.dto.FrequencyDTO;
-import com.vocahype.dto.SingleSelectQuiz;
 import com.vocahype.dto.enumeration.Level;
-import com.vocahype.dto.enumeration.LevelOfQuiz;
-import com.vocahype.dto.enumeration.TypeOfQuiz;
 import com.vocahype.dto.quiz.DefinitionSelectAnswer;
 import com.vocahype.dto.quiz.QuizDTO;
 import com.vocahype.dto.quiz.QuizType;
@@ -17,14 +14,12 @@ import com.vocahype.exception.NoContentException;
 import com.vocahype.repository.UserWordComprehensionRepository;
 import com.vocahype.util.GeneralUtils;
 import com.vocahype.util.SecurityUtil;
-import lombok.SneakyThrows;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -32,8 +27,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import static org.hibernate.type.StandardBasicTypes.TRUE_FALSE;
 
 @Service
 public class AIService {
@@ -58,7 +51,7 @@ public class AIService {
 //        } catch (IllegalArgumentException e) {
 //            throw new InvalidException("Invalid level of quiz", "Invalid level: " + level);
 //        }
-        QuizType quizType = QuizType.getRandomType();
+        QuizType quizType = QuizType.getRandomTypeSingle();
         try {
             switch (quizType) {
                 case DEFINITION_SINGLE_SELECT:
@@ -69,8 +62,6 @@ public class AIService {
                     return getTrueFalse(word);
                 case RELATED_WORD_SELECT:
                     return getRelatedWordSelect(word);
-                case ANTONYM_SYNONYM_MATCH:
-                    return getAntonymSynonymMatch(word);
                 default:
                     throw new InvalidException("Invalid quiz type", "Invalid quiz type: " + quizType);
             }
@@ -79,28 +70,28 @@ public class AIService {
         }
     }
 
-//    private QuizDTO getWordGuess(String word) {
-//        WordData wordData = wordService.getWordData(word).block();
-//        if (wordData == null) {
-//            return getQuizGen(word);
-//        }
-//        List<Result> result = GeneralUtils.shuffleList(wordData.getResults(), 1);
-//        if (result == null || result.isEmpty()) {
-//            return getQuizGen(word);
-//        }
-//        Result quizResult = result.get(0);
-//        String description = "The word is a " + quizResult.getPartOfSpeech() + ". "
-//                + "It has " + wordData.getSyllables().getCount() + " syllables. "
-//                + (quizResult.getSynonyms() == null ? "" : "The synonym of the word is " + GeneralUtils.listToSense(quizResult.getSynonyms()) + ". ")
-//                + (quizResult.getAntonyms() == null ? "" : "The antonym of the word is " + GeneralUtils.listToSense(quizResult.getAntonyms()) + ". ")
-//                + (quizResult.getSimilarTo() == null ? "" : "The word is similar to " + GeneralUtils.listToSense(quizResult.getSimilarTo()) + ". ");
-//        return QuizDTO.builder()
-//                .type(QuizType.WORD_GUESS.getTitle())
-//                .question("Guess the original word using the following information.")
-//                .word(word)
-//                .description(description)
-//                .build();
-//    }
+    private QuizDTO getWordGuess(String word) {
+        WordData wordData = wordService.getWordData(word).block();
+        if (wordData == null) {
+            return getQuizGen(word);
+        }
+        List<Result> result = GeneralUtils.shuffleList(wordData.getResults(), 1);
+        if (result == null || result.isEmpty()) {
+            return getQuizGen(word);
+        }
+        Result quizResult = result.get(0);
+        String description = "The word is a " + quizResult.getPartOfSpeech() + ". "
+                + "It has " + wordData.getSyllables().getCount() + " syllables. "
+                + (quizResult.getSynonyms() == null ? "" : "The synonym of the word is " + GeneralUtils.listToSense(quizResult.getSynonyms()) + ". ")
+                + (quizResult.getAntonyms() == null ? "" : "The antonym of the word is " + GeneralUtils.listToSense(quizResult.getAntonyms()) + ". ")
+                + (quizResult.getSimilarTo() == null ? "" : "The word is similar to " + GeneralUtils.listToSense(quizResult.getSimilarTo()) + ". ");
+        return QuizDTO.builder()
+                .type(QuizType.WORD_GUESS.getTitle())
+                .question("Guess the original word using the following information.")
+                .word(word)
+                .description(description)
+                .build();
+    }
 
     private QuizDTO getAntonymSynonymMatch(String word) {
         WordData list = wordService.getWordData(word).block();
@@ -180,8 +171,13 @@ public class AIService {
     }
 
     private QuizDTO getTrueFalse(String word) throws JsonProcessingException {
-        String userMessageContent = "{\"word\":\"" + word + "\"}";
-        String systemMessageContent = "You are a helpful assistant that smartly generates a yes or no quiz based on English words details. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"answer\":\"<answer of question (true or false)>\"}. The question should be a clear right or wrong question, it should not be a question with an answer that causes confusion. Example: {\"question\":\"The quality of being capable is called capability.\",\"answer\":\"true\"} for {\"word\":\"capability\"}";
+        WordData wordData = wordService.getWordData(word).block();
+        if (wordData == null) {
+            return getQuizGen(word);
+        }
+        wordData.setFrequency(null);
+        String userMessageContent = "{\"word\":\"" + wordData.toString() + "\"}";
+        String systemMessageContent = "You are a helpful assistant that smartly generates a yes or no quiz based on English words details. Provide your answer in JSON structure like this {\"question\":\"<Auto generate the question title of the quiz>\",\"answer\":\"<answer of question (true or false)>\"}. The question should be a clear right or wrong question, it should not be a question with an answer that causes confusion, and do not ask uncommon word's definition and do not ask about word's example. Example: {\"question\":\"The quality of being capable is called capability.\",\"answer\":\"true\"} for {\"word\":\"capability\"}";
         Map generate = generate(userMessageContent, systemMessageContent);
         return QuizDTO.builder()
                 .type(QuizType.TRUE_FALSE.getTitle())
@@ -228,15 +224,15 @@ public class AIService {
                 .build();
     }
 
-//    private QuizDTO getWordScramble(String word) {
-//        String scrambledWord = scrambleWord(word);
-//        return QuizDTO.builder()
-//                .type(QuizType.WORD_SCRAMBLE.getTitle())
-//                .question("Re-arrange the letters to form a word.")
-//                .word(word)
-//                .result(scrambledWord)
-//                .build();
-//    }
+    private QuizDTO getWordScramble(String word) {
+        String scrambledWord = scrambleWord(word);
+        return QuizDTO.builder()
+                .type(QuizType.WORD_SCRAMBLE.getTitle())
+                .question("Re-arrange the letters to form a word.")
+                .word(word)
+                .result(scrambledWord)
+                .build();
+    }
 
     private String scrambleWord(String word) {
         List<Character> characters = Arrays.asList(word.chars().mapToObj(c -> (char) c).toArray(Character[]::new));
@@ -257,7 +253,7 @@ public class AIService {
     }
 
     public Set<String> getListWordStory(final long days) {
-        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotIn(
+        Set<String> word = userWordComprehensionRepository.findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotInOrderByUpdateAtDesc(
                         SecurityUtil.getCurrentUserId(),
                         Timestamp.valueOf(LocalDateTime.now().minusDays(days).truncatedTo(ChronoUnit.DAYS)),
                         List.of(Level.LEVEL_11.getLevel(), Level.LEVEL_12.getLevel())).stream()
@@ -304,5 +300,54 @@ public class AIService {
 
         return response.substring(start, end);
 
+    }
+
+    public QuizDTO getQuizGens(final String word) {
+//        try {
+//            LevelOfQuiz.valueOf(level.toUpperCase());
+//        } catch (IllegalArgumentException e) {
+//            throw new InvalidException("Invalid level of quiz", "Invalid level: " + level);
+//        }
+        QuizType quizType = QuizType.getRandomTypeMulti();
+        try {
+            switch (quizType) {
+                case WORD_SCRAMBLE:
+                    return getWordScramble(word);
+                case DEFINITION_SINGLE_SELECT:
+                    return getDefinitionSingleSelect(word);
+                case DEFINITION_MULTIPLE_SELECT:
+                    return getDefinitionMultipleSelect(word);
+                case TRUE_FALSE:
+                    return getTrueFalse(word);
+                case RELATED_WORD_SELECT:
+                    return getRelatedWordSelect(word);
+                case WORD_GUESS:
+                    return getWordGuess(word);
+                default:
+                    throw new InvalidException("Invalid quiz type", "Invalid quiz type: " + quizType);
+            }
+        } catch (JsonProcessingException | ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<QuizDTO> getQuizGens(Integer days) {
+        List<String> word = new ArrayList<>(getListWordStory(days));
+        if (word.size() < 10) {
+            Random random = new Random();
+            while (word.size() < 10) {
+                String randomElement = word.get(random.nextInt(word.size()));
+                word.add(randomElement);
+            }
+        }
+        return word.parallelStream()
+                .map(w -> {
+                    try {
+                        return getQuizGens(w);
+                    } catch (NullPointerException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull).collect(Collectors.toList());
     }
 }

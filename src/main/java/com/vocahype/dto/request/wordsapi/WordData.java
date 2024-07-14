@@ -5,16 +5,18 @@ import com.vocahype.dto.ComprehensionDTO;
 import com.vocahype.dto.WordDTO;
 import lombok.Data;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 
 @Data
+@ToString
 public class WordData {
     private String word;
     private List<Result> results;
     private Syllables syllables;
     private Pronunciation pronunciation;
-    private double frequency;
+    private Double frequency;
     private ComprehensionDTO comprehension;
 
     public WordDTO toWordDTO() {

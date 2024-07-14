@@ -8,6 +8,7 @@ public class Routing {
     public static final String WORD_STORY = API_BASE + "/story";
     public static final String LIST_WORD_STORY = WORD_STORY + "/list-word";
     public static final String WORD_QUIZ = WORD + "/quiz";
+    public static final String WORD_QUIZ_MULTI = WORD_QUIZ + "/multi";
     public static final String WORD_ID = WORD + "/{wordId}";
     public static final String WORD_BY_WORD = WORD + "/by/{word}";
     public static final String WORD_USER_KNOWLEDGE = API_BASE + "/word-user-knowledge";

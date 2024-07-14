@@ -1,12 +1,10 @@
 package com.vocahype.repository;
 
-import com.vocahype.dto.WordDTO;
 import com.vocahype.entity.UserWordComprehension;
 import com.vocahype.entity.UserWordComprehensionID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -68,7 +66,7 @@ public interface UserWordComprehensionRepository extends JpaRepository<UserWordC
     long countByUserWordComprehensionID_UserIdAndWordComprehensionLevelIn(String userWordComprehensionID_userId,
                                                                           Collection<Integer> wordComprehensionLevel);
 
-    List<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotIn(String userId, Timestamp start, Collection<Integer> wordComprehensionLevel);
+    List<UserWordComprehension> findByUserWordComprehensionID_UserIdAndUpdateAtAfterAndWordComprehensionLevelNotInOrderByUpdateAtDesc(String userId, Timestamp start, Collection<Integer> wordComprehensionLevel);
 
     Page<UserWordComprehension> findByUserWordComprehensionID_UserIdAndWordComprehensionLevelInAndUserWordComprehensionID_WordIgnoreCase(String userId, Collection<Integer> wordComprehensionLevel, String word, Pageable pageable);
 
